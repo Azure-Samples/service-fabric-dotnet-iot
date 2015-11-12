@@ -1,0 +1,50 @@
+﻿{
+  "name": "ServiceFabricIoTDS",
+  "tables": [
+    {
+      "name": "ServiceFabricIOTTable",
+      "columns": [
+		  {
+          "name": "EventHubName",
+          "dataType": "string"
+        },
+        {
+          "name": "ServiceBusNS",
+          "dataType": "string"
+        },
+        {
+          "name": "DeviceId",
+          "dataType": "string"
+        },
+        {
+          "name": "FloorId",
+          "dataType": "string"
+        },
+        {
+          "name": "BuildingId",
+          "dataType": "string"
+        },
+        {
+          "name": "TempF",
+          "dataType": "Double"
+        },
+		{
+          "name": "Humidity",
+          "dataType": "Double"
+        },
+        {
+          "name": "Motion",
+          "dataType": "Double"
+        },
+        {
+          "name": "light",
+          "dataType": "Double"
+        },
+		{
+          "name": "EventDate",
+          "dataType": "DAtetime"
+        }
+      ]
+    }
+  ]
+}

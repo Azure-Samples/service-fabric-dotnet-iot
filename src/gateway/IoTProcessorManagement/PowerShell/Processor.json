@@ -1,0 +1,12 @@
+﻿{
+  "Name": "",
+  "Hubs": [
+    {
+        "ConnectionString" :"",
+        "EventHubName" : "",
+        "ConsumerGroupName" : ""
+    }
+
+  ] 
+
+}
