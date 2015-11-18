@@ -39,6 +39,7 @@ You can modify the number of Event Hub Processor service partitions by modifying
 
 ## Deployment ##
 The following are the steps to manually deploy the solution (using VS.NET):
+
 1. Right click on *IoTApplication* application and click Publish.
 2. Right click on *IoTEventHubProcessorApp* application and click Publish.
 3. Right Click on *IoTProcessorManagementApp* application and click Publish.
