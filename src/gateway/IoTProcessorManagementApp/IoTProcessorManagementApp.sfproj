@@ -9,7 +9,6 @@
     <None Include="ApplicationManifest.xml" />
     <None Include="ApplicationParameters\Cloud.xml" />
     <None Include="ApplicationParameters\Local.xml" />
-    <None Include="Models\WorkerOperation.cs" />
     <None Include="PublishProfiles\Local.xml" />
     <None Include="Scripts\Deploy-FabricApplication.ps1" />
   </ItemGroup>

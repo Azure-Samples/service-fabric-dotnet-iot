@@ -16,32 +16,25 @@ namespace StorageActor
     [ActorGarbageCollection(IdleTimeoutInSeconds = 60, ScanIntervalInSeconds = 10)]
     public class StorageActor : StatefulActor<StorageActorState>, IIoTActor
     {
-        private static int s_MaxEntriesPerRound = 100;
-        private static string s_PowerBIActorServiceName = "fabric:/IoTApplication/PowerBIActor";
-        private static string s_PowerBIActorId = "{0}-{1}-{2}";
-        private IActorTimer m_DequeueTimer = null;
-        private string m_TableName = string.Empty;
-        private string m_ConnectionString = string.Empty;
-        private IIoTActor m_PowerBIActor = null;
+        private const int MaxEntriesPerRound = 100;
+        private const string PowerBIActorServiceName = "fabric:/IoTApplication/PowerBIActor";
+        private const string PowerBIActorId = "{0}-{1}-{2}";
+        private IActorTimer dequeueTimer = null;
+        private string tableName = string.Empty;
+        private string connectionString = string.Empty;
+        private IIoTActor powerBIActor = null;
 
-        public async Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        public Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
-            Task TaskForward = this.ForwardToPowerBIActor(DeviceId, EventHubName, ServiceBusNS, Body);
+            IoTActorWorkItem workItem = new IoTActorWorkItem();
+            workItem.DeviceId = DeviceId;
+            workItem.EventHubName = EventHubName;
+            workItem.ServiceBusNS = ServiceBusNS;
+            workItem.Body = Body;
 
-            Task taskAdd = Task.Run(
-                () =>
-                {
-                    IoTActorWorkItem Wi = new IoTActorWorkItem();
-                    Wi.DeviceId = DeviceId;
-                    Wi.EventHubName = EventHubName;
-                    Wi.ServiceBusNS = ServiceBusNS;
-                    Wi.Body = Body;
-
-                    this.State.Queue.Enqueue(Wi);
-                }
-                );
-
-            await Task.WhenAll(TaskForward, taskAdd);
+            this.State.Queue.Enqueue(workItem);
+                
+            return this.ForwardToPowerBIActor(DeviceId, EventHubName, ServiceBusNS, Body);
         }
 
         protected override Task OnActivateAsync()
@@ -58,7 +51,7 @@ namespace StorageActor
 
             // register a call back timer, that perfoms the actual send to PowerBI
             // has to iterate in less than IdleTimeout 
-            this.m_DequeueTimer = this.RegisterTimer(
+            this.dequeueTimer = this.RegisterTimer(
                 this.SaveToStorage,
                 false,
                 TimeSpan.FromMilliseconds(10),
@@ -69,33 +62,29 @@ namespace StorageActor
 
         protected override async Task OnDeactivateAsync()
         {
-            this.UnregisterTimer(this.m_DequeueTimer); // remove the actor timer
+            this.UnregisterTimer(this.dequeueTimer); // remove the actor timer
             await this.SaveToStorage(true); // make sure that no remaining pending records 
             await base.OnDeactivateAsync();
         }
-
-        #region Save Logic
-
+        
         private async Task SaveToStorage(object IsFinal)
         {
             if (0 == this.State.Queue.Count)
             {
                 return;
             }
-
-
+            
             bool bFinal = (bool) IsFinal; // as in actor instance is about to get deactivated. 
             int nCurrent = 0;
-
-
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.m_ConnectionString);
+            
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.connectionString);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-            CloudTable table = tableClient.GetTableReference(this.m_TableName);
+            CloudTable table = tableClient.GetTableReference(this.tableName);
             table.CreateIfNotExists();
 
             TableBatchOperation batchOperation = new TableBatchOperation();
 
-            while ((nCurrent <= s_MaxEntriesPerRound || bFinal) && (0 != this.State.Queue.Count))
+            while ((nCurrent <= MaxEntriesPerRound || bFinal) && (0 != this.State.Queue.Count))
             {
                 batchOperation.InsertOrReplace(this.State.Queue.Dequeue().ToDynamicTableEntity());
                 nCurrent++;
@@ -103,31 +92,23 @@ namespace StorageActor
 
             await table.ExecuteBatchAsync(batchOperation);
         }
-
-        #endregion
-
-        #region Send To PowerBI Actor
-
+        
         private IIoTActor CreatePowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS)
         {
-            ActorId actorId = new ActorId(string.Format(s_PowerBIActorId, DeviceId, EventHubName, ServiceBusNS));
-            return ActorProxy.Create<IIoTActor>(actorId, new Uri(s_PowerBIActorServiceName));
+            ActorId actorId = new ActorId(string.Format(PowerBIActorId, DeviceId, EventHubName, ServiceBusNS));
+            return ActorProxy.Create<IIoTActor>(actorId, new Uri(PowerBIActorServiceName));
         }
 
         private async Task ForwardToPowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
-            if (null == this.m_PowerBIActor)
+            if (null == this.powerBIActor)
             {
-                this.m_PowerBIActor = this.CreatePowerBIActor(DeviceId, EventHubName, ServiceBusNS);
+                this.powerBIActor = this.CreatePowerBIActor(DeviceId, EventHubName, ServiceBusNS);
             }
 
-            await this.m_PowerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
+            await this.powerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
-
-        #endregion
-
-        #region Config Management
-
+        
         private void ConfigChanged(object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {
             this.SetConfig();
@@ -139,10 +120,8 @@ namespace StorageActor
                 this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
             ConfigurationSection configSection = settingsFile.Sections["Storage"];
 
-            this.m_TableName = configSection.Parameters["TableName"].Value;
-            this.m_ConnectionString = configSection.Parameters["ConnectionString"].Value;
+            this.tableName = configSection.Parameters["TableName"].Value;
+            this.connectionString = configSection.Parameters["ConnectionString"].Value;
         }
-
-        #endregion
     }
 }

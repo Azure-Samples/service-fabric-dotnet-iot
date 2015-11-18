@@ -12,6 +12,12 @@ namespace StorageActor
     [DataContract]
     public class StorageActorState
     {
-        [DataMember] public Queue<IoTActorWorkItem> Queue = new Queue<IoTActorWorkItem>();
+        public StorageActorState()
+        {
+            this.Queue = new Queue<IoTActorWorkItem>();
+        }
+
+        [DataMember]
+        public Queue<IoTActorWorkItem> Queue { get; set; } 
     }
 }

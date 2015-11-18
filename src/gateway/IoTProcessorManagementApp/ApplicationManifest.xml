@@ -11,7 +11,7 @@
    </ServiceManifestImport>
    <DefaultServices>
       <Service Name="ProcessorManagementService">
-         <StatefulService ServiceTypeName="ProcessorManagementService" TargetReplicaSetSize="[ManagementSvc_TargetReplicaSetSize]" MinReplicaSetSize="[ManagementSvc_MinReplicaSetSize]">
+         <StatefulService ServiceTypeName="ProcessorManagementServiceType" TargetReplicaSetSize="[ManagementSvc_TargetReplicaSetSize]" MinReplicaSetSize="[ManagementSvc_MinReplicaSetSize]">
             <SingletonPartition />
          </StatefulService>
       </Service>

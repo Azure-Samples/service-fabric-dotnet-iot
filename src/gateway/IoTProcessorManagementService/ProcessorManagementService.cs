@@ -33,10 +33,15 @@ namespace IoTProcessorManagementService
         public ProcessorOperationHandlerFactory ProcessorOperationFactory { get; private set; }
 
         public ProcessorServiceCommunicationClientFactory ProcessorServiceCommunicationClientFactory { get; private set; }
-            = new ProcessorServiceCommunicationClientFactory(
+           
+
+        public ProcessorManagementService()
+        {
+            this.ProcessorServiceCommunicationClientFactory = new ProcessorServiceCommunicationClientFactory(
                 ServicePartitionResolver.GetDefault(),
                 TimeSpan.FromSeconds(10),
                 TimeSpan.FromSeconds(3));
+        }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
