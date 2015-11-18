@@ -1,5 +1,11 @@
-# Microsoft Azure Service Fabric Samples / IoT
-This repository is part of Microsoft Azure Service Fabric samples. This sample is a reference architecture & implementation for hyper scale IoT events' processing, compute and storage using Microsoft Azure Service Fabric. 
+---
+services: service-fabric
+platforms: dotnet
+author: khenidak
+---
+
+# Service Fabric IoT Sample
+This sample is a reference architecture & implementation for hyper scale IoT event processing. The sample uses compute and storage with Azure Service Fabric and integrates with Azure Storage, Azure Power BI, and Event Hubs. 
 
 ## Sample Solution Overview
 ![](./docs/overview.png)
@@ -13,9 +19,9 @@ This above diagram depicts the solution components, below is brief description o
 > for more details on the architecture refer to [Architecture & Usage Details](./docs/Architecture.md)
 
 ## Components & Code Overview
-The following is the components & code of this sample solution (all code is included in one VS.NET solution). 
+The project is composed of the following components, the code for which is included in one Visual Studio solution: 
 
-- **IoTApplication** A Service Fabric application that hosts the following actors (each is separate Service and a separate VS.NET project)  
+- **IoTApplication** A Service Fabric application that hosts the following actors. Each actor is a separate Service and a separate Visual Studio project.
 	1. **Device Actor** represents a device in the cloud. Designed to perform compute and analysis on single device events and communicate commands to the device. Additional it forwards device events to 
 		1. *Aggregators* such as floors (in smart building scenarors) or production line (in factory floor scenarios).
 		2. *Storage Actor*  
