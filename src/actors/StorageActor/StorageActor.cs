@@ -67,11 +67,11 @@ namespace StorageActor
             await base.OnDeactivateAsync();
         }
         
-        private async Task SaveToStorage(object IsFinal)
+        private Task SaveToStorage(object IsFinal)
         {
             if (0 == this.State.Queue.Count)
             {
-                return;
+                return Task.FromResult(true);
             }
             
             bool bFinal = (bool) IsFinal; // as in actor instance is about to get deactivated. 
@@ -90,7 +90,7 @@ namespace StorageActor
                 nCurrent++;
             }
 
-            await table.ExecuteBatchAsync(batchOperation);
+            return table.ExecuteBatchAsync(batchOperation);
         }
         
         private IIoTActor CreatePowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS)
@@ -99,14 +99,14 @@ namespace StorageActor
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(PowerBIActorServiceName));
         }
 
-        private async Task ForwardToPowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private Task ForwardToPowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.powerBIActor)
             {
                 this.powerBIActor = this.CreatePowerBIActor(DeviceId, EventHubName, ServiceBusNS);
             }
 
-            await this.powerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
+            return this.powerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
         
         private void ConfigChanged(object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)

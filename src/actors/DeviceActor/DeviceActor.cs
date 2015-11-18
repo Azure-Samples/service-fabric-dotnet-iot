@@ -52,7 +52,7 @@ namespace DeviceActor
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(storageActorService));
         }
 
-        private async Task ForwardToNextAggregator(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private Task ForwardToNextAggregator(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.floorActor)
             {
@@ -61,17 +61,17 @@ namespace DeviceActor
 
                 this.floorActor = this.CreateFloorActor(DeviceId, FloorId, EventHubName, ServiceBusNS);
             }
-            await this.floorActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
+            return this.floorActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
 
-        private async Task ForwardToStorageActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private Task ForwardToStorageActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.storageActor)
             {
                 this.storageActor = this.CreateStorageActor(DeviceId, EventHubName, ServiceBusNS);
             }
 
-            await this.storageActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
+            return this.storageActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
     }
 }
