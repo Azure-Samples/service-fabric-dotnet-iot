@@ -108,7 +108,7 @@ Actors that perform specialized processing uses a *store and periodical process*
 Other Actors in this samples just act as a placeholder for further processing logic (such as sending commands to the *Device*, *Devices in a Floor* or *Devices in All Floors* in a Building) 
 
 ##Inside a Processor
-![](./detailed-2.png)
+![](./Detailed-2.png)
 
 The following is the basic process performed inside a Processor:
 
