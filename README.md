@@ -5,7 +5,7 @@ author: khenidak
 ---
 
 # Service Fabric IoT Sample
-This sample is a reference architecture & implementation for hyper scale IoT event processing. The sample uses compute and storage with Azure Service Fabric and integrates with Azure Storage, Azure Power BI, and Event Hubs. 
+This sample is a reference architecture & implementation for hyper scale IoT event processing. The sample uses compute and storage on Azure Service Fabric and integrates with Azure Storage, Azure Power BI, and Event Hubs. 
 
 ## Sample Solution Overview
 ![](./docs/overview.png)
