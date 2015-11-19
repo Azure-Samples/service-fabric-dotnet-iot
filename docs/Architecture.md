@@ -9,7 +9,7 @@ This IoT sample reference architecture & implementation is designed for a Smart 
 
 > By replacing the event data schema and actor names the components can fit in various other IoT scenarios where analysis, monitor, storing and aggregation are needed. 
 
-![](./detailed-1.png)
+![](./Detailed-1.png)
 
 #Typical Use Cases:
 
