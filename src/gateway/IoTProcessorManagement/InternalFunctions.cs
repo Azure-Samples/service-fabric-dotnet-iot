@@ -14,6 +14,7 @@ namespace IoTProcessorManagement
     using IoTProcessorManagement.Clients;
     using Microsoft.ServiceBus.Messaging;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     internal static class InternalFunctions
     {
@@ -22,7 +23,10 @@ namespace IoTProcessorManagement
             FabricClient fc = new FabricClient(FabricEndPoint);
             ResolvedServicePartition partition = await fc.ServiceManager.ResolveServicePartitionAsync(new Uri(sMgmtAppInstanceName));
 
-            return partition.GetEndpoint().Address;
+            var jsonAddress = JObject.Parse(partition.GetEndpoint().Address);
+            var address = (string) jsonAddress["Endpoints"][""];
+
+            return address;
         }
 
         public static async Task<Processor> UpdateProcessorAsync(string BaseAddress, Processor processor)

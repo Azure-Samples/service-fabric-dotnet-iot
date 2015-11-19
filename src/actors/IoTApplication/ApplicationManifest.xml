@@ -4,13 +4,10 @@
       <Parameter Name="IoTActorService_PartitionCount" DefaultValue="1" />
       <Parameter Name="IoTActorService_MinReplicaSetSize" DefaultValue="2" />
       <Parameter Name="IoTActorService_TargetReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="PartitionCount" DefaultValue="9" />
+      <Parameter Name="PartitionCount" DefaultValue="3" />
       <Parameter Name="MinReplicaSetSize" DefaultValue="2" />
       <Parameter Name="TargetReplicaSetSize" DefaultValue="3" />
    </Parameters>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="BuildingActorPkg" ServiceManifestVersion="1.0.0.0" />
-   </ServiceManifestImport>
    <ServiceManifestImport>
       <ServiceManifestRef ServiceManifestName="StorageActorPkg" ServiceManifestVersion="1.0.0.0" />
    </ServiceManifestImport>
@@ -24,8 +21,11 @@
    <ServiceManifestImport>
       <ServiceManifestRef ServiceManifestName="DeviceActorPkg" ServiceManifestVersion="1.0.0.0" />
    </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="BuildingActorPkg" ServiceManifestVersion="1.0.0.0" />
+   </ServiceManifestImport>
    <DefaultServices>
-
+      
       <Service Name="StorageActor">
          <StatefulService ServiceTypeName="StorageActorServiceType" TargetReplicaSetSize="[TargetReplicaSetSize]" MinReplicaSetSize="[MinReplicaSetSize]">
             <UniformInt64Partition PartitionCount="[PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />

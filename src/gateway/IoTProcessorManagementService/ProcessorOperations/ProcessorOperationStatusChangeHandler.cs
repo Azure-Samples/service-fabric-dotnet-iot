@@ -47,7 +47,7 @@ namespace IoTProcessorManagementService
                 processor.ProcessorStatus &= ~ProcessorStatus.Paused;
 
 
-                processor.ProcessorStatus |= ProcessorStatus.Provisioned;
+               // processor.ProcessorStatus |= ProcessorStatus.Provisioned;
                 await this.UpdateProcessorAsync(processor, tx);
             }
 

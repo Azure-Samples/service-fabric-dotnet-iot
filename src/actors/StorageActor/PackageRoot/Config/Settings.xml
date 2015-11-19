@@ -11,7 +11,7 @@
       <Parameter Name="MaxVerPages" Value="32768" />
    </Section>
    <Section Name="Storage">
-      <Parameter Name="ConnectionString" Value="// Azure Storage Connection STring//" />
-      <Parameter Name="TableName" Value="Events" />
+      <Parameter Name="ConnectionString" Value="DefaultEndpointsProtocol=https;AccountName={Accont Name};AccountKey={Account Key}" />
+      <Parameter Name="TableName" Value="EventsEx" />
    </Section>
 </Settings>

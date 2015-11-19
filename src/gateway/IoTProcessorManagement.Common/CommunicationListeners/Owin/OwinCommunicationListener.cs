@@ -54,7 +54,7 @@ namespace IoTProcessorManagement.Common
             {
                 this.listeningAddress = String.Format(
                     CultureInfo.InvariantCulture,
-                    "http://+:{0}/{1}/{2}/{3}",
+                    "http://+:{0}/{1}/{2}/{3}/",
                     port,
                     statefulInitParam.PartitionId,
                     statefulInitParam.ReplicaId,

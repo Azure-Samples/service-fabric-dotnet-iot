@@ -20,7 +20,7 @@ namespace IoTProcessorManagementService
 
     public class ProcessorManagementService : StatefulService
     {
-        public const string OperationQueueName = "Opeartions";
+        public const string OperationQueueName = "Operations";
         public const string ProcessorDefinitionStateDictionaryName = "Processors";
         public const int MaxProcessorOpeartionRetry = 5;
 

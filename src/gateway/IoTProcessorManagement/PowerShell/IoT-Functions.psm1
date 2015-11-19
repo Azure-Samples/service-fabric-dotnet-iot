@@ -473,6 +473,7 @@ param
    Add-Type -Path '.\IoTProcessorManagement.dll'
 
 <# Modules Export #>   
+   Export-ModuleMember -Function Get-IoTManagementApiEndPoint
    Export-ModuleMember -function Get-IoTProcessor
    Export-ModuleMember -function Import-IoTProcessor
    Export-ModuleMember -function Add-IoTProcessor

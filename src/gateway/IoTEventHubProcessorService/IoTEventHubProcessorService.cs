@@ -3,6 +3,8 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+//#define _WAIT_FOR_DEBUGGER // if defined will cause the replica to wait for your debugger to attach.
+//#define _VS_DEPLOY // if defined will force the replica to use statically defined processor (instead of init data) - check GetAssignedProcessorAsync() method
 namespace EventHubProcessor
 {
     using System;
