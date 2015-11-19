@@ -17,17 +17,17 @@ This IoT sample reference architecture & implementation is designed for a Smart 
 >
 > - To import the management PowerShell module use 
 >
->    Import-Module .\IoT-Functions.psm1 (part of IotProcessorManagement project output)
+>    Import-Module .\IoT-Functions.psm1 (part of IotProcessorManagement project output, check PowerShell folder)
 >
 > - All the cmdlets expects an optional management endpoint address. The management endpoint address can be aquired by calling *Get-IoTManagementApiEndPoint* cmdlet. If no address provided each cmdlet will resolve the address using the constants declared at top of the module.
 
 ##Provisioning
 Provision a new event processor service via calling the management service REST API or via using the management PowerShell module. Both expects a processor definition which contains:
-	1. Name
-	2. Number - *at least one* - of Event Hub definition each contains:
-		1. Azure Service Bus connection string.
-		2. Event Hub Name.
-		3. Event Hub consumer group name (empty for default group).
+1. Name
+2. Number - *at least one* - of Event Hub definition each contains:
+	1. Azure Service Bus connection string.
+	2. Event Hub Name.
+	3. Event Hub consumer group name (empty for default group).
 
 The management component provision a new Service Fabric application of type *IoTEventHubProcessorApp*. Once created it uses the processor definition to distribute the event hub receive load among *IoTEventHubEventProcessorService* partitions. 
 
