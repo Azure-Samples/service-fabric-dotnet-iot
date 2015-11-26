@@ -153,7 +153,8 @@ namespace EventHubProcessor
             }
 
             await this.WorkManager.ResumeAsync();
-            await this.ClearEventHubListeners();
+            // await this.ClearEventHubListeners();
+            await this.RefreshListenersAsync();
         }
 
         public async Task Stop()
