@@ -214,7 +214,7 @@ param
 	else
 	{
 		$IoTProcessorName = Get-IoTProcessorName -IoTProcessor $IoTProcessor
-		$ret =[IoTProcessorManagement.Functions]::GetPrcossor($ManagementEndPoint, $IoTProcessorName)
+		$ret =[IoTProcessorManagement.Functions]::GetProcessor($ManagementEndPoint, $IoTProcessorName)
 		$ret 
 	}
 
