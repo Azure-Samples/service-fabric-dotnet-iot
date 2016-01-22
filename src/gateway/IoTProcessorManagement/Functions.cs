@@ -97,7 +97,7 @@ namespace IoTProcessorManagement
             return null;
         }
 
-        public static Processor GetPrcossor(string BaseAddress, string ProcessorName)
+        public static Processor GetProcessor(string BaseAddress, string ProcessorName)
         {
             try
             {
