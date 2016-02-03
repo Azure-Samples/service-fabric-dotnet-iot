@@ -114,7 +114,7 @@ namespace IoTProcessorManagement
         {
             try
             {
-                return InternalFunctions.GetAllProcesserosAsync(BaseAddress).Result;
+                return InternalFunctions.GetAllProcessorsAsync(BaseAddress).Result;
             }
             catch (AggregateException ae)
             {
