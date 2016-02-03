@@ -61,7 +61,7 @@ namespace IoTProcessorManagement
             return await GetHttpResponseAsProcessorAsync(await client.SendAsync(message));
         }
 
-        public static async Task<Processor[]> GetAllProcesserosAsync(string BaseAddress)
+        public static async Task<Processor[]> GetAllProcessorsAsync(string BaseAddress)
         {
             Uri uri = new Uri(string.Concat(BaseAddress, "processor/"));
             HttpClient client = new HttpClient();
