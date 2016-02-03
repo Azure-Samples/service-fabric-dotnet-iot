@@ -70,6 +70,9 @@ namespace IoTProcessorManagement.Common
                 if (cResults.HasValue)
                 {
                     lease = FromJsonString(cResults.Value);
+                    lease.m_EntryName = EntryName;
+                    lease.m_StateDictionary = StateDictionary;
+                    lease.m_StateManager = StateManager;
                 }
                 else
                 {
