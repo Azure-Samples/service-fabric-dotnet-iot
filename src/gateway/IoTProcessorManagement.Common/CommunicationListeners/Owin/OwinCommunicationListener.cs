@@ -24,7 +24,16 @@ namespace IoTProcessorManagement.Common
 
         private readonly ServiceInitializationParameters serviceParameters;
 
-        public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceInitializationParameters serviceParameters)
+        private string mHostAddress = null;
+
+
+        public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceInitializationParameters serviceParameters, string publishingAddressHostName)
+        : this(pipelineSpec, serviceParameters)
+        {
+            this.mHostAddress = publishingAddressHostName;
+        }
+
+            public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceInitializationParameters serviceParameters)
         {
             this.pipelineSpec = pipelineSpec;
             this.serviceParameters = serviceParameters;
@@ -68,7 +77,7 @@ namespace IoTProcessorManagement.Common
                     port);
             }
 
-            this.publishingAddress = this.listeningAddress.Replace("+", FabricRuntime.GetNodeContext().IPAddressOrFQDN);
+            this.publishingAddress = this.listeningAddress.Replace("+", string.IsNullOrEmpty(mHostAddress) ? FabricRuntime.GetNodeContext().IPAddressOrFQDN : mHostAddress) ;
             this.webServer = WebApp.Start(this.listeningAddress, app => this.pipelineSpec.CreateOwinPipeline(app));
 
             return Task.FromResult(this.publishingAddress);   

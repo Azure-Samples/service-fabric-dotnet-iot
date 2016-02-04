@@ -211,13 +211,17 @@ namespace IoTProcessorManagement.Common
                                     Handler handler = this.m_WorkManager.GetHandlerForQueue(qName);
                                     Wi wi = await handler.HandleWorkItem(cResults.Value);
 
-                                    if (null != wi) // do we have an enqueue request? 
+                                    if (null != wi) // do we have an enqueue request? (handler failed to process the request)
                                     {
                                         await q.EnqueueAsync(tx, wi);
                                     }
+                                    else
+                                    {
+                                        this.m_WorkManager.DecreaseBufferedWorkItems();
+                                    }
 
                                     await tx.CommitAsync();
-                                    this.m_WorkManager.DecreaseBufferedWorkItems();
+                                    
                                 }
                                 else
                                 {
@@ -230,7 +234,7 @@ namespace IoTProcessorManagement.Common
                     {
                         /* Queue is locked for enqueues */
                         this.m_WorkManager.m_TraceWriter.TraceMessage(
-                            string.Format("Executer Dequeue Timeout after {0}: {1}", nLongDequeueWaitTimeMs, to.Message));
+                            string.Format("Executer after {0}: {1}", nLongDequeueWaitTimeMs, to.Message));
                         break; //-> to finally
                     }
                     catch (AggregateException aex)

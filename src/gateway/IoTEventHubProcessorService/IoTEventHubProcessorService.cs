@@ -75,6 +75,25 @@ namespace EventHubProcessor
             //item de-queued it will use RouteToActorWorkItemHandler type to process the work item
             this.WorkManager = new WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>(this.StateManager, this.TraceWriter);
 
+            /*
+            Work Manager supports 2 modes
+            Buffered: 
+                - the original mode, items are buffered in reliable queues (one per device) then routed to actors.
+                - the advantages of this mode, if you have smaller # of devices, the system will attempt to avoid the turn based concurrancy of the actor
+                  by fanning out execution, events are picked up from event hub faster than they are delivered to actors. this mode is good for large
+                  # of devices each is a high freq message sender. 
+              
+            Buffered os faster on multi core CPUs , the max # of worker is 2 X CPU ore.
+
+            None Buffered Mode: 
+                - newly introcuced mode, events are not buffered and routed directly to actors. this is a better mode if you expect large # of devices.
+            
+            
+            - You can extend the code to support switching at runtime (example: dealing with variable device #)
+            
+            */
+            this.WorkManager.BufferedMode = false; 
+
 
             // work manager will creates a new (RoutetoActorWorkItemHandler) 
             // per queue. our work item handling is basically forwarding event hub message to the Actor. 
@@ -83,7 +102,7 @@ namespace EventHubProcessor
             this.WorkManager.WorkItemHandlerMode = WorkItemHandlerMode.PerQueue;
 
             // maximum # of worker loops (loops that de-queue from reliable queue)
-            this.WorkManager.MaxNumOfWorkers = WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>.s_Max_Num_OfWorker;
+            this.WorkManager.MaxNumOfWorkers =  WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>.s_Max_Num_OfWorker;
 
             this.WorkManager.YieldQueueAfter = 50; // worker will attempt to process
             // 50 work item per queue before dropping it 

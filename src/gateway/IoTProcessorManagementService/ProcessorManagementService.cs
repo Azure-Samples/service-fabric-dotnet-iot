@@ -17,7 +17,7 @@ namespace IoTProcessorManagementService
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-
+    using System.Fabric;
     public class ProcessorManagementService : StatefulService
     {
         public const string OperationQueueName = "Operations";
@@ -45,10 +45,15 @@ namespace IoTProcessorManagementService
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
+
+            var settingsConfigPackage = FabricRuntime.GetActivationContext().GetConfigurationPackageObject("Config");
+            var publishingAddressHostName = settingsConfigPackage.Settings.Sections["ProcessorDefaults"].Parameters["PublishingAddressHostName"].Value;
+
+            var actualPublishingHostName = string.IsNullOrEmpty(publishingAddressHostName) ? FabricRuntime.GetNodeContext().IPAddressOrFQDN : publishingAddressHostName;
             return new[]
             {
                 new ServiceReplicaListener(
-                    parameters =>  new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), parameters))
+                    parameters =>  new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), parameters, actualPublishingHostName))
             };
         }
 

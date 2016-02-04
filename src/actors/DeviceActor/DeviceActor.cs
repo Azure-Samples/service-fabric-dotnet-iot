@@ -21,10 +21,11 @@ namespace DeviceActor
         private IIoTActor floorActor = null;
         private IIoTActor storageActor = null;
 
+        [Readonly] // currently device actor does not maintain state
         public async Task Post(string deviceId, string eventHubName, string serviceBusNS, byte[] body)
         {
-            Task TaskFloorForward = this.ForwardToNextAggregator(deviceId, eventHubName, serviceBusNS, body);
-            Task TaskStorageForward = this.ForwardToStorageActor(deviceId, eventHubName, serviceBusNS, body);
+            Task TaskFloorForward = this.ForwardToFloorActorAsync(deviceId, eventHubName, serviceBusNS, body);
+            Task TaskStorageForward = this.ForwardToStorageActorAsync(deviceId, eventHubName, serviceBusNS, body);
 
             /*
             While we are waiting for the next actor in chain the device actor can do CEP to identify
@@ -32,7 +33,7 @@ namespace DeviceActor
             and send the command. 
             */
 
-            await Task.WhenAll(TaskFloorForward, TaskStorageForward);
+             await Task.WhenAll(TaskFloorForward, TaskStorageForward);
         }
 
         protected override Task OnActivateAsync()
@@ -52,7 +53,7 @@ namespace DeviceActor
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(storageActorService));
         }
 
-        private Task ForwardToNextAggregator(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private Task ForwardToFloorActorAsync(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.floorActor)
             {
@@ -64,7 +65,7 @@ namespace DeviceActor
             return this.floorActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
 
-        private Task ForwardToStorageActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private Task ForwardToStorageActorAsync(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.storageActor)
             {

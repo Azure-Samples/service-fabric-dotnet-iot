@@ -13,9 +13,9 @@
    <Section Name="PowerBI">
       <Parameter Name="DatesetName" Value="ServiceFabricIoTDS" />
       <Parameter Name="TableName" Value="ServiceFabricIOTTable" />
-      <Parameter Name="ClientId" Value="{{Client app as defined with Azure A/D}}" />
-      <Parameter Name="Username" Value="{{username xx@xx.com as defined in Azure A/D and have access to insert records on Power PI Portal}}" />
-      <Parameter Name="Password" Value="{{user password}}" />
+      <Parameter Name="ClientId" Value="{client id from Azure A/D}" />
+      <Parameter Name="Username" Value="{Azure Username for a user allowed to insert data in your power BI}" />
+      <Parameter Name="Password" Value="{Password for the user above}" />
       <Parameter Name="Authority" Value="https://login.windows.net/common/oauth2/authorize/" />
       <Parameter Name="PowerBIResourceId" Value="https://analysis.windows.net/powerbi/api" />
       <Parameter Name="PowerBIBaseUrl" Value="https://api.powerbi.com/v1.0/myorg/datasets/" />

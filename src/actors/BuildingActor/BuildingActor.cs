@@ -11,6 +11,7 @@ namespace BuildingActor
 
     public class BuildingActor : StatefulActor<BuildingActorState>, IIoTActor
     {
+        [Readonly] // currently building actor does not maintain state
         public Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             /*

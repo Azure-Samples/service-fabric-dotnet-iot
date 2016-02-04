@@ -77,6 +77,19 @@ namespace IoTProcessorManagement.Common
                 throw new InvalidOperationException("Work Manager is not working state");
             }
 
+            if (BufferedMode)
+            {
+                await AddBufferedWorkItemAsync(workItem);
+
+            }
+            else
+            {
+                await ImmediateProcessWorkItemAsync(workItem);
+            }
+        }
+
+        private async Task AddBufferedWorkItemAsync(Wi workItem)
+        {
             if (this.m_NumOfBufferedWorkItems >= this.m_MaxNumOfBufferedWorkItems)
             {
                 throw new InvalidOperationException(string.Format("Work Manger is at maximum buffered work items:{0}", this.m_NumOfBufferedWorkItems));
@@ -110,7 +123,18 @@ namespace IoTProcessorManagement.Common
             }
         }
 
-        #region Specs 
+        private async Task ImmediateProcessWorkItemAsync(Wi workItem)
+        {
+
+            // get the handler and execute directly;
+            Handler handler = GetHandlerForQueue(workItem.QueueName);
+            Wi wi = await handler.HandleWorkItem(workItem);
+
+            // telemetry
+            m_MinuteClicker.Click(new WorkManagerClick() { ClickType = WorkerManagerClickType.Processed });
+        }
+
+        #region Specs Privates
 
         private WorkItemHandlerMode m_WorkItemHandlerMode = WorkItemHandlerMode.Singlton; // defines how handlers are and mapped to queues
         // starting # of max workers
@@ -269,6 +293,8 @@ namespace IoTProcessorManagement.Common
 
         #region Specs
 
+        public bool BufferedMode { get; set; } = true; // when true work items will be queued and processed later. to avoid bottlenecks at the actors
+                                                       // for this version this settings is only modifiable at the compilation time
         public uint YieldQueueAfter
         {
             get { return this.m_Yield_Queue_After; }

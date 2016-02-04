@@ -12,6 +12,7 @@
     <Parameter Name="AppTypeName" Value="IoTEventHubProcessorApp" />
     <Parameter Name="AppTypeVersion" Value="1.0.0.0" />
     <Parameter Name="ServiceTypeName" Value="IoTEventHubProcessorService"/>
-    <Parameter Name="AppInstanceNamePrefix" Value="P"/>    
+    <Parameter Name="AppInstanceNamePrefix" Value="P"/>
+    <Parameter Name="PublishingAddressHostName" Value=""/>
   </Section>
 </Settings>

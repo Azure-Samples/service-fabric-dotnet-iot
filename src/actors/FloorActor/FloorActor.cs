@@ -18,9 +18,10 @@ namespace FloorActor
         private static string buildingActorIdFormat = "{0}-{1}-{2}";
         private IIoTActor buildingActor = null;
 
+        [Readonly] // currently building actor does not maintain state
         public async Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
-            Task taskForward = this.ForwardToBuildingActor(DeviceId, EventHubName, ServiceBusNS, Body);
+            Task taskForward = this.ForwardToBuildingActorAsync(DeviceId, EventHubName, ServiceBusNS, Body);
 
             /*
            The following are the chain in this samples
@@ -48,7 +49,7 @@ namespace FloorActor
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(buildingActorService));
         }
 
-        private async Task ForwardToBuildingActor(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        private async Task ForwardToBuildingActorAsync(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             if (null == this.buildingActor)
             {
