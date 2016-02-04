@@ -27,11 +27,13 @@ The following is additional configuration needed when deploying the solution to 
 #### Using The Management PowerShell   
 The management PowerShell module points by default to local cluster, however you can execute
 
+
 ```
 #PowerShell ..
 $MgmtEP = Get-IoTManagementApiEndPoint -ServiceFabricEndPoint {Cluster EndPoint XXX:19000}
 # All cmdlets expect optional parameter named ManagementEndPoint where you can pass the $MgmtEP acquired above.
 ```
+
 Alternatively you can replace the cluster name in IoT-Functions.psm1, check *_default_ServiceFabricConnection* variable then re-import the module.
 
 ### Optional: Modify Event Schema ###

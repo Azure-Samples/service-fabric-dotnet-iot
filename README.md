@@ -4,7 +4,10 @@ platforms: dotnet
 author: khenidak
 ---
 
+
+
 # NEW #
+
 1. Support for Buffered and Non-Buffered Mode where events will not be queued and routed directly to actors (check: [Architecture & Usage Details](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/Architecture.md) for more details)
 2. Better support for Azure Clusters deployment.
 
