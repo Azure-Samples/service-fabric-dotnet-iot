@@ -24,7 +24,7 @@ The following is additional configuration needed when deploying the solution to 
 
 2. Modify */src/Gateway/IoTProcessorManagementService/PackageRoot/Config/Settings.xml* (*PublishingAddressHostName* parameter) with the FQDN assigned to your load balancer. This address is used by the service as Publishing Address.
 
-#### Using The Management PowerShell ####  
+#### Using The Management PowerShell   
 The management PowerShell module points by default to local cluster, however you can execute
 
 ```
