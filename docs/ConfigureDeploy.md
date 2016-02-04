@@ -16,9 +16,12 @@ Modify */src/Actors/PowerBIActor/PackageRoot/Config/Settings.xml* by providing t
 - **Password** password for the above user.
 
 > You don't need to change the rest of the configuration keys.
+
 ### Azure Deployment ###
 The following is additional configuration needed when deploying the solution to Azure Service Fabric Clusters
+
 1. Ensure that port used by Processor Management Service has a load balancing rule configured on your Azure Load Balancer (Part of your cluster). To change the port check */src/Gateway/IoTProcessorManagementService/PackageRoot/ServiceManifest.xml* (The Resources/EndPoint Node).
+
 2. Modify */src/Gateway/IoTProcessorManagementService/PackageRoot/Config/Settings.xml* (*PublishingAddressHostName* parameter) with the FQDN assigned to your load balancer. This address is used by the service as Publishing Address.
 
 #### Using The Management PowerShell ####  
