@@ -57,4 +57,4 @@ The project is composed of the following components, the code for which is inclu
 ## Next Steps
 1. [Getting Started](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/GettingStarted.md)
 2. [Architecture & Usage Details](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/Architecture.md)
-3. [Configuring, Deploying & Debugging the Solution](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/docs/ConfigureDeploy.md)
+3. [Configuring, Deploying & Debugging the Solution](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/ConfigureDeploy.md)
