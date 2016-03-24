@@ -36,6 +36,11 @@ namespace IoTProcessorManagement.Common
             private ConcurrentDictionary<string, IReliableQueue<W>> m_QueueRefs = new ConcurrentDictionary<string, IReliableQueue<W>>();
             private IReliableDictionary<string, string> m_dictListOfQueues;
 
+            private QueueManager(WorkManager<H, W> workManager)
+            {
+                this.workManager = workManager;
+            }
+
             public int Count
             {
                 get { return this.m_QueueRefs.Keys.Count; }
@@ -112,11 +117,6 @@ namespace IoTProcessorManagement.Common
             {
                 this.qOfq.Enqueue(sQueueName);
             }
-            
-            private QueueManager(WorkManager<H, W> workManager)
-            {
-                this.workManager = workManager;
-            }
 
             public static async Task<QueueManager<H, W>> CreateAsync(WorkManager<H, W> workManager)
             {
@@ -130,12 +130,14 @@ namespace IoTProcessorManagement.Common
 
                 using (ITransaction tx = workManager.StateManager.CreateTransaction())
                 {
-                    IAsyncEnumerable< KeyValuePair < string, string> > enumerable = await dictQueueNames.CreateEnumerableAsync(tx);
-                    await enumerable.ForeachAsync(CancellationToken.None, async (item) =>
-                    {
-                        qManager.m_QueueRefs.TryAdd(item.Key, await workManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(item.Key));
-                        qManager.qOfq.Enqueue(item.Key);
-                    });
+                    IAsyncEnumerable<KeyValuePair<string, string>> enumerable = await dictQueueNames.CreateEnumerableAsync(tx);
+                    await enumerable.ForeachAsync(
+                        CancellationToken.None,
+                        async (item) =>
+                        {
+                            qManager.m_QueueRefs.TryAdd(item.Key, await workManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(item.Key));
+                            qManager.qOfq.Enqueue(item.Key);
+                        });
                 }
 
                 return qManager;

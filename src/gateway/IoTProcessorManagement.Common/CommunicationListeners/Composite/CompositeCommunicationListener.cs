@@ -47,14 +47,6 @@ namespace IoTProcessorManagement.Common
 
         public Func<CompositeCommunicationListener, Dictionary<string, string>, string> OnCreateListeningAddress { get; set; }
 
-        public async Task ClearAll()
-        {
-            foreach (string key in this.listeners.Keys)
-            {
-                await this.RemoveListenerAsync(key);
-            }
-        }
-
         public ICommunicationListenerStatus CompsiteListenerStatus { get; private set; } = ICommunicationListenerStatus.Closed;
 
         public void Abort()
@@ -144,7 +136,14 @@ namespace IoTProcessorManagement.Common
                 this.listenerLock.Set();
             }
         }
-        
+
+        public async Task ClearAll()
+        {
+            foreach (string key in this.listeners.Keys)
+            {
+                await this.RemoveListenerAsync(key);
+            }
+        }
 
         public ICommunicationListenerStatus GetListenerStatus(string ListenerName)
         {
@@ -275,7 +274,7 @@ namespace IoTProcessorManagement.Common
                 throw new InvalidOperationException("can not have null listeners");
             }
         }
-        
+
         private async Task<string> _OpenListener(
             string ListenerName,
             ICommunicationListener listener,
@@ -289,7 +288,6 @@ namespace IoTProcessorManagement.Common
 
             return sAddress;
         }
-
 
         private async Task _CloseListener(
             string ListenerName,

@@ -6,9 +6,7 @@
 namespace PowerBIActor
 {
     using System;
-    using System.Fabric;
     using System.Threading;
-    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     public class Program

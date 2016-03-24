@@ -77,14 +77,13 @@ namespace IoTProcessorManagement.Common
                 throw new InvalidOperationException("Work Manager is not working state");
             }
 
-            if (BufferedMode)
+            if (this.BufferedMode)
             {
-                await AddBufferedWorkItemAsync(workItem);
-
+                await this.AddBufferedWorkItemAsync(workItem);
             }
             else
             {
-                await ImmediateProcessWorkItemAsync(workItem);
+                await this.ImmediateProcessWorkItemAsync(workItem);
             }
         }
 
@@ -125,13 +124,12 @@ namespace IoTProcessorManagement.Common
 
         private async Task ImmediateProcessWorkItemAsync(Wi workItem)
         {
-
             // get the handler and execute directly;
-            Handler handler = GetHandlerForQueue(workItem.QueueName);
+            Handler handler = this.GetHandlerForQueue(workItem.QueueName);
             Wi wi = await handler.HandleWorkItem(workItem);
 
             // telemetry
-            m_MinuteClicker.Click(new WorkManagerClick() { ClickType = WorkerManagerClickType.Processed });
+            this.m_MinuteClicker.Click(new WorkManagerClick() {ClickType = WorkerManagerClickType.Processed});
         }
 
         #region Specs Privates
@@ -296,7 +294,7 @@ namespace IoTProcessorManagement.Common
         #region Specs
 
         public bool BufferedMode { get; set; } = true; // when true work items will be queued and processed later. to avoid bottlenecks at the actors
-                                                       // for this version this settings is only modifiable at the compilation time
+        // for this version this settings is only modifiable at the compilation time
         public uint YieldQueueAfter
         {
             get { return this.m_Yield_Queue_After; }

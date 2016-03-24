@@ -142,6 +142,95 @@ namespace IoTProcessorManagementService
             return tasks.ToArray();
         }
 
+        protected async Task CleanUpServiceFabricCluster(Processor processor)
+        {
+            try
+            {
+                await this.DeleteServiceAsync(processor);
+            }
+            catch (AggregateException aex)
+            {
+                AggregateException ae = aex.Flatten();
+                ServiceEventSource.Current.ServiceMessage(
+                    this.Svc,
+                    "Delete Service for processor:{0} service:{1} failed, will keep working normally E:{2} StackTrace:{3}",
+                    processor.Name,
+                    processor.ServiceFabricServiceName,
+                    ae.GetCombinedExceptionMessage(),
+                    ae.GetCombinedExceptionStackTrace());
+            }
+
+
+            try
+            {
+                await this.DeleteAppAsync(processor);
+            }
+            catch (AggregateException aex)
+            {
+                AggregateException ae = aex.Flatten();
+                ServiceEventSource.Current.ServiceMessage(
+                    this.Svc,
+                    "Delete App for processor:{0} app:{1} failed, will keep working normally E:{2} StackTrace:{3}",
+                    processor.Name,
+                    processor.ServiceFabricAppInstanceName,
+                    ae.GetCombinedExceptionMessage(),
+                    ae.GetCombinedExceptionStackTrace());
+            }
+        }
+
+        protected async Task DeleteServiceAsync(Processor processor)
+        {
+            Uri sServiceName = new Uri(processor.ServiceFabricServiceName);
+
+            FabricClient fabricClient = new FabricClient();
+            await fabricClient.ServiceManager.DeleteServiceAsync(sServiceName);
+
+            ServiceEventSource.Current.ServiceMessage(
+                this.Svc,
+                "Service for processor:{0} service:{1} deleted.",
+                processor.Name,
+                processor.ServiceFabricServiceName);
+        }
+
+        protected async Task DeleteAppAsync(Processor processor)
+        {
+            FabricClient fabricClient = new FabricClient();
+            await fabricClient.ApplicationManager.DeleteApplicationAsync(new Uri(processor.ServiceFabricAppInstanceName));
+            ServiceEventSource.Current.ServiceMessage(this.Svc, "App for processor:{0} app:{1} deleted", processor.Name, processor.ServiceFabricAppInstanceName);
+        }
+
+        protected async Task CreateAppAsync(Processor processor)
+        {
+            FabricClient fabricClient = new FabricClient();
+            ApplicationDescription appDesc = new ApplicationDescription(
+                new Uri(processor.ServiceFabricAppInstanceName),
+                processor.ServiceFabricAppTypeName,
+                processor.ServiceFabricAppTypeVersion);
+
+
+            // create the app
+            await fabricClient.ApplicationManager.CreateApplicationAsync(appDesc);
+            ServiceEventSource.Current.ServiceMessage(this.Svc, "App for processor:{0} app:{1} created", processor.Name, processor.ServiceFabricAppInstanceName);
+        }
+
+        protected async Task CreateServiceAsync(Processor processor)
+        {
+            FabricClient fabricClient = new FabricClient();
+            await fabricClient.ServiceManager.CreateServiceFromTemplateAsync(
+                new Uri(processor.ServiceFabricAppInstanceName),
+                new Uri(processor.ServiceFabricServiceName),
+                this.Svc.Config.ServiceTypeName,
+                processor.AsBytes()
+                );
+
+
+            ServiceEventSource.Current.ServiceMessage(
+                this.Svc,
+                "Service for processor:{0} service:{1} created.",
+                processor.Name,
+                processor.ServiceFabricServiceName);
+        }
+
         private async Task<IList<ServicePartitionClient<ProcessorServiceCommunicationClient>>> GetServicePartitionClientsAsync(
             string ServiceName,
             int MaxQueryRetryCount = 5,
@@ -223,95 +312,6 @@ namespace IoTProcessorManagementService
 
 
             return Task.FromResult(copy);
-        }
-        
-        protected async Task CleanUpServiceFabricCluster(Processor processor)
-        {
-            try
-            {
-                await this.DeleteServiceAsync(processor);
-            }
-            catch (AggregateException aex)
-            {
-                AggregateException ae = aex.Flatten();
-                ServiceEventSource.Current.ServiceMessage(
-                    this.Svc,
-                    "Delete Service for processor:{0} service:{1} failed, will keep working normally E:{2} StackTrace:{3}",
-                    processor.Name,
-                    processor.ServiceFabricServiceName,
-                    ae.GetCombinedExceptionMessage(),
-                    ae.GetCombinedExceptionStackTrace());
-            }
-
-
-            try
-            {
-                await this.DeleteAppAsync(processor);
-            }
-            catch (AggregateException aex)
-            {
-                AggregateException ae = aex.Flatten();
-                ServiceEventSource.Current.ServiceMessage(
-                    this.Svc,
-                    "Delete App for processor:{0} app:{1} failed, will keep working normally E:{2} StackTrace:{3}",
-                    processor.Name,
-                    processor.ServiceFabricAppInstanceName,
-                    ae.GetCombinedExceptionMessage(),
-                    ae.GetCombinedExceptionStackTrace());
-            }
-        }
-        
-        protected async Task DeleteServiceAsync(Processor processor)
-        {
-            Uri sServiceName = new Uri(processor.ServiceFabricServiceName);
-
-            FabricClient fabricClient = new FabricClient();
-            await fabricClient.ServiceManager.DeleteServiceAsync(sServiceName);
-
-            ServiceEventSource.Current.ServiceMessage(
-                this.Svc,
-                "Service for processor:{0} service:{1} deleted.",
-                processor.Name,
-                processor.ServiceFabricServiceName);
-        }
-
-        protected async Task DeleteAppAsync(Processor processor)
-        {
-            FabricClient fabricClient = new FabricClient();
-            await fabricClient.ApplicationManager.DeleteApplicationAsync(new Uri(processor.ServiceFabricAppInstanceName));
-            ServiceEventSource.Current.ServiceMessage(this.Svc, "App for processor:{0} app:{1} deleted", processor.Name, processor.ServiceFabricAppInstanceName);
-        }
-        
-        protected async Task CreateAppAsync(Processor processor)
-        {
-            FabricClient fabricClient = new FabricClient();
-            ApplicationDescription appDesc = new ApplicationDescription(
-                new Uri(processor.ServiceFabricAppInstanceName),
-                processor.ServiceFabricAppTypeName,
-                processor.ServiceFabricAppTypeVersion);
-
-
-            // create the app
-            await fabricClient.ApplicationManager.CreateApplicationAsync(appDesc);
-            ServiceEventSource.Current.ServiceMessage(this.Svc, "App for processor:{0} app:{1} created", processor.Name, processor.ServiceFabricAppInstanceName);
-        }
-
-        protected async Task CreateServiceAsync(Processor processor)
-        {
-            FabricClient fabricClient = new FabricClient();
-            await fabricClient.ServiceManager.CreateServiceFromTemplateAsync(
-                new Uri(processor.ServiceFabricAppInstanceName),
-                new Uri(processor.ServiceFabricServiceName),
-                this.Svc.Config.ServiceTypeName,
-                processor.AsBytes()
-                );
-
-
-            ServiceEventSource.Current.ServiceMessage(
-                this.Svc,
-                "Service for processor:{0} service:{1} created.",
-                processor.Name,
-                processor.ServiceFabricServiceName);
         }
     }
 }

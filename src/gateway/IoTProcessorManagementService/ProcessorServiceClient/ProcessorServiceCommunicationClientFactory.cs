@@ -6,8 +6,6 @@
 namespace IoTProcessorManagementService
 {
     using System;
-    using System.Collections.Generic;
-    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
@@ -18,10 +16,9 @@ namespace IoTProcessorManagementService
         private static TimeSpan MaxRetryBackoffIntervalOnNonTransientErrors = TimeSpan.FromSeconds(3);
 
         public ProcessorServiceCommunicationClientFactory(ServicePartitionResolver resolver = null)
-            : base(resolver, new[] { new ProcessorServiceExceptionHandler() })
+            : base(resolver, new[] {new ProcessorServiceExceptionHandler()})
         {
         }
-        
 
         protected override void AbortClient(ProcessorServiceCommunicationClient client)
         {

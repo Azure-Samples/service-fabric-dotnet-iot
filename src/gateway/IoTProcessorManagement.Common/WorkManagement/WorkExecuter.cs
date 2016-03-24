@@ -7,7 +7,6 @@ namespace IoTProcessorManagement.Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
@@ -226,7 +225,6 @@ namespace IoTProcessorManagement.Common
                                     }
 
                                     await tx.CommitAsync();
-                                    
                                 }
                                 else
                                 {

@@ -72,7 +72,6 @@ namespace IoTProcessorManagement.Common
                     lease = FromJsonString(cResults.Value);
                     lease.m_StateDictionary = StateDictionary;
                     lease.m_StateManager = StateManager;
-
                 }
                 else
                 {

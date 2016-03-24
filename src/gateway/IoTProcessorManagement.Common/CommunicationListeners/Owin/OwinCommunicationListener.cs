@@ -16,29 +16,25 @@ namespace IoTProcessorManagement.Common
     // generic Owin Listener
     public class OwinCommunicationListener : ICommunicationListener
     {
+        private readonly IOwinListenerSpec pipelineSpec;
+        private readonly ServiceContext serviceContext;
         private IDisposable webServer = null;
         private string listeningAddress = string.Empty;
         private string publishingAddress = string.Empty;
-
-        private readonly IOwinListenerSpec pipelineSpec;
-
-        private readonly ServiceContext serviceContext;
-
         private string mHostAddress = null;
 
-
         public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceContext serviceContext, string publishingAddressHostName)
-        : this(pipelineSpec, serviceContext)
+            : this(pipelineSpec, serviceContext)
         {
             this.mHostAddress = publishingAddressHostName;
         }
 
-            public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceContext serviceContext)
+        public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceContext serviceContext)
         {
             this.pipelineSpec = pipelineSpec;
             this.serviceContext = serviceContext;
         }
-        
+
         public void Abort()
         {
             if (null != this.webServer)
@@ -77,10 +73,12 @@ namespace IoTProcessorManagement.Common
                     port);
             }
 
-            this.publishingAddress = this.listeningAddress.Replace("+", string.IsNullOrEmpty(mHostAddress) ? FabricRuntime.GetNodeContext().IPAddressOrFQDN : mHostAddress) ;
+            this.publishingAddress = this.listeningAddress.Replace(
+                "+",
+                string.IsNullOrEmpty(this.mHostAddress) ? FabricRuntime.GetNodeContext().IPAddressOrFQDN : this.mHostAddress);
             this.webServer = WebApp.Start(this.listeningAddress, app => this.pipelineSpec.CreateOwinPipeline(app));
 
-            return Task.FromResult(this.publishingAddress);   
+            return Task.FromResult(this.publishingAddress);
         }
     }
 }

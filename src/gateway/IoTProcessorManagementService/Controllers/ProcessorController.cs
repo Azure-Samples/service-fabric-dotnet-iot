@@ -6,7 +6,6 @@
 namespace IoTProcessorManagementService
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -29,15 +28,12 @@ namespace IoTProcessorManagementService
         {
             //dirty read
             List<Processor> processors = new List<Processor>();
-            using (ITransaction tx = Svc.StateManager.CreateTransaction())
+            using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
-                var enumerable = await this.Svc.ProcessorStateStore.CreateEnumerableAsync(tx);
+                IAsyncEnumerable<KeyValuePair<string, Processor>> enumerable = await this.Svc.ProcessorStateStore.CreateEnumerableAsync(tx);
 
-                await enumerable.ForeachAsync(CancellationToken.None, item =>
-                {
-                    processors.Add(item.Value);
-                });
-              }
+                await enumerable.ForeachAsync(CancellationToken.None, item => { processors.Add(item.Value); });
+            }
 
             return processors;
         }

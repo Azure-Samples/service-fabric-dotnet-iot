@@ -7,6 +7,7 @@ namespace IoTProcessorManagementService
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric;
     using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
@@ -14,15 +15,20 @@ namespace IoTProcessorManagementService
     using IoTProcessorManagement.Common;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using System.Fabric;
+
     public class ProcessorManagementService : StatefulService
     {
         public const string OperationQueueName = "Operations";
         public const string ProcessorDefinitionStateDictionaryName = "Processors";
         public const int MaxProcessorOpeartionRetry = 5;
+
+        public ProcessorManagementService(StatefulServiceContext context)
+            : base(context)
+        {
+            this.ProcessorServiceCommunicationClientFactory = new ProcessorServiceCommunicationClientFactory();
+        }
 
         public IReliableDictionary<string, Processor> ProcessorStateStore { get; private set; }
 
@@ -33,24 +39,19 @@ namespace IoTProcessorManagementService
         public ProcessorOperationHandlerFactory ProcessorOperationFactory { get; private set; }
 
         public ProcessorServiceCommunicationClientFactory ProcessorServiceCommunicationClientFactory { get; private set; }
-           
-
-        public ProcessorManagementService(StatefulServiceContext context)
-            : base (context)
-        {
-            this.ProcessorServiceCommunicationClientFactory = new ProcessorServiceCommunicationClientFactory();
-        }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            var settingsConfigPackage = FabricRuntime.GetActivationContext().GetConfigurationPackageObject("Config");
-            var publishingAddressHostName = settingsConfigPackage.Settings.Sections["ProcessorDefaults"].Parameters["PublishingAddressHostName"].Value;
+            ConfigurationPackage settingsConfigPackage = FabricRuntime.GetActivationContext().GetConfigurationPackageObject("Config");
+            string publishingAddressHostName = settingsConfigPackage.Settings.Sections["ProcessorDefaults"].Parameters["PublishingAddressHostName"].Value;
 
-            var actualPublishingHostName = string.IsNullOrEmpty(publishingAddressHostName) ? FabricRuntime.GetNodeContext().IPAddressOrFQDN : publishingAddressHostName;
+            string actualPublishingHostName = string.IsNullOrEmpty(publishingAddressHostName)
+                ? FabricRuntime.GetNodeContext().IPAddressOrFQDN
+                : publishingAddressHostName;
             return new[]
             {
                 new ServiceReplicaListener(
-                    context =>  new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), context, actualPublishingHostName))
+                    context => new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), context, actualPublishingHostName))
             };
         }
 
@@ -125,7 +126,7 @@ namespace IoTProcessorManagementService
                 }
             }
         }
-        
+
         private void CodePackageActivationContext_ConfigurationPackageModifiedEvent(
             object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {

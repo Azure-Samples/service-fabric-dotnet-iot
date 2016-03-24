@@ -23,8 +23,8 @@ namespace IoTProcessorManagement
             FabricClient fc = new FabricClient(FabricEndPoint);
             ResolvedServicePartition partition = await fc.ServiceManager.ResolveServicePartitionAsync(new Uri(sMgmtAppInstanceName));
 
-            var jsonAddress = JObject.Parse(partition.GetEndpoint().Address);
-            var address = (string) jsonAddress["Endpoints"][""];
+            JObject jsonAddress = JObject.Parse(partition.GetEndpoint().Address);
+            string address = (string) jsonAddress["Endpoints"][""];
 
             return address;
         }

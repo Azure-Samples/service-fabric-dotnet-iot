@@ -8,8 +8,8 @@ namespace PowerBIActor
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
-    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
+
     [EventSource(Name = "IoT-PowerBIActor")]
     internal sealed class ActorEventSource : EventSource
     {

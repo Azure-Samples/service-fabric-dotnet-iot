@@ -34,19 +34,17 @@ namespace IoTProcessorManagement.Common
         private ServiceContext serviceContext;
         private ITraceWriter m_TraceWriter;
 
-        public EventHubCommunicationListenerMode ListenerMode { get; }
-
         public EventHubCommunicationListener(
-          ITraceWriter TraceWriter,
-          IReliableStateManager stateManager,
-          IReliableDictionary<string, string> stateDictionary,
-          ServiceContext serviceContext,
-          string eventHubName,
-          string eventHubConnectionString,
-          string eventHubConsumerGroupName,
-          IEventDataHandler handler,
-          EventHubCommunicationListenerMode Mode,
-          string eventHubPartitionId)
+            ITraceWriter TraceWriter,
+            IReliableStateManager stateManager,
+            IReliableDictionary<string, string> stateDictionary,
+            ServiceContext serviceContext,
+            string eventHubName,
+            string eventHubConnectionString,
+            string eventHubConsumerGroupName,
+            IEventDataHandler handler,
+            EventHubCommunicationListenerMode Mode,
+            string eventHubPartitionId)
         {
             this.ListenerMode = Mode;
             if (this.ListenerMode == EventHubCommunicationListenerMode.Single && string.IsNullOrEmpty(eventHubPartitionId))
@@ -76,7 +74,6 @@ namespace IoTProcessorManagement.Common
                     this.ListenerMode.ToString()));
         }
 
-
         public EventHubCommunicationListener(
             ITraceWriter TraceWriter,
             IReliableStateManager stateManager,
@@ -101,7 +98,9 @@ namespace IoTProcessorManagement.Common
         public EventHubCommunicationListener()
         {
         }
-        
+
+        public EventHubCommunicationListenerMode ListenerMode { get; }
+
         private string Namespace
         {
             get
@@ -190,7 +189,7 @@ namespace IoTProcessorManagement.Common
 
             return string.Concat(this.EventHubName, " @ ", this.Namespace);
         }
-        
+
         private async Task<string[]> getOrderedServicePartitionIds()
         {
             FabricClient fabricClient = new FabricClient();
@@ -302,7 +301,5 @@ namespace IoTProcessorManagement.Common
 
             throw new InvalidOperationException("could not resolve event hub partitions");
         }
-        
-      
     }
 }

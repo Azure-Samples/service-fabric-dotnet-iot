@@ -7,18 +7,20 @@ namespace IoTProcessorManagementService
 {
     using System;
     using System.Diagnostics;
-    using System.Fabric;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
+
     public class Program
     {
         public static void Main(string[] args)
         {
             try
             {
-                ServiceRuntime.RegisterServiceAsync("ProcessorManagementServiceType", context =>
-                    new ProcessorManagementService(context)).GetAwaiter().GetResult();
-                
+                ServiceRuntime.RegisterServiceAsync(
+                    "ProcessorManagementServiceType",
+                    context =>
+                        new ProcessorManagementService(context)).GetAwaiter().GetResult();
+
                 ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(ProcessorManagementService).Name);
 
                 Thread.Sleep(Timeout.Infinite);

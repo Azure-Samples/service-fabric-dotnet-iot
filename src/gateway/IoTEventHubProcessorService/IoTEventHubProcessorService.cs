@@ -3,15 +3,12 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-//#define _WAIT_FOR_DEBUGGER // if defined will cause the replica to wait for your debugger to attach.
-//#define _VS_DEPLOY // if defined will force the replica to use statically defined processor (instead of init data) - check GetAssignedProcessorAsync() method
 namespace EventHubProcessor
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using IoTProcessorManagement.Clients;
@@ -30,7 +27,7 @@ namespace EventHubProcessor
         private CompositeCommunicationListener compositeListener; // one composite listener to rule them all
 
         public IoTEventHubProcessorService(StatefulServiceContext context)
-            : base (context)
+            : base(context)
         {
             this.ErrorMessage = String.Empty;
             this.IsInErrorState = false;
@@ -46,110 +43,9 @@ namespace EventHubProcessor
         /// </summary>
         public bool IsInErrorState { get; private set; }
 
-        public TraceWriter TraceWriter { get; private set; } // used to allow components to use Event Source/ServiceMessage
+        public TraceWriter TraceWriter { get; } // used to allow components to use Event Source/ServiceMessage
 
         private WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem> WorkManager { get; set; }
-
-        protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
-        {
-            return new[]
-            {
-                new ServiceReplicaListener(
-                    context => new OwinCommunicationListener(new ProcessorServiceOwinListenerSpec(this), context), "webapi"), 
-
-                new ServiceReplicaListener(
-                    context => this.compositeListener, "eventhubs")
-            };
-        }
-
-        protected override async Task RunAsync(CancellationToken cancellationToken)
-        {
-            this.TraceWriter.EnablePrefix = true;
-
-
-#if _WAIT_FOR_DEBUGGER
-            while (!Debugger.IsAttached)
-                await Task.Delay(5000);
-#endif
-
-            // Create a work manager that is expected to receive a work item of type RouteToActor
-            // The work manager will queue them (according to RouteToActor.Queue Name property). Then for each work 
-            //item de-queued it will use RouteToActorWorkItemHandler type to process the work item
-            this.WorkManager = new WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>(this.StateManager, this.TraceWriter);
-
-            /*
-            Work Manager supports 2 modes
-            Buffered: 
-                - the original mode, items are buffered in reliable queues (one per device) then routed to actors.
-                - the advantages of this mode, if you have smaller # of devices, the system will attempt to avoid the turn based concurrancy of the actor
-                  by fanning out execution, events are picked up from event hub faster than they are delivered to actors. this mode is good for large
-                  # of devices each is a high freq message sender. 
-              
-            Buffered os faster on multi core CPUs , the max # of worker is 2 X CPU ore.
-
-            None Buffered Mode: 
-                - newly introcuced mode, events are not buffered and routed directly to actors. this is a better mode if you expect large # of devices.
-            
-            
-            - You can extend the code to support switching at runtime (example: dealing with variable device #)
-            
-            */
-            this.WorkManager.BufferedMode = false; 
-
-
-            // work manager will creates a new (RoutetoActorWorkItemHandler) 
-            // per queue. our work item handling is basically forwarding event hub message to the Actor. 
-            // since each Actor will have it is own queue (and a handler). each handler
-            // can cache a reference to the actor proxy instead of caching them at a higher level
-            this.WorkManager.WorkItemHandlerMode = WorkItemHandlerMode.PerQueue;
-
-            // maximum # of worker loops (loops that de-queue from reliable queue)
-            this.WorkManager.MaxNumOfWorkers =  WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>.s_Max_Num_OfWorker;
-
-            this.WorkManager.YieldQueueAfter = 50; // worker will attempt to process
-            // 50 work item per queue before dropping it 
-            // and move to the next. 
-
-            // if a queue stays empty more than .. it will be removed
-            this.WorkManager.RemoveEmptyQueueAfter = TimeSpan.FromSeconds(10);
-
-            // start it
-            await this.WorkManager.StartAsync();
-
-            // this wire up Event hub listeners that uses EventHubListenerDataHandler to 
-            // post to WorkManager which then (create or get existing queue) then en-queue.
-            this.eventHubListenerHandler = new EventHubListenerDataHandler(this.WorkManager);
-
-            // this ensures that an event hub listener is created
-            // per every assigned event hub
-            await this.RefreshListenersAsync();
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(2000);
-            }
-
-
-            this.TraceWriter.EnablePrefix = false;
-
-
-            this.TraceWriter.TraceMessage("Replica is existing, stopping the work manager");
-
-            try
-            {
-                await this.ClearEventHubListeners();
-                await this.WorkManager.StopAsync();
-            }
-            catch (AggregateException aex)
-            {
-                AggregateException ae = aex.Flatten();
-                this.TraceWriter.TraceMessage(
-                    string.Format(
-                        "as the replica unload (run async canceled) the followng errors occured E:{0} StackTrace:{1}",
-                        aex.GetCombinedExceptionMessage(),
-                        aex.GetCombinedExceptionStackTrace()));
-            }
-        }
 
         /// <summary>
         /// event hub listeners does not support pause and resume so we just remove and recreate them.
@@ -185,7 +81,7 @@ namespace EventHubProcessor
                 )
             {
                 await this.ClearEventHubListeners();
-                await this.WorkManager.StopAsync(); 
+                await this.WorkManager.StopAsync();
             }
             else
             {
@@ -254,7 +150,7 @@ namespace EventHubProcessor
         {
             return Task.FromResult(this.WorkManager.NumberOfBufferedWorkItems);
         }
-        
+
         // updates the current assigned processor (the # of event hubs)
         public async Task SetAssignedProcessorAsync(Processor newProcessor)
         {
@@ -267,7 +163,166 @@ namespace EventHubProcessor
                 await this.RefreshListenersAsync();
             }
         }
-        
+
+        public async Task<Processor> GetAssignedProcessorAsync()
+        {
+            // do we have it?
+            if (null != this.assignedProcessor)
+            {
+                return this.assignedProcessor;
+            }
+
+            //is it in state
+            Processor processor = await this.GetAssignedProcessorFromState();
+            if (processor != null)
+            {
+                this.assignedProcessor = processor;
+                return this.assignedProcessor;
+            }
+
+            // must be a new instance (or if we are debugging in VS.NET then use a manually created one)
+#if _VS_DEPLOY
+    // in this mode we load a mock up Processor and use it.
+    // this mode is used only during single processor (set as a startup)
+    // project 
+            TraceWriter.TraceMessage("Processor is running in VS.NET Deploy Mode");
+
+            var processor1 = new Processor()
+            {
+                Name = "One"
+            };
+            processor1.Hubs.Add(new EventHubDefinition()
+            {
+                ConnectionString = "// Service Bus Connection String //",
+                EventHubName = "eh01",
+                ConsumerGroupName = ""
+            });
+
+            
+            return processor1;
+#else
+            if (null != this.Context.InitializationData)
+            {
+                Processor initProcessor = Processor.FromBytes(this.Context.InitializationData);
+                Trace.WriteLine(
+                    string.Format(
+                        string.Format(
+                            "Replica {0} Of Application {1} Got Processor {2}",
+                            this.Context.ReplicaId,
+                            this.Context.CodePackageActivationContext.ApplicationName,
+                            initProcessor.Name)));
+
+                this.assignedProcessor = await this.SaveProcessorToState(initProcessor); // this sets m_assignedprocessor
+
+                return this.assignedProcessor;
+            }
+
+#endif
+            throw new InvalidOperationException("Failed to load assigned processor from saved state and initialization data");
+        }
+
+        protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+        {
+            return new[]
+            {
+                new ServiceReplicaListener(
+                    context => new OwinCommunicationListener(new ProcessorServiceOwinListenerSpec(this), context),
+                    "webapi"),
+                new ServiceReplicaListener(
+                    context => this.compositeListener,
+                    "eventhubs")
+            };
+        }
+
+        protected override async Task RunAsync(CancellationToken cancellationToken)
+        {
+            this.TraceWriter.EnablePrefix = true;
+
+
+#if _WAIT_FOR_DEBUGGER
+            while (!Debugger.IsAttached)
+                await Task.Delay(5000);
+#endif
+
+            // Create a work manager that is expected to receive a work item of type RouteToActor
+            // The work manager will queue them (according to RouteToActor.Queue Name property). Then for each work 
+            //item de-queued it will use RouteToActorWorkItemHandler type to process the work item
+            this.WorkManager = new WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>(this.StateManager, this.TraceWriter);
+
+            /*
+            Work Manager supports 2 modes
+            Buffered: 
+                - the original mode, items are buffered in reliable queues (one per device) then routed to actors.
+                - the advantages of this mode, if you have smaller # of devices, the system will attempt to avoid the turn based concurrancy of the actor
+                  by fanning out execution, events are picked up from event hub faster than they are delivered to actors. this mode is good for large
+                  # of devices each is a high freq message sender. 
+              
+            Buffered os faster on multi core CPUs , the max # of worker is 2 X CPU ore.
+
+            None Buffered Mode: 
+                - newly introcuced mode, events are not buffered and routed directly to actors. this is a better mode if you expect large # of devices.
+            
+            
+            - You can extend the code to support switching at runtime (example: dealing with variable device #)
+            
+            */
+            this.WorkManager.BufferedMode = false;
+
+
+            // work manager will creates a new (RoutetoActorWorkItemHandler) 
+            // per queue. our work item handling is basically forwarding event hub message to the Actor. 
+            // since each Actor will have it is own queue (and a handler). each handler
+            // can cache a reference to the actor proxy instead of caching them at a higher level
+            this.WorkManager.WorkItemHandlerMode = WorkItemHandlerMode.PerQueue;
+
+            // maximum # of worker loops (loops that de-queue from reliable queue)
+            this.WorkManager.MaxNumOfWorkers = WorkManager<RoutetoActorWorkItemHandler, RouteToActorWorkItem>.s_Max_Num_OfWorker;
+
+            this.WorkManager.YieldQueueAfter = 50; // worker will attempt to process
+            // 50 work item per queue before dropping it 
+            // and move to the next. 
+
+            // if a queue stays empty more than .. it will be removed
+            this.WorkManager.RemoveEmptyQueueAfter = TimeSpan.FromSeconds(10);
+
+            // start it
+            await this.WorkManager.StartAsync();
+
+            // this wire up Event hub listeners that uses EventHubListenerDataHandler to 
+            // post to WorkManager which then (create or get existing queue) then en-queue.
+            this.eventHubListenerHandler = new EventHubListenerDataHandler(this.WorkManager);
+
+            // this ensures that an event hub listener is created
+            // per every assigned event hub
+            await this.RefreshListenersAsync();
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(2000);
+            }
+
+
+            this.TraceWriter.EnablePrefix = false;
+
+
+            this.TraceWriter.TraceMessage("Replica is existing, stopping the work manager");
+
+            try
+            {
+                await this.ClearEventHubListeners();
+                await this.WorkManager.StopAsync();
+            }
+            catch (AggregateException aex)
+            {
+                AggregateException ae = aex.Flatten();
+                this.TraceWriter.TraceMessage(
+                    string.Format(
+                        "as the replica unload (run async canceled) the followng errors occured E:{0} StackTrace:{1}",
+                        aex.GetCombinedExceptionMessage(),
+                        aex.GetCombinedExceptionStackTrace()));
+            }
+        }
+
         private Task ClearEventHubListeners()
         {
             // we clear the event hub as we are not sure if the # of partitions has changed
@@ -376,7 +431,6 @@ namespace EventHubProcessor
             this.TraceWriter.TraceMessage("End Refresh Listeners");
         }
 
-        
         private async Task<Processor> GetAssignedProcessorFromState()
         {
             Processor processor = null;
@@ -416,64 +470,5 @@ namespace EventHubProcessor
         {
             return string.Concat(HubDef.EventHubName, "-", HubDef.ConnectionString, "-", HubDef.ConsumerGroupName);
         }
-
-
-        public async Task<Processor> GetAssignedProcessorAsync()
-        {
-            // do we have it?
-            if (null != this.assignedProcessor)
-            {
-                return this.assignedProcessor;
-            }
-
-            //is it in state
-            Processor processor = await this.GetAssignedProcessorFromState();
-            if (processor != null)
-            {
-                this.assignedProcessor = processor;
-                return this.assignedProcessor;
-            }
-
-            // must be a new instance (or if we are debugging in VS.NET then use a manually created one)
-#if _VS_DEPLOY
-    // in this mode we load a mock up Processor and use it.
-    // this mode is used only during single processor (set as a startup)
-    // project 
-            TraceWriter.TraceMessage("Processor is running in VS.NET Deploy Mode");
-
-            var processor1 = new Processor()
-            {
-                Name = "One"
-            };
-            processor1.Hubs.Add(new EventHubDefinition()
-            {
-                ConnectionString = "// Service Bus Connection String //",
-                EventHubName = "eh01",
-                ConsumerGroupName = ""
-            });
-
-            
-            return processor1;
-#else
-            if (null != this.Context.InitializationData)
-            {
-                Processor initProcessor = Processor.FromBytes(this.Context.InitializationData);
-                Trace.WriteLine(
-                    string.Format(
-                        string.Format(
-                            "Replica {0} Of Application {1} Got Processor {2}",
-                            this.Context.ReplicaId,
-                            this.Context.CodePackageActivationContext.ApplicationName,
-                            initProcessor.Name)));
-
-                this.assignedProcessor = await this.SaveProcessorToState(initProcessor); // this sets m_assignedprocessor
-
-                return this.assignedProcessor;
-            }
-
-#endif
-            throw new InvalidOperationException("Failed to load assigned processor from saved state and initialization data");
-        }
-        
     }
 }

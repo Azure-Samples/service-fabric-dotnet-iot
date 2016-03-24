@@ -43,7 +43,7 @@ namespace DeviceActor
             and send the command. 
             */
 
-             await Task.WhenAll(TaskFloorForward, TaskStorageForward);
+            await Task.WhenAll(TaskFloorForward, TaskStorageForward);
         }
 
         protected override Task OnActivateAsync()

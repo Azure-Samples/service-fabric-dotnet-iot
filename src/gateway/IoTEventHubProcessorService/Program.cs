@@ -7,22 +7,23 @@ namespace EventHubProcessor
 {
     using System;
     using System.Diagnostics;
-    using System.Fabric;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
+
     public class Program
     {
         public static void Main(string[] args)
         {
             try
-            { 
-                ServiceRuntime.RegisterServiceAsync("IoTEventHubProcessorService", context =>
-                    new IoTEventHubProcessorService(context)).GetAwaiter().GetResult();
+            {
+                ServiceRuntime.RegisterServiceAsync(
+                    "IoTEventHubProcessorService",
+                    context =>
+                        new IoTEventHubProcessorService(context)).GetAwaiter().GetResult();
 
                 ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(IoTEventHubProcessorService).Name);
 
                 Thread.Sleep(Timeout.Infinite);
-
             }
             catch (Exception e)
             {

@@ -15,7 +15,6 @@ namespace PowerBIActor
     using System.Threading.Tasks;
     using IoTActor.Common;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
-    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -27,7 +26,6 @@ namespace PowerBIActor
         private bool dataSetCreated = false;
         private string dataSetID = string.Empty;
         private string addRowsUrl = "https://api.powerbi.com/v1.0/myorg/datasets/{0}/tables/{1}/rows";
-
         // settings
         private string clientId = string.Empty;
         private string username = string.Empty;
@@ -50,7 +48,7 @@ namespace PowerBIActor
             Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
 
             queue.Enqueue(workItem);
-            
+
             await this.StateManager.SetStateAsync("queue", queue);
         }
 
@@ -81,7 +79,7 @@ namespace PowerBIActor
             await this.SendToPowerBIAsync(true); // make sure that no remaining pending records 
             await base.OnDeactivateAsync();
         }
-        
+
         private void ConfigChanged(object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {
             this.SetConfig();
@@ -102,7 +100,7 @@ namespace PowerBIActor
             this.powerBIBaseUrl = configSection.Parameters["PowerBIBaseUrl"].Value;
             this.datasetName = configSection.Parameters["DatesetName"].Value;
             this.tableName = configSection.Parameters["TableName"].Value;
-            
+
             ActorEventSource.Current.ActorMessage(
                 this,
                 "Config loaded \n Client:{0} \n Username:{1} \n Password:{2} \n Authority{3} \n PowerBiResource:{4} \n BaseUrl:{5} \n DataSet:{6} \n Table:{7}",
@@ -125,7 +123,7 @@ namespace PowerBIActor
                 this.dataSetSchema = sr.ReadToEnd();
             }
         }
-        
+
         private async Task<string> GetAuthTokenAsync()
         {
             AuthenticationContext authContext = new AuthenticationContext(this.authority);
@@ -204,7 +202,6 @@ namespace PowerBIActor
             this.dataSetCreated = true;
         }
 
-
         private async Task SendToPowerBIAsync(object IsFinal)
         {
             Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
@@ -216,7 +213,7 @@ namespace PowerBIActor
 
             await this.EnsureDataSetCreatedAsync();
 
-            bool bFinal = (bool)IsFinal; // as in actor instance is about to get deactivated. 
+            bool bFinal = (bool) IsFinal; // as in actor instance is about to get deactivated. 
             Task<string> tAuthToken = this.GetAuthTokenAsync();
             int nCurrent = 0;
             JArray list = new JArray();
@@ -226,14 +223,14 @@ namespace PowerBIActor
                 list.Add(queue.Dequeue().toJObject());
                 nCurrent++;
             }
-            
+
             try
             {
-                var all = new { rows = list };
+                var all = new {rows = list};
                 string sContent = JsonConvert.SerializeObject(all);
 
                 this.addRowsUrl = string.Format(this.addRowsUrl, this.dataSetID, this.tableName);
-                
+
                 string AuthToken = await tAuthToken;
 
                 HttpClient client = new HttpClient();
@@ -262,7 +259,6 @@ namespace PowerBIActor
             }
 
             await this.StateManager.SetStateAsync("queue", queue);
-
         }
     }
 }

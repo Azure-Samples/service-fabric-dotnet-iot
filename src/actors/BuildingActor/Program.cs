@@ -6,10 +6,9 @@
 namespace BuildingActor
 {
     using System;
-    using System.Fabric;
     using System.Threading;
-    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
+
     public class Program
     {
         public static void Main(string[] args)

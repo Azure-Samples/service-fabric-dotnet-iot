@@ -11,6 +11,7 @@ namespace IoTProcessorManagement.Common
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
+
     public static class Extentions
     {
         /// <summary>
@@ -49,7 +50,6 @@ namespace IoTProcessorManagement.Common
                 }
             }
         }
-
 
         public static Task<Byte[]> ToBytes(this Stream stream)
         {

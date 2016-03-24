@@ -7,7 +7,6 @@ namespace BuildingActor
 {
     using System.Threading.Tasks;
     using IoTActor.Common;
-    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     [StatePersistence(StatePersistence.None)]

@@ -38,7 +38,7 @@ namespace StorageActor
             Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
 
             queue.Enqueue(workItem);
-                
+
             await this.ForwardToPowerBIActor(DeviceId, EventHubName, ServiceBusNS, Body);
 
             await this.StateManager.SetStateAsync("queue", queue);
@@ -47,10 +47,10 @@ namespace StorageActor
         protected override async Task OnActivateAsync()
         {
             await this.StateManager.TryAddStateAsync("queue", new Queue<IoTActorWorkItem>());
-            
+
             this.SetConfig();
             this.ActorService.Context.CodePackageActivationContext.ConfigurationPackageModifiedEvent += this.ConfigChanged;
-            
+
             // register a call back timer, that perfoms the actual send to PowerBI
             // has to iterate in less than IdleTimeout 
             this.dequeueTimer = this.RegisterTimer(
@@ -68,7 +68,7 @@ namespace StorageActor
             await this.SaveToStorage(true); // make sure that no remaining pending records 
             await base.OnDeactivateAsync();
         }
-        
+
         private async Task SaveToStorage(object IsFinal)
         {
             Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
@@ -77,10 +77,10 @@ namespace StorageActor
             {
                 return;
             }
-            
+
             bool bFinal = (bool) IsFinal; // as in actor instance is about to get deactivated. 
             int nCurrent = 0;
-            
+
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(this.connectionString);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(this.tableName);
@@ -98,7 +98,7 @@ namespace StorageActor
 
             await this.StateManager.SetStateAsync("queue", queue);
         }
-        
+
         private IIoTActor GetPowerBIActorProxy(string DeviceId, string EventHubName, string ServiceBusNS)
         {
             ActorId actorId = new ActorId(string.Format(PowerBIActorId, DeviceId, EventHubName, ServiceBusNS));
@@ -114,7 +114,7 @@ namespace StorageActor
 
             return this.powerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
-        
+
         private void ConfigChanged(object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {
             this.SetConfig();
