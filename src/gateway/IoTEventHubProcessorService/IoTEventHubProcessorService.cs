@@ -10,6 +10,7 @@ namespace EventHubProcessor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Fabric;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -28,7 +29,8 @@ namespace EventHubProcessor
         private Processor assignedProcessor; // each service will have an assigned Processor which is a list of event hubs to pump data out of
         private CompositeCommunicationListener compositeListener; // one composite listener to rule them all
 
-        public IoTEventHubProcessorService()
+        public IoTEventHubProcessorService(StatefulServiceContext context)
+            : base (context)
         {
             this.ErrorMessage = String.Empty;
             this.IsInErrorState = false;
@@ -53,10 +55,10 @@ namespace EventHubProcessor
             return new[]
             {
                 new ServiceReplicaListener(
-                    parameteres => new OwinCommunicationListener(new ProcessorServiceOwinListenerSpec(this), parameteres), "webapi"), 
+                    context => new OwinCommunicationListener(new ProcessorServiceOwinListenerSpec(this), context), "webapi"), 
 
                 new ServiceReplicaListener(
-                    parameters => this.compositeListener, "eventhubs")
+                    context => this.compositeListener, "eventhubs")
             };
         }
 
@@ -308,7 +310,7 @@ namespace EventHubProcessor
                         this.StateManager,
                         // state manager used by eh listener for check pointing
                         LeaseStateDictionary,
-                        this.ServiceInitializationParameters,
+                        this.Context,
                         // which dictionary will it use to save state it uses IReliableDictionary<string, string>
                         hub.EventHubName,
                         // which event hub will it pump messages out of
@@ -382,7 +384,7 @@ namespace EventHubProcessor
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                ConditionalResult<string> cResult = await dict.TryGetValueAsync(tx, AssignedProcessorEntryName);
+                ConditionalValue<string> cResult = await dict.TryGetValueAsync(tx, AssignedProcessorEntryName);
                 if (cResult.HasValue)
                 {
                     processor = Processor.FromJsonString(cResult.Value);
@@ -453,15 +455,15 @@ namespace EventHubProcessor
             
             return processor1;
 #else
-            if (null != this.ServiceInitializationParameters.InitializationData)
+            if (null != this.Context.InitializationData)
             {
-                Processor initProcessor = Processor.FromBytes(this.ServiceInitializationParameters.InitializationData);
+                Processor initProcessor = Processor.FromBytes(this.Context.InitializationData);
                 Trace.WriteLine(
                     string.Format(
                         string.Format(
                             "Replica {0} Of Application {1} Got Processor {2}",
-                            this.ServiceInitializationParameters.ReplicaId,
-                            this.ServiceInitializationParameters.CodePackageActivationContext.ApplicationName,
+                            this.Context.ReplicaId,
+                            this.Context.CodePackageActivationContext.ApplicationName,
                             initProcessor.Name)));
 
                 this.assignedProcessor = await this.SaveProcessorToState(initProcessor); // this sets m_assignedprocessor

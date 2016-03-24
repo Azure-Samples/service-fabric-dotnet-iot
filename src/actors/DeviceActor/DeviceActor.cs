@@ -10,18 +10,28 @@ namespace DeviceActor
     using System.Threading.Tasks;
     using IoTActor.Common;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Newtonsoft.Json.Linq;
 
-    public class DeviceActor : StatefulActor<DeviceActorState>, IIoTActor
+    [StatePersistence(StatePersistence.None)]
+    public class DeviceActor : Actor, IIoTActor
     {
-        private static string floorActorService = "fabric:/IoTApplication/FloorActor";
-        private static string floorActorIdFormat = "{0}-{1}-{2}";
-        private static string storageActorService = "fabric:/IoTApplication/StorageActor";
-        private static string storageActorIdFormat = "{0}-{1}-{2}";
+        private const string FloorActorService = "fabric:/IoTApplication/FloorActor";
+        private const string FloorActorIdFormat = "{0}-{1}-{2}";
+        private const string StorageActorService = "fabric:/IoTApplication/StorageActor";
+        private const string StorageActorIdFormat = "{0}-{1}-{2}";
         private IIoTActor floorActor = null;
         private IIoTActor storageActor = null;
 
-        [Readonly] // currently device actor does not maintain state
+        /// <summary>
+        /// Currently device actor does not maintain state
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="eventHubName"></param>
+        /// <param name="serviceBusNS"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public async Task Post(string deviceId, string eventHubName, string serviceBusNS, byte[] body)
         {
             Task TaskFloorForward = this.ForwardToFloorActorAsync(deviceId, eventHubName, serviceBusNS, body);
@@ -41,16 +51,16 @@ namespace DeviceActor
             return Task.FromResult(true);
         }
 
-        private IIoTActor CreateFloorActor(string DeviceId, string FloorId, string EventHubName, string ServiceBusNS)
+        private IIoTActor GetFloorActorProxy(string DeviceId, string FloorId, string EventHubName, string ServiceBusNS)
         {
-            ActorId actorId = new ActorId(string.Format(floorActorIdFormat, FloorId, EventHubName, ServiceBusNS));
-            return ActorProxy.Create<IIoTActor>(actorId, new Uri(floorActorService));
+            ActorId actorId = new ActorId(string.Format(FloorActorIdFormat, FloorId, EventHubName, ServiceBusNS));
+            return ActorProxy.Create<IIoTActor>(actorId, new Uri(FloorActorService));
         }
 
-        private IIoTActor CreateStorageActor(string DeviceId, string EventHubName, string ServiceBusNS)
+        private IIoTActor GetStorageActorProxy(string DeviceId, string EventHubName, string ServiceBusNS)
         {
-            ActorId actorId = new ActorId(string.Format(storageActorIdFormat, DeviceId, EventHubName, ServiceBusNS));
-            return ActorProxy.Create<IIoTActor>(actorId, new Uri(storageActorService));
+            ActorId actorId = new ActorId(string.Format(StorageActorIdFormat, DeviceId, EventHubName, ServiceBusNS));
+            return ActorProxy.Create<IIoTActor>(actorId, new Uri(StorageActorService));
         }
 
         private Task ForwardToFloorActorAsync(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
@@ -60,8 +70,9 @@ namespace DeviceActor
                 JObject j = JObject.Parse(Encoding.UTF8.GetString(Body));
                 string FloorId = j["FloorId"].Value<string>();
 
-                this.floorActor = this.CreateFloorActor(DeviceId, FloorId, EventHubName, ServiceBusNS);
+                this.floorActor = this.GetFloorActorProxy(DeviceId, FloorId, EventHubName, ServiceBusNS);
             }
+
             return this.floorActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }
 
@@ -69,7 +80,7 @@ namespace DeviceActor
         {
             if (null == this.storageActor)
             {
-                this.storageActor = this.CreateStorageActor(DeviceId, EventHubName, ServiceBusNS);
+                this.storageActor = this.GetStorageActorProxy(DeviceId, EventHubName, ServiceBusNS);
             }
 
             return this.storageActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);

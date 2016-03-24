@@ -31,7 +31,7 @@ namespace IoTProcessorManagement.Common
         private EventHubConsumerGroup m_ConsumerGroup;
         private EventProcessorFactory m_EventProcessorFactory;
         private string m_Namespace;
-        private ServiceInitializationParameters m_InitParams;
+        private ServiceContext serviceContext;
         private ITraceWriter m_TraceWriter;
 
         public EventHubCommunicationListenerMode ListenerMode { get; }
@@ -40,7 +40,7 @@ namespace IoTProcessorManagement.Common
           ITraceWriter TraceWriter,
           IReliableStateManager stateManager,
           IReliableDictionary<string, string> stateDictionary,
-          ServiceInitializationParameters serviceParameters,
+          ServiceContext serviceContext,
           string eventHubName,
           string eventHubConnectionString,
           string eventHubConsumerGroupName,
@@ -57,7 +57,7 @@ namespace IoTProcessorManagement.Common
 
             this.m_TraceWriter = TraceWriter;
 
-            this.m_InitParams = serviceParameters;
+            this.serviceContext = serviceContext;
             this.EventHubName = eventHubName;
             this.EventHubConnectionString = eventHubConnectionString;
             this.Handler = handler;
@@ -81,14 +81,14 @@ namespace IoTProcessorManagement.Common
             ITraceWriter TraceWriter,
             IReliableStateManager stateManager,
             IReliableDictionary<string, string> stateDictionary,
-            ServiceInitializationParameters serviceParameters,
+            ServiceContext serviceContext,
             string eventHubName,
             string eventHubConnectionString,
             string eventHubConsumerGroupName,
             IEventDataHandler handler) : this(TraceWriter,
                 stateManager,
                 stateDictionary,
-                serviceParameters,
+                serviceContext,
                 eventHubName,
                 eventHubConnectionString,
                 eventHubConsumerGroupName,
@@ -194,7 +194,7 @@ namespace IoTProcessorManagement.Common
         private async Task<string[]> getOrderedServicePartitionIds()
         {
             FabricClient fabricClient = new FabricClient();
-            ServicePartitionList PartitionList = await fabricClient.QueryManager.GetPartitionListAsync(this.m_InitParams.ServiceName);
+            ServicePartitionList PartitionList = await fabricClient.QueryManager.GetPartitionListAsync(this.serviceContext.ServiceName);
 
             List<string> partitions = new List<string>();
 
@@ -214,7 +214,7 @@ namespace IoTProcessorManagement.Common
             // the reminder partitions will just not gonna work on anything. 
             if (orderServicePartitionIds.Length >= orderEventHubPartition.Length)
             {
-                int servicePartitionRank = Array.IndexOf(orderServicePartitionIds, this.m_InitParams.PartitionId.ToString());
+                int servicePartitionRank = Array.IndexOf(orderServicePartitionIds, this.serviceContext.PartitionId.ToString());
 
                 return new string[] {orderEventHubPartition[servicePartitionRank]};
             }
@@ -225,7 +225,7 @@ namespace IoTProcessorManagement.Common
 
                 int reminder = orderEventHubPartition.Length%orderServicePartitionIds.Length;
                 int HubPartitionsPerServicePartitions = orderEventHubPartition.Length/orderServicePartitionIds.Length;
-                int servicePartitionRank = Array.IndexOf(orderServicePartitionIds, this.m_InitParams.PartitionId.ToString());
+                int servicePartitionRank = Array.IndexOf(orderServicePartitionIds, this.serviceContext.PartitionId.ToString());
 
                 List<string> assignedIds = new List<string>();
                 for (int i = 0; i < HubPartitionsPerServicePartitions; i++)
@@ -270,7 +270,7 @@ namespace IoTProcessorManagement.Common
                         throw new InvalidOperationException("Event Hub listener is in 1:1 mode yet servie partitions are not equal to event hub partitions");
                     }
 
-                    int servicePartitionRank = Array.IndexOf(servicePartitions, this.m_InitParams.PartitionId.ToString());
+                    int servicePartitionRank = Array.IndexOf(servicePartitions, this.serviceContext.PartitionId.ToString());
 
                     return new string[] {OrderIds[servicePartitionRank]};
                 }

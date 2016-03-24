@@ -10,15 +10,25 @@ namespace FloorActor
     using System.Threading.Tasks;
     using IoTActor.Common;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Newtonsoft.Json.Linq;
 
-    public class FloorActor : StatefulActor<FloorActorState>, IIoTActor
+    [StatePersistence(StatePersistence.None)]
+    public class FloorActor : Actor, IIoTActor
     {
         private static string buildingActorService = "fabric:/IoTApplication/BuildingActor";
         private static string buildingActorIdFormat = "{0}-{1}-{2}";
         private IIoTActor buildingActor = null;
 
-        [Readonly] // currently building actor does not maintain state
+        /// <summary>
+        /// currently building actor does not maintain state
+        /// </summary>
+        /// <param name="DeviceId"></param>
+        /// <param name="EventHubName"></param>
+        /// <param name="ServiceBusNS"></param>
+        /// <param name="Body"></param>
+        /// <returns></returns>
         public async Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             Task taskForward = this.ForwardToBuildingActorAsync(DeviceId, EventHubName, ServiceBusNS, Body);
@@ -43,7 +53,7 @@ namespace FloorActor
             await taskForward;
         }
 
-        private IIoTActor CreateBuildingActor(string BuildingId, string EventHubName, string ServiceBusNS)
+        private IIoTActor GetBuildingActorProxy(string BuildingId, string EventHubName, string ServiceBusNS)
         {
             ActorId actorId = new ActorId(string.Format(buildingActorIdFormat, BuildingId, EventHubName, ServiceBusNS));
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(buildingActorService));
@@ -56,7 +66,7 @@ namespace FloorActor
                 JObject j = JObject.Parse(Encoding.UTF8.GetString(Body));
                 string BuildingId = j["BuildingId"].Value<string>();
 
-                this.buildingActor = this.CreateBuildingActor(BuildingId, EventHubName, ServiceBusNS);
+                this.buildingActor = this.GetBuildingActorProxy(BuildingId, EventHubName, ServiceBusNS);
             }
             await this.buildingActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
         }

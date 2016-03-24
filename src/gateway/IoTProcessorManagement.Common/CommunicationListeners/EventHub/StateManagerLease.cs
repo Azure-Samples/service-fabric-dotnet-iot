@@ -66,7 +66,7 @@ namespace IoTProcessorManagement.Common
             {
                 StateManagerLease lease;
                 // if something has been saved before load it
-                ConditionalResult<string> cResults = await StateDictionary.TryGetValueAsync(tx, EntryName);
+                ConditionalValue<string> cResults = await StateDictionary.TryGetValueAsync(tx, EntryName);
                 if (cResults.HasValue)
                 {
                     lease = FromJsonString(cResults.Value);

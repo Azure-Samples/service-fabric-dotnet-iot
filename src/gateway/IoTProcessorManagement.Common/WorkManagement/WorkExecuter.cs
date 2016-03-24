@@ -24,40 +24,40 @@ namespace IoTProcessorManagement.Common
         private class WorkExecuter<H, W> where H : IWorkItemHandler<W>, new()
             where W : IWorkItem
         {
-            internal readonly string m_WorkerExecuterId = Guid.NewGuid().ToString();
-            private WorkManager<Handler, Wi> m_WorkManager;
-            private Task m_Task;
-            private bool m_KeepWorking = true;
-            private bool m_Pause = false;
+            internal readonly string workerExecuterId = Guid.NewGuid().ToString();
+            private WorkManager<Handler, Wi> workManager;
+            private Task workTask;
+            private bool keepWorking = true;
+            private bool pause = false;
 
             public WorkExecuter(WorkManager<Handler, Wi> workManager)
             {
-                this.m_WorkManager = workManager;
+                this.workManager = workManager;
             }
 
             public void Start()
             {
-                this.m_Task = Task.Run(() => this.workloop());
+                this.workTask = Task.Run(() => this.workloop());
             }
 
             public void Pause()
             {
-                this.m_Pause = true;
+                this.pause = true;
             }
 
             public void Resume()
             {
-                this.m_Pause = false;
+                this.pause = false;
             }
 
             public void Stop()
             {
-                this.m_WorkManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} signled to stop", this.m_WorkerExecuterId));
-                this.m_Pause = false;
-                this.m_KeepWorking = false;
-                this.m_Task.Wait();
+                this.workManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} signled to stop", this.workerExecuterId));
+                this.pause = false;
+                this.keepWorking = false;
+                this.workTask.Wait();
 
-                this.m_WorkManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} stopped", this.m_WorkerExecuterId));
+                this.workManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} stopped", this.workerExecuterId));
             }
 
             private void workloop()
@@ -69,7 +69,7 @@ namespace IoTProcessorManagement.Common
                 catch (AggregateException aex)
                 {
                     AggregateException ae = aex.Flatten();
-                    this.m_WorkManager.m_TraceWriter.TraceMessage(
+                    this.workManager.m_TraceWriter.TraceMessage(
                         string.Format(
                             "Executer encountered a fatel error and will exit Error:{0} StackTrace{1}",
                             ae.GetCombinedExceptionMessage(),
@@ -81,10 +81,10 @@ namespace IoTProcessorManagement.Common
             private void leaveQ(string qName, bool bRemoveFromEmptySuspects)
             {
                 long LastCheckedVal;
-                this.m_WorkManager.m_QueueManager.LeaveQueueAsync(qName);
+                this.workManager.m_QueueManager.LeaveQueueAsync(qName);
                 if (bRemoveFromEmptySuspects)
                 {
-                    this.m_WorkManager.m_QueueManager.m_SuspectedEmptyQueues.TryRemove(qName, out LastCheckedVal);
+                    this.workManager.m_QueueManager.m_SuspectedEmptyQueues.TryRemove(qName, out LastCheckedVal);
                 }
             }
 
@@ -97,16 +97,21 @@ namespace IoTProcessorManagement.Common
                     // this executer tried to get q and failed. 
                     // typically this happens when # of executers > q
                     // check for decrease workers 
-                    this.m_WorkManager.m_DeferedTaskExec.AddWork(this.m_WorkManager.TryDecreaseExecuters);
+                    this.workManager.m_DeferedTaskExec.AddWork(this.workManager.TryDecreaseExecuters);
                     return;
                 }
 
-                bool bMoreMessages = NumOfDeqeuedMsgs > this.m_WorkManager.YieldQueueAfter;
-                bool bEmptyQ = !(q.Count() > 0);
+                bool bMoreMessages = NumOfDeqeuedMsgs > this.workManager.YieldQueueAfter;
+                bool bEmptyQ = true;
+
+                using (ITransaction tx = this.workManager.StateManager.CreateTransaction())
+                {
+                    bEmptyQ = !(await q.GetCountAsync(tx) > 0);
+                }
 
                 if (bMoreMessages || !bEmptyQ) // did we find messages in the queue
                 {
-                    this.m_WorkManager.m_TraceWriter.TraceMessage(string.Format("queue:{0} pushed back to queues, queue still have more work", qName));
+                    this.workManager.m_TraceWriter.TraceMessage(string.Format("queue:{0} pushed back to queues, queue still have more work", qName));
 
                     this.leaveQ(qName, true);
                 }
@@ -114,31 +119,31 @@ namespace IoTProcessorManagement.Common
                 {
                     long now = DateTime.UtcNow.Ticks;
                     // was queue previously empty? 
-                    bool bCheckedBefore = this.m_WorkManager.m_QueueManager.m_SuspectedEmptyQueues.TryGetValue(qName, out LastCheckedVal);
+                    bool bCheckedBefore = this.workManager.m_QueueManager.m_SuspectedEmptyQueues.TryGetValue(qName, out LastCheckedVal);
 
                     // Q was in suspected empty queue and has expired
-                    if (bCheckedBefore && ((now - LastCheckedVal) > this.m_WorkManager.m_RemoveEmptyQueueAfterTicks))
+                    if (bCheckedBefore && ((now - LastCheckedVal) > this.workManager.m_RemoveEmptyQueueAfterTicks))
                     {
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(string.Format("queue:{0} confirmed empty, and will be removed", qName));
+                        this.workManager.m_TraceWriter.TraceMessage(string.Format("queue:{0} confirmed empty, and will be removed", qName));
 
                         // remove it from suspected queue 
-                        this.m_WorkManager.m_QueueManager.m_SuspectedEmptyQueues.TryRemove(qName, out LastCheckedVal);
+                        this.workManager.m_QueueManager.m_SuspectedEmptyQueues.TryRemove(qName, out LastCheckedVal);
 
                         // remove from the queue list
-                        await this.m_WorkManager.m_QueueManager.RemoveQueueAsync(qName);
+                        await this.workManager.m_QueueManager.RemoveQueueAsync(qName);
 
                         // remove asscioated handler
-                        this.m_WorkManager.m_DeferedTaskExec.AddWork(() => this.m_WorkManager.RemoveHandlerForQueue(qName));
+                        this.workManager.m_DeferedTaskExec.AddWork(() => this.workManager.RemoveHandlerForQueue(qName));
 
                         // modify executers to reflect the current state
-                        this.m_WorkManager.m_DeferedTaskExec.AddWork(this.m_WorkManager.TryDecreaseExecuters);
+                        this.workManager.m_DeferedTaskExec.AddWork(this.workManager.TryDecreaseExecuters);
                     }
                     else
                     {
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(
+                        this.workManager.m_TraceWriter.TraceMessage(
                             string.Format("queue:{0} pushed back to queues and flagged as an empty queue suspect ", qName));
                         // the queue was not a suspect before, or has not expired 
-                        this.m_WorkManager.m_QueueManager.m_SuspectedEmptyQueues.AddOrUpdate(qName, now, (k, v) => { return v; });
+                        this.workManager.m_QueueManager.m_SuspectedEmptyQueues.AddOrUpdate(qName, now, (k, v) => { return v; });
                         this.leaveQ(qName, false);
                     }
                 }
@@ -151,25 +156,25 @@ namespace IoTProcessorManagement.Common
                 int nNoQueueWaitTimeMS = 5*1000;
                 int nPauseCheckMs = 5*1000;
 
-                while (this.m_KeepWorking)
+                while (this.keepWorking)
                 {
                     // pause check
-                    while (this.m_Pause)
+                    while (this.pause)
                     {
                         await Task.Delay(nPauseCheckMs);
                     }
 
 
                     // take the queue
-                    KeyValuePair<string, IReliableQueue<Wi>> kvp = this.m_WorkManager.m_QueueManager.TakeQueueAsync();
+                    KeyValuePair<string, IReliableQueue<Wi>> kvp = this.workManager.m_QueueManager.TakeQueueAsync();
 
                     if (null == kvp.Value) // no queue to work on. 
                     {
                         // this will only happen if executers # are > than queues
                         // usually a situation that should resolve it self.
                         // well by the following logic 
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(
-                            string.Format("Executer {0} found no q and will sleep for {1}", this.m_WorkerExecuterId, nNoQueueWaitTimeMS));
+                        this.workManager.m_TraceWriter.TraceMessage(
+                            string.Format("Executer {0} found no q and will sleep for {1}", this.workerExecuterId, nNoQueueWaitTimeMS));
 
                         await this.FinilizeQueueWork(0, null, null); // check removal 
                         await Task.Delay(nNoQueueWaitTimeMS); // sleep as there is no point of retrying right away.
@@ -184,31 +189,31 @@ namespace IoTProcessorManagement.Common
 
                     try
                     {
-                        while (this.m_KeepWorking & !this.m_Pause)
+                        while (this.keepWorking & !this.pause)
                         {
                             nCurrentMessage++;
 
                             // processed the # of messages?
-                            if (nCurrentMessage > this.m_WorkManager.YieldQueueAfter)
+                            if (nCurrentMessage > this.workManager.YieldQueueAfter)
                             {
                                 break; //-> to finally
                             }
 
                             // as long as we have other queues. we need to have a short wait time
-                            int ActualTimeOut = this.m_WorkManager.m_QueueManager.Count > this.m_WorkManager.m_Executers.Count
+                            int ActualTimeOut = this.workManager.m_QueueManager.Count > this.workManager.m_Executers.Count
                                 ? nShortDequeueWaitTimeMs
                                 : nLongDequeueWaitTimeMs;
 
 
-                            using (ITransaction tx = this.m_WorkManager.StateManager.CreateTransaction())
+                            using (ITransaction tx = this.workManager.StateManager.CreateTransaction())
                             {
-                                ConditionalResult<Wi> cResults = await q.TryDequeueAsync(
+                                ConditionalValue<Wi> cResults = await q.TryDequeueAsync(
                                     tx,
                                     TimeSpan.FromMilliseconds(ActualTimeOut),
                                     CancellationToken.None);
                                 if (cResults.HasValue)
                                 {
-                                    Handler handler = this.m_WorkManager.GetHandlerForQueue(qName);
+                                    Handler handler = this.workManager.GetHandlerForQueue(qName);
                                     Wi wi = await handler.HandleWorkItem(cResults.Value);
 
                                     if (null != wi) // do we have an enqueue request? (handler failed to process the request)
@@ -217,7 +222,7 @@ namespace IoTProcessorManagement.Common
                                     }
                                     else
                                     {
-                                        this.m_WorkManager.DecreaseBufferedWorkItems();
+                                        this.workManager.DecreaseBufferedWorkItems();
                                     }
 
                                     await tx.CommitAsync();
@@ -233,14 +238,14 @@ namespace IoTProcessorManagement.Common
                     catch (TimeoutException to)
                     {
                         /* Queue is locked for enqueues */
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(
+                        this.workManager.m_TraceWriter.TraceMessage(
                             string.Format("Executer after {0}: {1}", nLongDequeueWaitTimeMs, to.Message));
                         break; //-> to finally
                     }
                     catch (AggregateException aex)
                     {
                         AggregateException ae = aex.Flatten();
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(
+                        this.workManager.m_TraceWriter.TraceMessage(
                             string.Format(
                                 "Executer encountered fatel error and will exit E:{0} StackTrace:{1}",
                                 ae.GetCombinedExceptionMessage(),
@@ -250,7 +255,7 @@ namespace IoTProcessorManagement.Common
                     }
                     catch (Exception E)
                     {
-                        this.m_WorkManager.m_TraceWriter.TraceMessage(
+                        this.workManager.m_TraceWriter.TraceMessage(
                             string.Format("Executer encountered fatel error and will exit E:{0} StackTrace:{1}", E.Message, E.StackTrace));
 
                         throw;
@@ -261,7 +266,7 @@ namespace IoTProcessorManagement.Common
                     }
                 }
 
-                this.m_WorkManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} exited loop", this.m_WorkerExecuterId));
+                this.workManager.m_TraceWriter.TraceMessage(string.Format("Worker {0} exited loop", this.workerExecuterId));
             }
         }
     }

@@ -25,7 +25,7 @@
       <ServiceManifestRef ServiceManifestName="BuildingActorPkg" ServiceManifestVersion="1.0.0.0" />
    </ServiceManifestImport>
    <DefaultServices>
-      <Service Name="IoTActorService" GeneratedIdRef="eefa3a6c-6baa-4a77-b40f-fcbfa21a241a">
+      <Service Name="IoTActorService" GeneratedIdRef="8ead9b6f-62de-4e03-8619-dbabbda8f356|Persisted">
          <StatefulService ServiceTypeName="StorageActorServiceType" TargetReplicaSetSize="[IoTActorService_TargetReplicaSetSize]" MinReplicaSetSize="[IoTActorService_MinReplicaSetSize]">
             <UniformInt64Partition PartitionCount="[IoTActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
          </StatefulService>

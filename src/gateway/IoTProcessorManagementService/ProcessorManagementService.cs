@@ -35,17 +35,14 @@ namespace IoTProcessorManagementService
         public ProcessorServiceCommunicationClientFactory ProcessorServiceCommunicationClientFactory { get; private set; }
            
 
-        public ProcessorManagementService()
+        public ProcessorManagementService(StatefulServiceContext context)
+            : base (context)
         {
-            this.ProcessorServiceCommunicationClientFactory = new ProcessorServiceCommunicationClientFactory(
-                ServicePartitionResolver.GetDefault(),
-                TimeSpan.FromSeconds(10),
-                TimeSpan.FromSeconds(3));
+            this.ProcessorServiceCommunicationClientFactory = new ProcessorServiceCommunicationClientFactory();
         }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-
             var settingsConfigPackage = FabricRuntime.GetActivationContext().GetConfigurationPackageObject("Config");
             var publishingAddressHostName = settingsConfigPackage.Settings.Sections["ProcessorDefaults"].Parameters["PublishingAddressHostName"].Value;
 
@@ -53,7 +50,7 @@ namespace IoTProcessorManagementService
             return new[]
             {
                 new ServiceReplicaListener(
-                    parameters =>  new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), parameters, actualPublishingHostName))
+                    context =>  new OwinCommunicationListener(new ProcessorManagementServiceOwinListenerSpec(this), context, actualPublishingHostName))
             };
         }
 
@@ -62,7 +59,7 @@ namespace IoTProcessorManagementService
             this.SetProcessorAppInstanceDefaults();
 
             // subscribe to configuration changes
-            this.ServiceInitializationParameters.CodePackageActivationContext.ConfigurationPackageModifiedEvent +=
+            this.Context.CodePackageActivationContext.ConfigurationPackageModifiedEvent +=
                 this.CodePackageActivationContext_ConfigurationPackageModifiedEvent;
 
             this.ProcessorStateStore = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, Processor>>(ProcessorDefinitionStateDictionaryName);
@@ -79,7 +76,7 @@ namespace IoTProcessorManagementService
                 {
                     try
                     {
-                        ConditionalResult<ProcessorOperation> result = await this.ProcessorOperationsQueue.TryDequeueAsync(
+                        ConditionalValue<ProcessorOperation> result = await this.ProcessorOperationsQueue.TryDequeueAsync(
                             tx,
                             TimeSpan.FromMilliseconds(1000),
                             cancellationToken);
@@ -128,9 +125,7 @@ namespace IoTProcessorManagementService
                 }
             }
         }
-
-        #region Configuration Management 
-
+        
         private void CodePackageActivationContext_ConfigurationPackageModifiedEvent(
             object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {
@@ -144,7 +139,7 @@ namespace IoTProcessorManagementService
             /// from and configuration and saves them for later use 
 
             ConfigurationSettings settingsFile =
-                this.ServiceInitializationParameters.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
+                this.Context.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
 
             ConfigurationSection ProcessorServiceDefaults = settingsFile.Sections["ProcessorDefaults"];
 
@@ -156,7 +151,5 @@ namespace IoTProcessorManagementService
 
             this.Config = newConfig;
         }
-
-        #endregion
     }
 }

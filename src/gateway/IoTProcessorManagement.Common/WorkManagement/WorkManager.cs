@@ -170,7 +170,7 @@ namespace IoTProcessorManagement.Common
             // we are good add
             WorkExecuter<Handler, Wi> newExecuter = new WorkExecuter<Handler, Wi>(this);
             newExecuter.Start();
-            this.m_Executers.AddOrUpdate(newExecuter.m_WorkerExecuterId, newExecuter, (k, v) => { return newExecuter; });
+            this.m_Executers.AddOrUpdate(newExecuter.workerExecuterId, newExecuter, (k, v) => { return newExecuter; });
 
 
             return Task.FromResult(0);
@@ -242,11 +242,13 @@ namespace IoTProcessorManagement.Common
         {
             long buffered = 0;
 
-
-            foreach (string qName in this.m_QueueManager.QueueNames)
+            using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                IReliableQueue<Wi> q = await this.m_QueueManager.GetOrAddQueueAsync(qName);
-                buffered += await q.GetCountAsync();
+                foreach (string qName in this.m_QueueManager.QueueNames)
+                {
+                    IReliableQueue<Wi> q = await this.m_QueueManager.GetOrAddQueueAsync(qName);
+                    buffered += await q.GetCountAsync(tx);
+                }
             }
             this.m_NumOfBufferedWorkItems = buffered;
         }

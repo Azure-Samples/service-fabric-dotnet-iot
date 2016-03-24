@@ -10,6 +10,7 @@ namespace EventHubProcessor
     using IoTActor.Common;
     using IoTProcessorManagement.Common;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
 
     public class RoutetoActorWorkItemHandler : IWorkItemHandler<RouteToActorWorkItem>
     {

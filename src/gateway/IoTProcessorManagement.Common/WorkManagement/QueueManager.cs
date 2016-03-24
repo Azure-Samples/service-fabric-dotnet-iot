@@ -31,7 +31,7 @@ namespace IoTProcessorManagement.Common
             internal ConcurrentDictionary<string, long> m_SuspectedEmptyQueues = new ConcurrentDictionary<string, long>();
             // list of empty ques will be removed if they remain empty more than 
 
-            private WorkManager<H, W> m_WorkManager;
+            private WorkManager<H, W> workManager;
             private ConcurrentQueue<string> qOfq = new ConcurrentQueue<string>();
             private ConcurrentDictionary<string, IReliableQueue<W>> m_QueueRefs = new ConcurrentDictionary<string, IReliableQueue<W>>();
             private IReliableDictionary<string, string> m_dictListOfQueues;
@@ -48,11 +48,11 @@ namespace IoTProcessorManagement.Common
 
             public async Task<IReliableQueue<W>> GetOrAddQueueAsync(string qName)
             {
-                using (ITransaction tx = this.m_WorkManager.StateManager.CreateTransaction())
+                using (ITransaction tx = this.workManager.StateManager.CreateTransaction())
                 {
                     if (!await this.m_dictListOfQueues.ContainsKeyAsync(tx, qName, TimeSpan.FromSeconds(5), CancellationToken.None))
                     {
-                        IReliableQueue<W> reliableQ = await this.m_WorkManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(tx, qName);
+                        IReliableQueue<W> reliableQ = await this.workManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(tx, qName);
                         await this.m_dictListOfQueues.AddAsync(tx, qName, qName, TimeSpan.FromSeconds(5), CancellationToken.None);
 
                         await tx.CommitAsync();
@@ -74,7 +74,7 @@ namespace IoTProcessorManagement.Common
             {
                 IReliableQueue<W> q;
 
-                using (ITransaction tx = this.m_WorkManager.StateManager.CreateTransaction())
+                using (ITransaction tx = this.workManager.StateManager.CreateTransaction())
                 {
                     if (await this.m_dictListOfQueues.ContainsKeyAsync(tx, qName, TimeSpan.FromSeconds(5), CancellationToken.None))
                     {
@@ -82,7 +82,7 @@ namespace IoTProcessorManagement.Common
                         this.m_QueueRefs.TryRemove(qName, out q);
                         await this.m_dictListOfQueues.TryRemoveAsync(tx, qName);
 
-                        await this.m_WorkManager.StateManager.RemoveAsync(tx, qName, TimeSpan.FromSeconds(5));
+                        await this.workManager.StateManager.RemoveAsync(tx, qName, TimeSpan.FromSeconds(5));
                         await tx.CommitAsync();
                     }
                 }
@@ -112,12 +112,10 @@ namespace IoTProcessorManagement.Common
             {
                 this.qOfq.Enqueue(sQueueName);
             }
-
-            #region CTOR/Factory
-
+            
             private QueueManager(WorkManager<H, W> workManager)
             {
-                this.m_WorkManager = workManager;
+                this.workManager = workManager;
             }
 
             public static async Task<QueueManager<H, W>> CreateAsync(WorkManager<H, W> workManager)
@@ -130,18 +128,18 @@ namespace IoTProcessorManagement.Common
                 qManager.m_dictListOfQueues = dictQueueNames;
 
 
-                foreach (KeyValuePair<string, string> kvp in dictQueueNames)
+                using (ITransaction tx = workManager.StateManager.CreateTransaction())
                 {
-                    // preload all refs
-                    qManager.m_QueueRefs.TryAdd(kvp.Key, await workManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(kvp.Key));
-                    qManager.qOfq.Enqueue(kvp.Key);
+                    IAsyncEnumerable< KeyValuePair < string, string> > enumerable = await dictQueueNames.CreateEnumerableAsync(tx);
+                    await enumerable.ForeachAsync(CancellationToken.None, async (item) =>
+                    {
+                        qManager.m_QueueRefs.TryAdd(item.Key, await workManager.StateManager.GetOrAddAsync<IReliableQueue<W>>(item.Key));
+                        qManager.qOfq.Enqueue(item.Key);
+                    });
                 }
-
 
                 return qManager;
             }
-
-            #endregion
         }
     }
 }

@@ -6,15 +6,18 @@
 namespace StorageActor
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric.Description;
     using System.Threading.Tasks;
     using IoTActor.Common;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
 
-    [ActorGarbageCollection(IdleTimeoutInSeconds = 60, ScanIntervalInSeconds = 10)]
-    public class StorageActor : StatefulActor<StorageActorState>, IIoTActor
+    [StatePersistence(StatePersistence.Persisted)]
+    public class StorageActor : Actor, IIoTActor
     {
         private const int MaxEntriesPerRound = 100;
         private const string PowerBIActorServiceName = "fabric:/IoTApplication/PowerBIActor";
@@ -24,7 +27,7 @@ namespace StorageActor
         private string connectionString = string.Empty;
         private IIoTActor powerBIActor = null;
 
-        public Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        public async Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             IoTActorWorkItem workItem = new IoTActorWorkItem();
             workItem.DeviceId = DeviceId;
@@ -32,23 +35,22 @@ namespace StorageActor
             workItem.ServiceBusNS = ServiceBusNS;
             workItem.Body = Body;
 
-            this.State.Queue.Enqueue(workItem);
+            Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
+
+            queue.Enqueue(workItem);
                 
-            return this.ForwardToPowerBIActor(DeviceId, EventHubName, ServiceBusNS, Body);
+            await this.ForwardToPowerBIActor(DeviceId, EventHubName, ServiceBusNS, Body);
+
+            await this.StateManager.SetStateAsync("queue", queue);
         }
 
-        protected override Task OnActivateAsync()
+        protected override async Task OnActivateAsync()
         {
-            if (this.State == null)
-            {
-                this.State = new StorageActorState();
-            }
-
-
+            await this.StateManager.TryAddStateAsync("queue", new Queue<IoTActorWorkItem>());
+            
             this.SetConfig();
-            this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ConfigurationPackageModifiedEvent += this.ConfigChanged;
-
-
+            this.ActorService.Context.CodePackageActivationContext.ConfigurationPackageModifiedEvent += this.ConfigChanged;
+            
             // register a call back timer, that perfoms the actual send to PowerBI
             // has to iterate in less than IdleTimeout 
             this.dequeueTimer = this.RegisterTimer(
@@ -57,7 +59,7 @@ namespace StorageActor
                 TimeSpan.FromMilliseconds(10),
                 TimeSpan.FromMilliseconds(10));
 
-            return base.OnActivateAsync();
+            await base.OnActivateAsync();
         }
 
         protected override async Task OnDeactivateAsync()
@@ -67,11 +69,13 @@ namespace StorageActor
             await base.OnDeactivateAsync();
         }
         
-        private Task SaveToStorage(object IsFinal)
+        private async Task SaveToStorage(object IsFinal)
         {
-            if (0 == this.State.Queue.Count)
+            Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
+
+            if (0 == queue.Count)
             {
-                return Task.FromResult(true);
+                return;
             }
             
             bool bFinal = (bool) IsFinal; // as in actor instance is about to get deactivated. 
@@ -84,16 +88,18 @@ namespace StorageActor
 
             TableBatchOperation batchOperation = new TableBatchOperation();
 
-            while ((nCurrent <= MaxEntriesPerRound || bFinal) && (0 != this.State.Queue.Count))
+            while ((nCurrent <= MaxEntriesPerRound || bFinal) && (0 != queue.Count))
             {
-                batchOperation.InsertOrReplace(this.State.Queue.Dequeue().ToDynamicTableEntity());
+                batchOperation.InsertOrReplace(queue.Dequeue().ToDynamicTableEntity());
                 nCurrent++;
             }
 
-            return table.ExecuteBatchAsync(batchOperation);
+            await table.ExecuteBatchAsync(batchOperation);
+
+            await this.StateManager.SetStateAsync("queue", queue);
         }
         
-        private IIoTActor CreatePowerBIActor(string DeviceId, string EventHubName, string ServiceBusNS)
+        private IIoTActor GetPowerBIActorProxy(string DeviceId, string EventHubName, string ServiceBusNS)
         {
             ActorId actorId = new ActorId(string.Format(PowerBIActorId, DeviceId, EventHubName, ServiceBusNS));
             return ActorProxy.Create<IIoTActor>(actorId, new Uri(PowerBIActorServiceName));
@@ -103,7 +109,7 @@ namespace StorageActor
         {
             if (null == this.powerBIActor)
             {
-                this.powerBIActor = this.CreatePowerBIActor(DeviceId, EventHubName, ServiceBusNS);
+                this.powerBIActor = this.GetPowerBIActorProxy(DeviceId, EventHubName, ServiceBusNS);
             }
 
             return this.powerBIActor.Post(DeviceId, EventHubName, ServiceBusNS, Body);
@@ -117,7 +123,8 @@ namespace StorageActor
         private void SetConfig()
         {
             ConfigurationSettings settingsFile =
-                this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
+                this.ActorService.Context.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
+
             ConfigurationSection configSection = settingsFile.Sections["Storage"];
 
             this.tableName = configSection.Parameters["TableName"].Value;

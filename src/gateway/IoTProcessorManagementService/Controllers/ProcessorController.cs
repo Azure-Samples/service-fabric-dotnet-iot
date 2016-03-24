@@ -8,9 +8,11 @@ namespace IoTProcessorManagementService
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
     using IoTProcessorManagement.Clients;
+    using IoTProcessorManagement.Common;
     using Microsoft.ServiceFabric.Data;
     using Newtonsoft.Json;
 
@@ -23,10 +25,21 @@ namespace IoTProcessorManagementService
 
         [HttpGet]
         [Route("processor/")]
-        public Task<Processor[]> GetAll()
+        public async Task<List<Processor>> GetAll()
         {
             //dirty read
-            return Task.FromResult(this.Svc.ProcessorStateStore.Select((kvp) => { return kvp.Value; }).ToArray());
+            List<Processor> processors = new List<Processor>();
+            using (ITransaction tx = Svc.StateManager.CreateTransaction())
+            {
+                var enumerable = await this.Svc.ProcessorStateStore.CreateEnumerableAsync(tx);
+
+                await enumerable.ForeachAsync(CancellationToken.None, item =>
+                {
+                    processors.Add(item.Value);
+                });
+              }
+
+            return processors;
         }
 
         [HttpGet]
@@ -43,7 +56,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exist", ProcessorName));
@@ -89,7 +102,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exist", ProcessorName));
@@ -117,7 +130,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, processor.Name);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, processor.Name);
                 if (cResults.HasValue)
                 {
                     Utils.ThrowHttpError(
@@ -162,7 +175,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exists", ProcessorName));
@@ -216,7 +229,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exists", ProcessorName));
@@ -270,7 +283,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exists", ProcessorName));
@@ -322,7 +335,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("processor with the name {0} does not exists", ProcessorName));
@@ -378,7 +391,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exists", ProcessorName));
@@ -433,7 +446,7 @@ namespace IoTProcessorManagementService
             using (ITransaction tx = this.Svc.StateManager.CreateTransaction())
             {
                 // do we have it? 
-                ConditionalResult<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
+                ConditionalValue<Processor> cResults = await this.Svc.ProcessorStateStore.TryGetValueAsync(tx, ProcessorName);
                 if (!cResults.HasValue)
                 {
                     Utils.ThrowHttpError(string.Format("Processor with the name {0} does not exists", ProcessorName));

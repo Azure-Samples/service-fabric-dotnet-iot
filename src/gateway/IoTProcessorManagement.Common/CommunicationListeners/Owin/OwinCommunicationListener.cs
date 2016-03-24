@@ -22,21 +22,21 @@ namespace IoTProcessorManagement.Common
 
         private readonly IOwinListenerSpec pipelineSpec;
 
-        private readonly ServiceInitializationParameters serviceParameters;
+        private readonly ServiceContext serviceContext;
 
         private string mHostAddress = null;
 
 
-        public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceInitializationParameters serviceParameters, string publishingAddressHostName)
-        : this(pipelineSpec, serviceParameters)
+        public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceContext serviceContext, string publishingAddressHostName)
+        : this(pipelineSpec, serviceContext)
         {
             this.mHostAddress = publishingAddressHostName;
         }
 
-            public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceInitializationParameters serviceParameters)
+            public OwinCommunicationListener(IOwinListenerSpec pipelineSpec, ServiceContext serviceContext)
         {
             this.pipelineSpec = pipelineSpec;
-            this.serviceParameters = serviceParameters;
+            this.serviceContext = serviceContext;
         }
         
         public void Abort()
@@ -55,8 +55,8 @@ namespace IoTProcessorManagement.Common
 
         public Task<string> OpenAsync(CancellationToken cancellationToken)
         {
-            StatefulServiceInitializationParameters statefulInitParam = this.serviceParameters as StatefulServiceInitializationParameters;
-            int port = this.serviceParameters.CodePackageActivationContext.GetEndpoint("ServiceEndPoint").Port;
+            StatefulServiceContext statefulInitParam = this.serviceContext as StatefulServiceContext;
+            int port = this.serviceContext.CodePackageActivationContext.GetEndpoint("ServiceEndPoint").Port;
 
 
             if (statefulInitParam != null)

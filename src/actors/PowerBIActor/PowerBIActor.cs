@@ -6,6 +6,7 @@
 namespace PowerBIActor
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric.Description;
     using System.IO;
     using System.Net.Http;
@@ -15,17 +16,18 @@ namespace PowerBIActor
     using IoTActor.Common;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    [ActorGarbageCollection(IdleTimeoutInSeconds = 60, ScanIntervalInSeconds = 10)]
-    public class PowerBIActor : StatefulActor<PowerBIActorState>, IIoTActor
+    public class PowerBIActor : Actor, IIoTActor
     {
         private static int maxEntriesPerRound = 100;
         private IActorTimer dequeueTimer = null;
         private bool dataSetCreated = false;
         private string dataSetID = string.Empty;
         private string addRowsUrl = "https://api.powerbi.com/v1.0/myorg/datasets/{0}/tables/{1}/rows";
+
         // settings
         private string clientId = string.Empty;
         private string username = string.Empty;
@@ -37,7 +39,7 @@ namespace PowerBIActor
         private string tableName = string.Empty;
         private string dataSetSchema = string.Empty;
 
-        public Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
+        public async Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             IoTActorWorkItem workItem = new IoTActorWorkItem();
             workItem.DeviceId = DeviceId;
@@ -45,20 +47,21 @@ namespace PowerBIActor
             workItem.ServiceBusNS = ServiceBusNS;
             workItem.Body = Body;
 
-            this.State.Queue.Enqueue(workItem);
+            Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
 
-            return Task.FromResult(true);
+            queue.Enqueue(workItem);
+            
+            await this.StateManager.SetStateAsync("queue", queue);
         }
 
         protected override async Task OnActivateAsync()
         {
-            if (this.State == null)
-            {
-                this.State = new PowerBIActorState();
-            }
+            await this.StateManager.TryAddStateAsync("queue", new Queue<IoTActorWorkItem>());
 
-            await this.SetConfig();
-            this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.ConfigurationPackageModifiedEvent += this.ConfigChanged;
+            this.SetConfig();
+
+            this.ActorService.Context.CodePackageActivationContext.ConfigurationPackageModifiedEvent += this.ConfigChanged;
+
             ActorEventSource.Current.ActorMessage(this, "New Actor On Activate");
 
             // register a call back timer, that perfoms the actual send to PowerBI
@@ -78,18 +81,16 @@ namespace PowerBIActor
             await this.SendToPowerBIAsync(true); // make sure that no remaining pending records 
             await base.OnDeactivateAsync();
         }
-
-        #region Config Management 
-
+        
         private void ConfigChanged(object sender, System.Fabric.PackageModifiedEventArgs<System.Fabric.ConfigurationPackage> e)
         {
-            this.SetConfig().Wait();
+            this.SetConfig();
         }
 
-        private async Task SetConfig()
+        private void SetConfig()
         {
             ConfigurationSettings settingsFile =
-                this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
+                this.ActorService.Context.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings;
 
             ConfigurationSection configSection = settingsFile.Sections["PowerBI"];
 
@@ -101,8 +102,7 @@ namespace PowerBIActor
             this.powerBIBaseUrl = configSection.Parameters["PowerBIBaseUrl"].Value;
             this.datasetName = configSection.Parameters["DatesetName"].Value;
             this.tableName = configSection.Parameters["TableName"].Value;
-
-
+            
             ActorEventSource.Current.ActorMessage(
                 this,
                 "Config loaded \n Client:{0} \n Username:{1} \n Password:{2} \n Authority{3} \n PowerBiResource:{4} \n BaseUrl:{5} \n DataSet:{6} \n Table:{7}",
@@ -119,17 +119,13 @@ namespace PowerBIActor
             using (
                 StreamReader sr =
                     new StreamReader(
-                        this.ActorService.ServiceInitializationParameters.CodePackageActivationContext.GetDataPackageObject("Data").Path +
+                        this.ActorService.Context.CodePackageActivationContext.GetDataPackageObject("Data").Path +
                         @"\Datasetschema.json"))
             {
-                this.dataSetSchema = await sr.ReadToEndAsync();
+                this.dataSetSchema = sr.ReadToEnd();
             }
         }
-
-        #endregion
-
-        #region Power BI Sending Logic
-
+        
         private async Task<string> GetAuthTokenAsync()
         {
             AuthenticationContext authContext = new AuthenticationContext(this.authority);
@@ -211,7 +207,9 @@ namespace PowerBIActor
 
         private async Task SendToPowerBIAsync(object IsFinal)
         {
-            if (0 == this.State.Queue.Count)
+            Queue<IoTActorWorkItem> queue = await this.StateManager.GetStateAsync<Queue<IoTActorWorkItem>>("queue");
+
+            if (0 == queue.Count)
             {
                 return;
             }
@@ -223,22 +221,21 @@ namespace PowerBIActor
             int nCurrent = 0;
             JArray list = new JArray();
 
-            while ((nCurrent <= maxEntriesPerRound || bFinal) && (0 != this.State.Queue.Count))
+            while ((nCurrent <= maxEntriesPerRound || bFinal) && (0 != queue.Count))
             {
-                list.Add(this.State.Queue.Dequeue().toJObject());
+                list.Add(queue.Dequeue().toJObject());
                 nCurrent++;
             }
-
-
+            
             try
             {
                 var all = new { rows = list };
                 string sContent = JsonConvert.SerializeObject(all);
 
                 this.addRowsUrl = string.Format(this.addRowsUrl, this.dataSetID, this.tableName);
-
-
+                
                 string AuthToken = await tAuthToken;
+
                 HttpClient client = new HttpClient();
 
                 HttpRequestMessage requestMessage = new HttpRequestMessage();
@@ -250,7 +247,7 @@ namespace PowerBIActor
 
                 response.EnsureSuccessStatusCode();
 
-                ActorEventSource.Current.ActorMessage(this, "Pushed to PowerBI:{0} Remaining {1}", sContent, this.State.Queue.Count);
+                ActorEventSource.Current.ActorMessage(this, "Pushed to PowerBI:{0} Remaining {1}", sContent, queue.Count);
             }
             catch (AggregateException ae)
             {
@@ -263,8 +260,9 @@ namespace PowerBIActor
 
                 throw; // this will force the actor to be activated somewhere else. 
             }
-        }
 
-        #endregion
+            await this.StateManager.SetStateAsync("queue", queue);
+
+        }
     }
 }

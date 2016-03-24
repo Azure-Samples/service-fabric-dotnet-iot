@@ -8,10 +8,14 @@ namespace BuildingActor
     using System.Threading.Tasks;
     using IoTActor.Common;
     using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
-    public class BuildingActor : StatefulActor<BuildingActorState>, IIoTActor
+    [StatePersistence(StatePersistence.None)]
+    public class BuildingActor : Actor, IIoTActor
     {
-        [Readonly] // currently building actor does not maintain state
+        /// <summary>
+        /// currently building actor does not maintain state
+        /// </summary>
         public Task Post(string DeviceId, string EventHubName, string ServiceBusNS, byte[] Body)
         {
             /*

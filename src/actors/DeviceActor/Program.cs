@@ -9,19 +9,16 @@ namespace DeviceActor
     using System.Fabric;
     using System.Threading;
     using Microsoft.ServiceFabric.Actors;
-
+    using Microsoft.ServiceFabric.Actors.Runtime;
     public class Program
     {
         public static void Main(string[] args)
         {
             try
             {
-                using (FabricRuntime fabricRuntime = FabricRuntime.Create())
-                {
-                    fabricRuntime.RegisterActor<DeviceActor>();
-
-                    Thread.Sleep(Timeout.Infinite);
-                }
+                ActorRuntime.RegisterActorAsync<DeviceActor>().GetAwaiter().GetResult();
+                
+                Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception e)
             {

@@ -16,6 +16,7 @@ namespace IoTProcessorManagementService
     using IoTProcessorManagement.Clients;
     using IoTProcessorManagement.Common;
     using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     public abstract class ProcessorOperationHandlerBase
@@ -75,7 +76,7 @@ namespace IoTProcessorManagementService
 
 
             Processor processor;
-            ConditionalResult<Processor> cResult = await this.Svc.ProcessorStateStore.TryGetValueAsync(_trx, ProcessorName);
+            ConditionalValue<Processor> cResult = await this.Svc.ProcessorStateStore.TryGetValueAsync(_trx, ProcessorName);
             if (cResult.HasValue)
             {
                 processor = cResult.Value;
@@ -168,7 +169,7 @@ namespace IoTProcessorManagementService
                             new ServicePartitionClient<ProcessorServiceCommunicationClient>(
                                 this.Svc.ProcessorServiceCommunicationClientFactory,
                                 new Uri(ServiceName),
-                                partitionInfo.LowKey));
+                                new ServicePartitionKey(partitionInfo.LowKey)));
                     }
 
                     return partitionClients;
@@ -223,9 +224,7 @@ namespace IoTProcessorManagementService
 
             return Task.FromResult(copy);
         }
-
-        #region Service Fabric Application & Services Management 
-
+        
         protected async Task CleanUpServiceFabricCluster(Processor processor)
         {
             try
@@ -261,8 +260,7 @@ namespace IoTProcessorManagementService
                     ae.GetCombinedExceptionStackTrace());
             }
         }
-
-
+        
         protected async Task DeleteServiceAsync(Processor processor)
         {
             Uri sServiceName = new Uri(processor.ServiceFabricServiceName);
@@ -283,8 +281,7 @@ namespace IoTProcessorManagementService
             await fabricClient.ApplicationManager.DeleteApplicationAsync(new Uri(processor.ServiceFabricAppInstanceName));
             ServiceEventSource.Current.ServiceMessage(this.Svc, "App for processor:{0} app:{1} deleted", processor.Name, processor.ServiceFabricAppInstanceName);
         }
-
-
+        
         protected async Task CreateAppAsync(Processor processor)
         {
             FabricClient fabricClient = new FabricClient();
@@ -316,7 +313,5 @@ namespace IoTProcessorManagementService
                 processor.Name,
                 processor.ServiceFabricServiceName);
         }
-
-        #endregion
     }
 }
