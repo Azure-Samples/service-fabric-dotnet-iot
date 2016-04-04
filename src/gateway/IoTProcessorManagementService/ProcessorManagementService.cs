@@ -89,6 +89,10 @@ namespace IoTProcessorManagementService
                             await handler.RunOperation(tx);
                             await tx.CommitAsync();
                         }
+                        else
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                        }
                     }
                     catch (TimeoutException toe)
                     {
