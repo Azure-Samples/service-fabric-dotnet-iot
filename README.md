@@ -46,7 +46,7 @@ The project is composed of the following components, the code for which is inclu
 - **Gateway** is a logical component that groups the following components
 	- **Event Processor** is a Service Fabric application that contains one service. This service is responsible for
 		1. Receiving device events from one or more Azure Event Hubs.
-		2. Activing device actors. Each device is represented by one actor instance.
+		2. Activating device actors. Each device is represented by one actor instance.
 		3. Routing events to the correct device actor.
 	- **Processor Management** is a Service Fabric application that contains one service. This service is responsible for
 		1. Provisioning and de-provisioning *Event Processors*.
