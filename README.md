@@ -31,7 +31,7 @@ The project is composed of the following components, the code for which is inclu
 
 - **IoTApplication** A Service Fabric application that hosts the following actors. Each actor is a separate Service and a separate Visual Studio project.
 	1. **Device Actor** represents a device in the cloud. Designed to perform compute and analysis on single device events and communicate commands to the device. Additional it forwards device events to
-		1. *Aggregators* such as floors (in smart building scenarors) or production line (in factory floor scenarios).
+		1. *Aggregators* such as floors (in smart building scenarios) or production line (in factory floor scenarios).
 		2. *Storage Actor*  
 	2. **Floor Actor** represents the first-level logical aggregators. Designed to perform compute and analysis on multiple devices grouped logically. It can also communicate commands to all aggregated devices.
 	3. **Building Actor** represents the second-level logical aggregators similar to *Floor Actor* but aggregates at the building levels.
@@ -46,7 +46,7 @@ The project is composed of the following components, the code for which is inclu
 - **Gateway** is a logical component that groups the following components
 	- **Event Processor** is a Service Fabric application that contains one service. This service is responsible for
 		1. Receiving device events from one or more Azure Event Hubs.
-		2. Activing device actors. Each device is represented by one actor instance.
+		2. Activating device actors. Each device is represented by one actor instance.
 		3. Routing events to the correct device actor.
 	- **Processor Management** is a Service Fabric application that contains one service. This service is responsible for
 		1. Provisioning and de-provisioning *Event Processors*.
