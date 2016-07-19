@@ -1,19 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="IoTEventHubProcessorApp" ApplicationTypeVersion="1.0.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Parameters>
-      <Parameter Name="MinReplicaSetSize" DefaultValue="2" />
-      <Parameter Name="TargetReplicaSetSize" DefaultValue="3" />
-   </Parameters>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="IoTEventHubProcessorServicePkg" ServiceManifestVersion="1.0.0.0" />
-      <ConfigOverrides />
-   </ServiceManifestImport>
-   <ServiceTemplates>
-      <StatefulService ServiceTypeName="IoTEventHubProcessorService" TargetReplicaSetSize="[TargetReplicaSetSize]" MinReplicaSetSize="[MinReplicaSetSize]">
-         <UniformInt64Partition PartitionCount="32" LowKey="0" HighKey="32" />
-      </StatefulService>
-   </ServiceTemplates>
-   <DefaultServices>
-    
-   </DefaultServices>
+  <Parameters>
+    <Parameter Name="MinReplicaSetSize" DefaultValue="2" />
+    <Parameter Name="TargetReplicaSetSize" DefaultValue="3" />
+  </Parameters>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="IoTEventHubProcessorServicePkg" ServiceManifestVersion="1.0.0.0" />
+    <ConfigOverrides />
+  </ServiceManifestImport>
+  <ServiceTemplates>
+    <StatefulService ServiceTypeName="IoTEventHubProcessorService" TargetReplicaSetSize="[TargetReplicaSetSize]" MinReplicaSetSize="[MinReplicaSetSize]">
+      <UniformInt64Partition PartitionCount="32" LowKey="0" HighKey="32" />
+    </StatefulService>
+  </ServiceTemplates>
+  <DefaultServices />
 </ApplicationManifest>

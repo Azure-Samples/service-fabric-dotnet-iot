@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Section Name="PowerBIActorServiceReplicatorConfig">
-      <Parameter Name="ReplicatorEndpoint" Value="PowerBIActorServiceReplicatorEndpoint" />
-      <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
-   </Section>
-   <Section Name="PowerBIActorServiceReplicatorSecurityConfig">
-      <Parameter Name="CredentialType" Value="None" />
-   </Section>
-   <Section Name="PowerBI">
-      <Parameter Name="DatesetName" Value="ServiceFabricIoTDS" />
-      <Parameter Name="TableName" Value="ServiceFabricIOTTable" />
-      <Parameter Name="ClientId" Value="{client id from Azure A/D}" />
-      <Parameter Name="Username" Value="{Azure Username for a user allowed to insert data in your power BI}" />
-      <Parameter Name="Password" Value="{Password for the user above}" />
-      <Parameter Name="Authority" Value="https://login.windows.net/common/oauth2/authorize/" />
-      <Parameter Name="PowerBIResourceId" Value="https://analysis.windows.net/powerbi/api" />
-      <Parameter Name="PowerBIBaseUrl" Value="https://api.powerbi.com/v1.0/myorg/datasets/" />
-   </Section>
+  <Section Name="PowerBIActorServiceReplicatorConfig">
+    <Parameter Name="ReplicatorEndpoint" Value="PowerBIActorServiceReplicatorEndpoint" />
+    <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
+  </Section>
+  <Section Name="PowerBIActorServiceReplicatorSecurityConfig">
+    <Parameter Name="CredentialType" Value="None" />
+  </Section>
+  <Section Name="PowerBI">
+    <Parameter Name="DatesetName" Value="ServiceFabricIoTDS" />
+    <Parameter Name="TableName" Value="ServiceFabricIOTTable" />
+    <Parameter Name="ClientId" Value="{client id from Azure A/D}" />
+    <Parameter Name="Username" Value="{Azure Username for a user allowed to insert data in your power BI}" />
+    <Parameter Name="Password" Value="{Password for the user above}" />
+    <Parameter Name="Authority" Value="https://login.windows.net/common/oauth2/authorize/" />
+    <Parameter Name="PowerBIResourceId" Value="https://analysis.windows.net/powerbi/api" />
+    <Parameter Name="PowerBIBaseUrl" Value="https://api.powerbi.com/v1.0/myorg/datasets/" />
+  </Section>
 </Settings>
