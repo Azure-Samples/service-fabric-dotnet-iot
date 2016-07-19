@@ -11,7 +11,7 @@ This IoT sample reference architecture & implementation is designed for a Smart 
 
 ![](https://github.com/Azure-Samples/service-fabric-dotnet-iot/blob/master/docs/Detailed-1.png)
 
-# New: Non-Bufered Mode #
+# New: Non-Buffered Mode #
 The default mode is buffered where events are buffered in reliable queues then routed to actors. The idea is to fan out and avoid having one busy device hogging the event processing sequence. The new version of the sample also support Non-Bufered mode where events are routed directly to actors, this mode is significantly faster if your devices/events distribution is uniform. To enable this mode use the following
 
 ```
