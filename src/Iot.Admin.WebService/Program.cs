@@ -1,14 +1,20 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Runtime;
-using System.Collections.Generic;
-using System.Fabric;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Iot.Admin.WebService
 {
+    using System.Collections.Generic;
+    using System.Fabric;
+    using System.Fabric.Description;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
+
     public class Program
     {
         // Entry point for the application.
@@ -31,14 +37,14 @@ namespace Iot.Admin.WebService
             public WebHostingService(StatelessServiceContext serviceContext, string endpointName)
                 : base(serviceContext)
             {
-                _endpointName = endpointName;
+                this._endpointName = endpointName;
             }
 
             #region StatelessService
 
             protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
             {
-                return new[] { new ServiceInstanceListener(_ => this) };
+                return new[] {new ServiceInstanceListener(_ => this)};
             }
 
             #endregion StatelessService
@@ -47,29 +53,29 @@ namespace Iot.Admin.WebService
 
             void ICommunicationListener.Abort()
             {
-                _webHost?.Dispose();
+                this._webHost?.Dispose();
             }
 
             Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
             {
-                _webHost?.Dispose();
+                this._webHost?.Dispose();
 
                 return Task.FromResult(true);
             }
 
             Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
             {
-                var endpoint = FabricRuntime.GetActivationContext().GetEndpoint(_endpointName);
+                EndpointResourceDescription endpoint = FabricRuntime.GetActivationContext().GetEndpoint(this._endpointName);
 
                 string serverUrl = $"{endpoint.Protocol}://{FabricRuntime.GetNodeContext().IPAddressOrFQDN}:{endpoint.Port}";
 
-                _webHost = new WebHostBuilder().UseKestrel()
-                                               .UseContentRoot(Directory.GetCurrentDirectory())
-                                               .UseStartup<Startup>()
-                                               .UseUrls(serverUrl)
-                                               .Build();
+                this._webHost = new WebHostBuilder().UseKestrel()
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseStartup<Startup>()
+                    .UseUrls(serverUrl)
+                    .Build();
 
-                _webHost.Start();
+                this._webHost.Start();
 
                 return Task.FromResult(serverUrl);
             }

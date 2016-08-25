@@ -10,11 +10,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Iot.Ingestion.RouterService")]
+[assembly: AssemblyTitle("Iot.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Iot.Ingestion.RouterService")]
+[assembly: AssemblyProduct("Iot.Common")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("09284c49-3741-4b96-8f24-95b5b99f4bf1")]
+[assembly: Guid("35072b44-bc38-4d61-b96c-af2bcffafb41")]
 
 // Version information for an assembly consists of the following four values:
 //

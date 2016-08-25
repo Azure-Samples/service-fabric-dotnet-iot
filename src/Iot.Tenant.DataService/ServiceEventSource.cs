@@ -3,14 +3,14 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Iot.Ingestion.RouterService
+namespace Iot.Tenant.DataService
 {
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
     using System.Threading.Tasks;
 
-    [EventSource(Name = "MyCompany-Iot.Ingestion.RouterService")]
+    [EventSource(Name = "MyCompany-IoT.Tenant.DataService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();
