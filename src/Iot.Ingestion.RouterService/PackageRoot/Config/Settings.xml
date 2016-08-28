@@ -7,10 +7,7 @@
   <!-- This is used for securing StateManager's replication traffic. -->
   <Section Name="ReplicatorSecurityConfig" />
 
-  <!-- Add your custom configuration sections and parameters here. -->
-  <!--
-  <Section Name="MyConfigSection">
-    <Parameter Name="MyParameter" Value="Value1" />
+  <Section Name="IoTHubConfigInformation">
+    <Parameter Name="ConnectionString" Value="HostName=vturecek.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=PDsH/ggnNc49Q/JHCqIMXdSxOzZ2Sq/eQqtfpjXZwk0=" />
   </Section>
-  -->
 </Settings>

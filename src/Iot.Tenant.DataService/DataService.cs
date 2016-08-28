@@ -11,13 +11,13 @@ namespace Iot.Tenant.DataService
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
-    using IoT.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
     using Models;
 
     internal sealed class DataService : StatefulService
@@ -42,15 +42,13 @@ namespace Iot.Tenant.DataService
                 new ServiceReplicaListener(
                     context =>
                     {
-                        return new WebHostCommunicationListener(
+                        return new WebListenerCommunicationListener(
                             context,
-                            "",
-                            "ServiceEndpoint",
                             uri =>
                             {
-                                ServiceEventSource.Current.Message("Listening on {uri}");
+                                ServiceEventSource.Current.Message($"Listening on {uri}");
 
-                                return new WebHostBuilder().UseKestrel()
+                                return new WebHostBuilder().UseWebListener()
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<IReliableStateManager>(this.StateManager)
@@ -59,7 +57,8 @@ namespace Iot.Tenant.DataService
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
                                     .Build();
-                            });
+                            },
+                            "ServiceEndpoint");
                     })
             };
         }

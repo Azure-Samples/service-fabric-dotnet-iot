@@ -59,6 +59,7 @@ namespace Iot.Common
 
                     switch (uriBuilder.Target)
                     {
+                        case HttpServiceUriTarget.Default:
                         case HttpServiceUriTarget.Primary:
                             serviceEndpointJson = partition.GetEndpoint().Address;
                             break;
@@ -66,7 +67,6 @@ namespace Iot.Common
                             serviceEndpointJson = partition.Endpoints.ElementAt(this.random.Next(1, partition.Endpoints.Count)).Address;
                             break;
                         case HttpServiceUriTarget.Any:
-                        case HttpServiceUriTarget.Default:
                         default:
                             serviceEndpointJson = partition.Endpoints.ElementAt(this.random.Next(0, partition.Endpoints.Count)).Address;
                             break;

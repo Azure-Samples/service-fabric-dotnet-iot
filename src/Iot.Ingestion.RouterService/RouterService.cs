@@ -25,7 +25,7 @@ namespace Iot.Ingestion.RouterService
     /// </summary>
     internal sealed class RouterService : StatefulService
     {
-        internal const string TenantApplicationNamePrefix = "fabric:/Tenant/";
+        internal const string TenantApplicationNamePrefix = "fabric:/Iot.Tenant.Application";
         internal const string TenantDataServiceName = "DataService";
 
         public RouterService(StatefulServiceContext context)
@@ -41,8 +41,13 @@ namespace Iot.Ingestion.RouterService
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             string connectionString =
-                this.Context.CodePackageActivationContext.GetConfigurationPackageObject("Config").Settings.Sections["IoTHubConfigInformation"].Parameters[
-                    "Endpoint"].Value;
+                this.Context.CodePackageActivationContext
+                .GetConfigurationPackageObject("Config")
+                .Settings
+                .Sections["IoTHubConfigInformation"]
+                .Parameters["ConnectionString"]
+                .Value;
+
             EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, "messages/events");
 
             Int64RangePartitionInformation partitionInfo = this.Partition.PartitionInfo as Int64RangePartitionInformation;
@@ -58,18 +63,10 @@ namespace Iot.Ingestion.RouterService
                 ConditionalValue<string> offsetResult = await offsetDictionary.TryGetValueAsync(tx, partitionInfo.LowKey, LockMode.Update);
                 ConditionalValue<long> epochResult = await epochDictionary.TryGetValueAsync(tx, "epoch", LockMode.Update);
 
-                long newEpoch;
-
-                if (epochResult.HasValue)
-                {
-                    long oldEpoch = epochResult.Value;
-                    newEpoch = oldEpoch++;
-                }
-                else
-                {
-                    newEpoch = 0;
-                }
-
+                long newEpoch = epochResult.HasValue
+                    ? epochResult.Value + 1
+                    : 0;
+                
                 if (offsetResult.HasValue)
                 {
                     ServiceEventSource.Current.ServiceMessage(
@@ -77,7 +74,8 @@ namespace Iot.Ingestion.RouterService
                         "Creating listener on partitionkey {0} with offset {1}",
                         partitionKey,
                         offsetResult.Value);
-                    eventHubReceiver = await eventHubClient.GetConsumerGroup("sf2").CreateReceiverAsync(partitionKey.ToString(), offsetResult.Value, newEpoch);
+
+                    eventHubReceiver = await eventHubClient.GetDefaultConsumerGroup().CreateReceiverAsync(partitionKey.ToString(), offsetResult.Value, newEpoch);
                 }
                 else
                 {
@@ -86,11 +84,11 @@ namespace Iot.Ingestion.RouterService
                         "Creating listener on partitionkey {0} with offset {1}",
                         partitionKey,
                         DateTime.UtcNow);
-                    eventHubReceiver = await eventHubClient.GetConsumerGroup("sf2").CreateReceiverAsync(partitionKey.ToString(), DateTime.UtcNow, newEpoch);
+
+                    eventHubReceiver = await eventHubClient.GetDefaultConsumerGroup().CreateReceiverAsync(partitionKey.ToString(), DateTime.Parse("2016-08-28T17:30:00Z"), newEpoch);
                 }
 
                 await epochDictionary.SetAsync(tx, "epoch", newEpoch);
-
                 await tx.CommitAsync();
             }
 
@@ -98,57 +96,63 @@ namespace Iot.Ingestion.RouterService
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                EventData eventData = await eventHubReceiver.ReceiveAsync();
-
-                // Message format:
-                // 16-bit-header-length<header><body>
-                // <header> : tenantId;deviceId
-                // <body> : JSON payload
-
-                if (eventData != null)
+                try
                 {
-                    string tenantId;
-                    string deviceId;
+                    EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromMilliseconds(500));
 
-                    using (Stream eventStream = eventData.GetBodyStream())
+                    // Message format:
+                    // <header><body>
+                    // <header> : <7-bit-encoded-int-header-length>tenantId;deviceId
+                    // <body> : JSON payload
+
+                    if (eventData != null)
                     {
-                        using (BinaryReader reader = new BinaryReader(eventStream, Encoding.UTF8, true))
+                        string tenantId;
+                        string deviceId;
+
+                        using (Stream eventStream = eventData.GetBodyStream())
                         {
-                            short headerLength = reader.ReadInt16();
-                            string header = Encoding.UTF8.GetString(reader.ReadBytes(headerLength));
-                            int delimeter = header.IndexOf(';');
-                            tenantId = header.Substring(0, delimeter);
-                            deviceId = header.Substring(delimeter + 1);
+                            using (BinaryReader reader = new BinaryReader(eventStream, Encoding.UTF8, true))
+                            {
+                                string header = reader.ReadString();
+                                int delimeter = header.IndexOf(';');
+                                tenantId = header.Substring(0, delimeter);
+                                deviceId = header.Substring(delimeter + 1);
+                            }
+
+                            Uri tenantServiceName = new Uri($"{TenantApplicationNamePrefix}/{tenantId}/{TenantDataServiceName}");
+                            long tenantServicePartitionKey = (long)FnvHash.Hash(Encoding.UTF8.GetBytes(deviceId));
+
+                            HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
+
+                            Uri postUrl = new HttpServiceUriBuilder()
+                                .SetServiceName(tenantServiceName)
+                                .SetPartitionKey(tenantServicePartitionKey)
+                                .SetServicePathAndQuery($"/api/events/{deviceId}")
+                                .Build();
+
+                            using (StreamContent postContent = new StreamContent(eventStream))
+                            {
+                                await httpClient.PostAsync(postUrl, postContent, cancellationToken);
+                            }
+
+                            ServiceEventSource.Current.ServiceMessage(
+                                this.Context,
+                                "Sent event data to tenant service '{0}' with partition key '{1}'",
+                                tenantServiceName,
+                                tenantServicePartitionKey);
                         }
 
-                        Uri tenantServiceName = new Uri($"{TenantApplicationNamePrefix}/{tenantId}/{TenantDataServiceName}");
-                        long tenantServicePartitionKey = (long)FnvHash.Hash(Encoding.UTF8.GetBytes(deviceId));
-
-                        HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
-
-                        Uri postUrl = new HttpServiceUriBuilder()
-                            .SetServiceName(tenantServiceName)
-                            .SetPartitionKey(tenantServicePartitionKey)
-                            .SetServicePathAndQuery("/api/events")
-                            .Build();
-
-                        using (StreamContent postContent = new StreamContent(eventStream))
+                        using (ITransaction tx = this.StateManager.CreateTransaction())
                         {
-                            await httpClient.PostAsync(postUrl, postContent, cancellationToken);
+                            // await offsetDictionary.SetAsync(tx, partitionKey, eventData.Offset);
+                            // await tx.CommitAsync();
                         }
-
-                        ServiceEventSource.Current.ServiceMessage(
-                            this.Context,
-                            "Sent event data to tenant service '{0}' with partition key '{1}'",
-                            tenantServiceName,
-                            tenantServicePartitionKey);
                     }
-
-                    using (ITransaction tx = this.StateManager.CreateTransaction())
-                    {
-                        await offsetDictionary.SetAsync(tx, partitionKey, eventData.Offset);
-                        await tx.CommitAsync();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    ServiceEventSource.Current.ServiceMessage(this.Context, ex.ToString());
                 }
             }
         }

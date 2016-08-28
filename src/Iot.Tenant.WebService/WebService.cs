@@ -8,10 +8,10 @@ namespace Iot.Tenant.WebService
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
-    using IoT.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 
     internal sealed class WebService : StatelessService
     {
@@ -26,16 +26,23 @@ namespace Iot.Tenant.WebService
             {
                 new ServiceInstanceListener(
                     context =>
-                        new WebHostCommunicationListener(
+                    {
+                        return new WebListenerCommunicationListener(
                             context,
-                            "ServiceEndpoint",
-                            uri =>
-                                new WebHostBuilder().UseWebListener()
+                            uri => {
+                                ServiceEventSource.Current.Message($"Listening on {uri}");
+
+                                return new WebHostBuilder().UseWebListener()
                                     .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
-                                    .Build()))
+                                    .Build();
+                            },
+                            "ServiceEndpoint");
+                    })
             };
         }
+
+        // [ 
     }
 }

@@ -11,16 +11,12 @@ namespace Iot.Tenant.DataService.Models
     [DataContract]
     internal class DeviceEventSeries
     {
-        public DeviceEventSeries(string deviceId, string tenantId, IEnumerable<DeviceEvent> events)
+        public DeviceEventSeries(string deviceId, IEnumerable<DeviceEvent> events)
         {
-            this.TenantId = tenantId;
             this.DeviceId = deviceId;
             this.Events = events;
         }
-
-        [DataMember]
-        public string TenantId { get; private set; }
-
+        
         [DataMember]
         public string DeviceId { get; private set; }
 

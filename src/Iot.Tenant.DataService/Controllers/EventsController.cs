@@ -58,7 +58,7 @@ namespace Iot.Tenant.DataService.Controllers
                 return this.Ok();
             }
 
-            DeviceEventSeries eventList = new DeviceEventSeries("", deviceId, events);
+            DeviceEventSeries eventList = new DeviceEventSeries(deviceId, events);
 
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
