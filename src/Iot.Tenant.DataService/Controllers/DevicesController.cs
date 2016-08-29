@@ -29,7 +29,7 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
@@ -51,7 +51,7 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpGet]
         [Route("{deviceId}")]
-        public async Task<IActionResult> Get(string deviceId)
+        public async Task<IActionResult> GetAsync(string deviceId)
         {
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
@@ -71,15 +71,16 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpGet]
         [Route("queue/length")]
-        public async Task<IActionResult> QueueLength()
+        public async Task<IActionResult> GetQueueLengthAsync()
         {
             IReliableQueue<DeviceEventSeries> queue =
                 await this.stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
 
             using (ITransaction tx = this.stateManager.CreateTransaction())
             {
-                // When the number of items in the queue reaches a certain size..
-                return this.Ok(await queue.GetCountAsync(tx));
+                long count = await queue.GetCountAsync(tx);
+
+                return this.Ok(count);
             }
         }
     }

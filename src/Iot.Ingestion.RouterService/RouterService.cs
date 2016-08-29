@@ -140,7 +140,7 @@ namespace Iot.Ingestion.RouterService
                             }
 
                             Uri tenantServiceName = new Uri($"{TenantApplicationNamePrefix}/{tenantId}/{TenantDataServiceName}");
-                            long tenantServicePartitionKey = (long)FnvHash.Hash(Encoding.UTF8.GetBytes(deviceId));
+                            long tenantServicePartitionKey = FnvHash.Hash(deviceId);
 
                             HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
 

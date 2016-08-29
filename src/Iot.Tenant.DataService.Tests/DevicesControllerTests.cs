@@ -39,7 +39,7 @@ namespace Iot.Tenant.DataService.Tests
             }
 
             DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.Get();
+            IActionResult result = await target.GetAsync();
             
             Assert.True(result is OkObjectResult);
             
@@ -58,7 +58,7 @@ namespace Iot.Tenant.DataService.Tests
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
             
             DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.Get();
+            IActionResult result = await target.GetAsync();
 
             Assert.True(result is OkObjectResult);
 
@@ -86,7 +86,7 @@ namespace Iot.Tenant.DataService.Tests
             }
 
             DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.Get(expectedKey);
+            IActionResult result = await target.GetAsync(expectedKey);
 
             Assert.True(result is OkObjectResult);
 
@@ -105,7 +105,7 @@ namespace Iot.Tenant.DataService.Tests
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
             
             DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.Get("somekey");
+            IActionResult result = await target.GetAsync("somekey");
 
             Assert.True(result is NotFoundResult);
         }
@@ -126,7 +126,7 @@ namespace Iot.Tenant.DataService.Tests
             }
 
             DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.QueueLength();
+            IActionResult result = await target.GetQueueLengthAsync();
 
             Assert.True(result is OkObjectResult);
             long actual = (long)((OkObjectResult)result).Value;

@@ -136,5 +136,96 @@ namespace Iot.Tenant.DataService.Tests
                 await tx.CommitAsync();
             }
         }
+
+
+        [Fact]
+        public async Task UpdateMostRecentEvent()
+        {
+            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            MockReliableStateManager stateManager = new MockReliableStateManager();
+
+            IReliableDictionary<string, DeviceEvent> store =
+                await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
+
+            IReliableQueue<DeviceEventSeries> queue =
+                await stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
+
+            string expectedDeviceId = "some-device";
+            DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
+            EventsController target = new EventsController(stateManager, cancelSource);
+            IActionResult result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+
+            Assert.True(result is OkResult);
+
+            using (ITransaction tx = stateManager.CreateTransaction())
+            {
+                ConditionalValue<DeviceEvent> actualStoredEvent = await store.TryGetValueAsync(tx, expectedDeviceId);
+
+                Assert.True(actualStoredEvent.HasValue);
+                Assert.Equal(expectedDeviceEvent.Timestamp, actualStoredEvent.Value.Timestamp);
+
+                await tx.CommitAsync();
+            }
+
+            expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(200, TimeSpan.Zero));
+            result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+
+            Assert.True(result is OkResult);
+
+            using (ITransaction tx = stateManager.CreateTransaction())
+            {
+                ConditionalValue<DeviceEvent> actualStoredEvent = await store.TryGetValueAsync(tx, expectedDeviceId);
+
+                Assert.True(actualStoredEvent.HasValue);
+                Assert.Equal(expectedDeviceEvent.Timestamp, actualStoredEvent.Value.Timestamp);
+
+                await tx.CommitAsync();
+            }
+        }
+
+
+        [Fact]
+        public async Task IgnoreOldEvent()
+        {
+            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            MockReliableStateManager stateManager = new MockReliableStateManager();
+
+            IReliableDictionary<string, DeviceEvent> store =
+                await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
+
+            IReliableQueue<DeviceEventSeries> queue =
+                await stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
+
+            string expectedDeviceId = "some-device";
+            DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
+            EventsController target = new EventsController(stateManager, cancelSource);
+            IActionResult result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+
+            Assert.True(result is OkResult);
+
+            using (ITransaction tx = stateManager.CreateTransaction())
+            {
+                ConditionalValue<DeviceEvent> actualStoredEvent = await store.TryGetValueAsync(tx, expectedDeviceId);
+
+                Assert.True(actualStoredEvent.HasValue);
+                Assert.Equal(expectedDeviceEvent.Timestamp, actualStoredEvent.Value.Timestamp);
+
+                await tx.CommitAsync();
+            }
+
+            DeviceEvent oldEvent = new DeviceEvent(new DateTimeOffset(10, TimeSpan.Zero));
+            result = await target.Post(expectedDeviceId, new[] { oldEvent });
+            Assert.True(result is OkResult);
+
+            using (ITransaction tx = stateManager.CreateTransaction())
+            {
+                ConditionalValue<DeviceEvent> actualStoredEvent = await store.TryGetValueAsync(tx, expectedDeviceId);
+
+                Assert.True(actualStoredEvent.HasValue);
+                Assert.Equal(expectedDeviceEvent.Timestamp, actualStoredEvent.Value.Timestamp);
+
+                await tx.CommitAsync();
+            }
+        }
     }
 }

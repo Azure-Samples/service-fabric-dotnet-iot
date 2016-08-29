@@ -17,8 +17,9 @@ namespace Iot.Tenant.DataService
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
     using Models;
+    using IoT.Common;
+    using Controllers;
 
     internal sealed class DataService : StatefulService
     {
@@ -42,8 +43,9 @@ namespace Iot.Tenant.DataService
                 new ServiceReplicaListener(
                     context =>
                     {
-                        return new WebListenerCommunicationListener(
+                        return new WebHostCommunicationListener(
                             context,
+                            "ServiceEndpoint",
                             uri =>
                             {
                                 ServiceEventSource.Current.Message($"Listening on {uri}");
@@ -57,8 +59,7 @@ namespace Iot.Tenant.DataService
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
                                     .Build();
-                            },
-                            "ServiceEndpoint");
+                            });
                     })
             };
         }
@@ -66,6 +67,26 @@ namespace Iot.Tenant.DataService
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             cancellationToken.Register(() => this.webApiCancellationSource.Cancel());
+
+
+            string expectedDeviceId = "some-device";
+
+            List<DeviceEvent> expectedDeviceList = new List<DeviceEvent>();
+            DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
+            for (int i = 0; i < 10; ++i)
+            {
+                expectedDeviceList.Add(new DeviceEvent(new DateTimeOffset(i, TimeSpan.Zero)));
+            }
+            expectedDeviceList.Insert(4, expectedDeviceEvent);
+
+            EventsController target = new EventsController(this.StateManager, this.webApiCancellationSource);
+
+            await target.Post(expectedDeviceId, expectedDeviceList);
+
+            ServiceEventSource.Current.ServiceMessage(this.Context, $"added dummy data for device {expectedDeviceId}");
+
+
+
 
             IReliableQueue<DeviceEventSeries> queue = await this.StateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(EventQueueName);
 

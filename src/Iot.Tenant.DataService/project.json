@@ -13,8 +13,7 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.ServiceFabric": "5.2.207",
     "Microsoft.ServiceFabric.Data": "2.2.207",
-    "Microsoft.ServiceFabric.Services": "2.2.207",
-    "Microsoft.ServiceFabric.Services.AspNetCore": "1.0.0"
+    "Microsoft.ServiceFabric.Services": "2.2.207"
   },
 
   "tools": {

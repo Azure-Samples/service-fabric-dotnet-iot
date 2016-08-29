@@ -19,7 +19,6 @@
     "Microsoft.ServiceFabric": "5.2.207",
     "Microsoft.ServiceFabric.Data": "2.2.207",
     "Microsoft.ServiceFabric.Services": "2.2.207",
-    "Microsoft.ServiceFabric.Services.AspNetCore": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0"
   },
 
