@@ -16,7 +16,7 @@ namespace Iot.Tenant.DataService.Tests
     public class DevicesControllerTests
     {
         [Fact]
-        public async Task TestGetAll()
+        public async Task GetAll()
         {
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
@@ -49,7 +49,7 @@ namespace Iot.Tenant.DataService.Tests
         }
 
         [Fact]
-        public async Task TestGetAllEmpty()
+        public async Task GetAllEmpty()
         {
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
@@ -68,7 +68,7 @@ namespace Iot.Tenant.DataService.Tests
         }
 
         [Fact]
-        public async Task TestGetDevice()
+        public async Task GetDevice()
         {
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
@@ -96,7 +96,7 @@ namespace Iot.Tenant.DataService.Tests
         }
 
         [Fact]
-        public async Task TestGetDeviceNotFound()
+        public async Task GetDeviceNotFound()
         {
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
@@ -112,7 +112,7 @@ namespace Iot.Tenant.DataService.Tests
 
 
         [Fact]
-        public async Task TestGetQueueLength()
+        public async Task GetQueueLength()
         {
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
@@ -122,7 +122,7 @@ namespace Iot.Tenant.DataService.Tests
 
             using (ITransaction tx = stateManager.CreateTransaction())
             {
-                await queue.EnqueueAsync(tx, new DeviceEventSeries("", "", new DeviceEvent[0]));
+                await queue.EnqueueAsync(tx, new DeviceEventSeries("", new DeviceEvent[0]));
             }
 
             DevicesController target = new DevicesController(stateManager, cancelSource);
