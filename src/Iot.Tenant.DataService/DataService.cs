@@ -68,26 +68,6 @@ namespace Iot.Tenant.DataService
         {
             cancellationToken.Register(() => this.webApiCancellationSource.Cancel());
 
-
-            string expectedDeviceId = "some-device";
-
-            List<DeviceEvent> expectedDeviceList = new List<DeviceEvent>();
-            DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
-            for (int i = 0; i < 10; ++i)
-            {
-                expectedDeviceList.Add(new DeviceEvent(new DateTimeOffset(i, TimeSpan.Zero)));
-            }
-            expectedDeviceList.Insert(4, expectedDeviceEvent);
-
-            EventsController target = new EventsController(this.StateManager, this.webApiCancellationSource);
-
-            await target.Post(expectedDeviceId, expectedDeviceList);
-
-            ServiceEventSource.Current.ServiceMessage(this.Context, $"added dummy data for device {expectedDeviceId}");
-
-
-
-
             IReliableQueue<DeviceEventSeries> queue = await this.StateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(EventQueueName);
 
             while (true)
