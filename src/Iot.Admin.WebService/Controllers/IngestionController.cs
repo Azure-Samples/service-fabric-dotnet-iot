@@ -15,13 +15,11 @@ namespace Iot.Admin.WebService.Controllers
     using System.Threading.Tasks;
     using Iot.Admin.WebService.Models;
     using Microsoft.AspNetCore.Mvc;
+    using Common;
 
     [Route("api/[Controller]")]
     public class IngestionController : Controller
     {
-        private const string IngestionApplicationPrefix = "fabric:/Ingestion";
-        private const string IngestionApplicationTypeName = "IotIngestionApplicationType";
-
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
         private readonly CancellationTokenSource cancellationTokenSource;
@@ -37,7 +35,7 @@ namespace Iot.Admin.WebService.Controllers
         {
             ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync();
 
-            return this.Ok(applications.Where(x => x.ApplicationTypeName == IngestionApplicationTypeName));
+            return this.Ok(applications.Where(x => x.ApplicationTypeName == Names.IngestionApplicationTypeName));
         }
 
         [HttpPost]
@@ -48,8 +46,8 @@ namespace Iot.Admin.WebService.Controllers
             appInstanceParameters["IotHubConnectionString"] = parameters.IotHubConnectionString;
 
             ApplicationDescription application = new ApplicationDescription(
-                new Uri($"{IngestionApplicationPrefix}/{name}"),
-                WebService.IngestionApplicationType,
+                new Uri($"{Names.IngestionApplicationPrefix}/{name}"),
+                Names.IngestionApplicationTypeName,
                 parameters.Version,
                 appInstanceParameters);
 
@@ -62,8 +60,7 @@ namespace Iot.Admin.WebService.Controllers
                 // application instance already exists, move and create the service
             }
 
-            UriBuilder serviceNameUriBuilder = new UriBuilder(application.ApplicationName);
-            serviceNameUriBuilder.Path += "/RouterService";
+            ServiceUriBuilder serviceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.IngestionRouterServiceName);
 
             StatefulServiceDescription service = new StatefulServiceDescription()
             {
@@ -72,8 +69,8 @@ namespace Iot.Admin.WebService.Controllers
                 MinReplicaSetSize = 3,
                 TargetReplicaSetSize = 3,
                 PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(parameters.PartitionCount, 1, parameters.PartitionCount),
-                ServiceName = serviceNameUriBuilder.Uri,
-                ServiceTypeName = WebService.IngestionRouterServiceType
+                ServiceName = serviceNameUriBuilder.Build(),
+                ServiceTypeName = Names.IngestionRouterServiceTypeName
             };
 
             await this.fabricClient.ServiceManager.CreateServiceAsync(service, this.operationTimeout, this.cancellationTokenSource.Token);
@@ -88,13 +85,13 @@ namespace Iot.Admin.WebService.Controllers
             try
             {
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
-                    new Uri($"{IngestionApplicationPrefix}/{name}"),
+                    new Uri($"{Names.IngestionApplicationPrefix}/{name}"),
                     this.operationTimeout,
                     this.cancellationTokenSource.Token);
             }
             catch (FabricElementNotFoundException)
             {
-                // service doesn't exist
+                // service doesn't exist; nothing to delete
             }
 
             return this.Ok();

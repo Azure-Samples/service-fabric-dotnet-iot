@@ -6,46 +6,24 @@
     <div class="iotHubs">
         <h3>IoT Hub ingestion applications</h3>
         <ul id="iotHubList">
-            <li>
-                <ul class="iotHubDetails">
-                    <li><label>Name:</label>fabric:/IoT.Ingestion/app1</li>
-                    <li>
-                        <label>Status:</label>
-                    </li>
-                    <li>
-                        <label>Version:</label>
-                    </li>
-                    <li>
-                        <label>Parameters:</label>
-                    </li>
-                </ul>
-            </li>
         </ul>
-        <fieldset class="iotHubControls">
+        <fieldset class="applicationControls">
             <legend>Add IoT Hub</legend>
-            <label>Name: </label><input id="iotHubName" type="text"/>
-            <label>Iot Hub connection string: </label><input id="iotHubConnectionString" type="text"/>
-            <label>Iot Hub partition count: </label><input id="iotHubPartitionCount" type="text"/>
+            <input id="iotHubName" type="text" placeholder="Name"/>
+            <input id="iotHubConnectionString" type="text" placeholder="Iot Hub connection string"/>
+            <input id="iotHubPartitionCount" type="text" placeholder="Iot Hub partition count"/>
             <button id="addIotHubButton">Add</button>
         </fieldset>
     </div>
     <div class="tenants">
         <h3>Tenant applications</h3>
         <ul id="tenantList">
-            <li>
-                <ul class="tenantDetails">
-                    <li><label>Name:</label>fabric:/IoT.Tenant/tenant1</li>
-                    <li><label>Status:</label>Up</li>
-                    <li><label>Version:</label>1.0.0</li>
-                    <li>
-                        <label>Parameters:</label>
-                    </li>
-                </ul>
-            </li>
         </ul>
-        <fieldset class="tenantControls">
+        <fieldset class="applicationControls">
             <legend>Add tenant</legend>
-            <label>Name: </label><input id="tenantName" type="text"/>
+            <input id="tenantName" type="text" placeholder="Tenant name"/>
+            <input id="tenantPartitionCount" type="text" placeholder="Data service partition count" />
+            <input id="tenantInstanceCount" type="text" placeholder="Web service instance count" />
             <button id="addTenantButton">Add</button>
         </fieldset>
     </div>
@@ -55,9 +33,12 @@
     <script>
         $(function() {
             var path = window.location.pathname;
+            var $result = $('#result')
 
             $('#addIotHubButton').click(function() {
-                $('#result').html('');
+                $result.html('');
+                $result.removeClass();
+
                 var name = $('#iotHubName').val();
                 var params = {};
                 params.IotHubConnectionString = $('#iotHubConnectionString').val();
@@ -71,28 +52,61 @@
                         contentType: 'application/json',
                         dataType: 'json',
                     })
-                    .done(function() {
-                        $('#result').html('success');
+                    .done(function () {
+                        $result.removeClass();
+                        $result.addClass('successResult');
+                        $result.html('success');
                     })
-                    .error(function(error) {
-                        $('#result').html(error);
+                    .error(function (error) 
+                    {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html(error.responseText);
                     })
             });
 
-            function refreshIngestionApplicationList() {
+            $('#addTenantButton').click(function () {
+                $result.html('');
+                $result.removeClass();
+
+                var name = $('#tenantName').val();
+                var params = {};
+                params.DataPartitionCount = $('#tenantPartitionCount').val();
+                params.WebInstanceCount = $('#tenantInstanceCount').val();
+                params.Version = '1.0.0';
+
                 $.ajax({
-                        url: path + 'api/ingestion',
+                    url: path + 'api/tenants/' + name,
+                    method: 'POST',
+                    data: JSON.stringify(params),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                })
+                    .done(function () {
+                        $result.removeClass();
+                        $result.addClass('successResult');
+                        $result.html('success');
+                    })
+                    .error(function (error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html(error.responseText);
+                    })
+            });
+
+            function refreshApplicationList(apiUrl, $applicationList) {
+                $.ajax({
+                    url: path + apiUrl,
                         method: 'GET',
                         contentType: 'application/json',
                         dataType: 'json'
                     })
                     .done(function(applications) {
-                        var applicationsList = $('#iotHubList');
 
-                        applicationsList.html('');
+                        $applicationList.html('');
                         for (var i = 0; i < applications.length; ++i) {
-                            applicationsList.append(
-                                '<li><ul class="iotHubDetails">'
+                            $applicationList.append(
+                                '<li><ul class="applicationDetails">'
                                 + '<li><label>Name:</label>' + applications[i].applicationName + '</li>'
                                 + '<li><label>Status:</label>' + applications[i].applicationStatus + '</li>'
                                 + '<li><label>Version:</label>' + applications[i].applicationTypeVersion + '</li>'
@@ -102,12 +116,13 @@
                     })
                     .always(function() {
                         setTimeout(function() {
-                            refreshIngestionApplicationList();
+                            refreshApplicationList(apiUrl, $applicationList);
                         }, 10000);
                     });
             }
 
-            refreshIngestionApplicationList();
+            refreshApplicationList('api/ingestion', $('#iotHubList'));
+            refreshApplicationList('api/tenants', $('#tenantList'));
 
         });
     </script>

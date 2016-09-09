@@ -18,8 +18,6 @@ namespace Iot.Admin.WebService
 
     internal sealed class WebService : StatelessService
     {
-        internal const string IngestionApplicationType = "IotIngestionApplicationType";
-        internal const string IngestionRouterServiceType = "RouterServiceType";
 
         private readonly CancellationTokenSource webApiCancellationSource;
         private readonly FabricClient fabricClient;

@@ -7,38 +7,37 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
+time, mark, audio, video { margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-    font: 0.8em/1.2 Segoe UI,Arial,sans-serif;
-    background:#222222;
-    color:#DDDDDD;
-}
-h3 { font-size: 2em; font-weight:lighter}
-#main { margin: 50px 20px; clear:both}
-.iotHubs { width:600px; float:left; }
-.tenants { width:600px; float:left; }
-.iotHubDetails label, .tenantDetails label { display:inline-block; width: 100px; font-weight:bold  }
-.iotHubControls, .tenantControls { width: 550px}
-.iotHubControls label, .tenantControls label { display:inline-block; width: 180px; font-weight:bold; text-align:right  }
-fieldset { border: 1px solid #555555; margin: 10px 0; padding: 10px}
-input[type=text] { display: inline-block; width: 300px; padding: 5px; margin: 10px; background: #555555; color:#EEEEEE; border: 1px solid #999999 }
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section { display: block; }
+
+body { line-height: 1; font: 0.8em/1.2 Segoe UI,Arial,sans-serif; background: #222222; color: #DDDDDD; }
+footer { clear: both; }
+
+/* forms */
+fieldset { border: 1px solid #555555; margin: 10px 0; padding: 10px; }
+input[type=text] { display: inline-block; width: 300px; padding: 5px; margin: 10px; background: #555555; color: #EEEEEE; border: 1px solid #999999; }
 button { display: block; width: 100px; padding: 3px; }
+
+h3 { font-size: 2em; font-weight: lighter; }
 ul { margin: 20px 0 0 0; }
-ul li { list-style: none; margin: 3px 0; padding: 0; color:#DDD;}
-footer {clear:both;}
+    ul li { list-style: none; margin: 3px 0; padding: 0; color: #DDD; }
+
+#main { margin: 50px 20px; clear: both; }
+
+.iotHubs { width: 600px; float: left; }
+.tenants { width: 600px; float: left; }
+
+.applicationDetails { background:#444444; padding:10px; text-wrap:normal }
+    .applicationDetails label { display: inline-block; width: 100px; font-weight: bold; }
+.applicationControls { width: 550px; }
+    .applicationControls label { display: inline-block; width: 180px; font-weight: bold; text-align: right; }
+
+#result { width:100%; padding:10px; margin: 20px 0}
+.errorResult { border:1px solid #DD0000; color: #DD0000 }
+.successResult { border:1px solid #00DD00; color: #00DD00 }

@@ -12,13 +12,16 @@ namespace Iot.Common
     {
         public ServiceUriBuilder(string serviceInstance)
         {
-            this.ServiceInstance = serviceInstance;
+            this.ServiceName = serviceInstance;
         }
 
-        public ServiceUriBuilder(string applicationInstance, string serviceInstance)
+        public ServiceUriBuilder(string applicationInstance, string serviceName)
         {
-            this.ApplicationInstance = applicationInstance;
-            this.ServiceInstance = serviceInstance;
+            this.ApplicationInstance = !applicationInstance.StartsWith("fabric:/")
+                ? "fabric:/" + applicationInstance
+                : applicationInstance;
+
+            this.ServiceName = serviceName;
         }
 
         /// <summary>
@@ -29,7 +32,7 @@ namespace Iot.Common
         /// <summary>
         /// The name of the service instance.
         /// </summary>
-        public string ServiceInstance { get; set; }
+        public string ServiceName { get; set; }
 
         public Uri Build()
         {
@@ -40,7 +43,7 @@ namespace Iot.Common
                 try
                 {
                     // the ApplicationName property here automatically prepends "fabric:/" for us
-                    applicationInstance = FabricRuntime.GetActivationContext().ApplicationName.Replace("fabric:/", String.Empty);
+                    applicationInstance = FabricRuntime.GetActivationContext().ApplicationName;
                 }
                 catch (InvalidOperationException)
                 {
@@ -50,7 +53,7 @@ namespace Iot.Common
                 }
             }
 
-            return new Uri("fabric:/" + applicationInstance + "/" + this.ServiceInstance);
+            return new Uri(applicationInstance.TrimEnd('/') + "/" + this.ServiceName);
         }
     }
 }

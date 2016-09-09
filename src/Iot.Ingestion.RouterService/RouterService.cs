@@ -22,8 +22,6 @@ namespace Iot.Ingestion.RouterService
     /// </summary>
     internal sealed class RouterService : StatefulService
     {
-        internal const string TenantApplicationNamePrefix = "fabric:/Iot.Tenant.Application";
-        internal const string TenantDataServiceName = "DataService";
 
         public RouterService(StatefulServiceContext context)
             : base(context)
@@ -82,7 +80,7 @@ namespace Iot.Ingestion.RouterService
                                 string tenantId = header.Substring(0, delimeter);
                                 string deviceId = header.Substring(delimeter + 1);
 
-                                Uri tenantServiceName = new Uri($"{TenantApplicationNamePrefix}/{tenantId}/{TenantDataServiceName}");
+                                Uri tenantServiceName = new Uri($"{Names.TenantApplicationNamePrefix}/{tenantId}/{Names.TenantDataServiceName}");
                                 long tenantServicePartitionKey = FnvHash.Hash(deviceId);
 
                                 Uri postUrl = new HttpServiceUriBuilder()

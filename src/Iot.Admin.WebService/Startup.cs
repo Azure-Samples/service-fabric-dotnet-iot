@@ -6,10 +6,14 @@
 namespace Iot.Admin.WebService
 {
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using System;
+    using System.Threading.Tasks;
 
     public class Startup
     {
@@ -43,13 +47,26 @@ namespace Iot.Admin.WebService
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
             }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+
+            app.UseExceptionHandler(errorApp =>
+                errorApp.Run(context =>
+                {
+                    context.Response.StatusCode = 500;
+                    context.Response.ContentType = "text/plain";
+
+                    IExceptionHandlerFeature feature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (feature != null)
+                    {
+                        Exception ex = feature.Error;
+
+                        return context.Response.WriteAsync(ex.Message);
+                    }
+
+                    return Task.FromResult(true);
+                }));
 
             app.UseStaticFiles();
-
+            
             app.UseMvc(
                 routes =>
                 {
