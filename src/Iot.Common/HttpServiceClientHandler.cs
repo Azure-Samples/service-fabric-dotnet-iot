@@ -5,8 +5,6 @@
 
 namespace Iot.Common
 {
-    using Microsoft.ServiceFabric.Services.Client;
-    using Newtonsoft.Json.Linq;
     using System;
     using System.Fabric;
     using System.Linq;
@@ -15,6 +13,8 @@ namespace Iot.Common
     using System.Net.Sockets;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Newtonsoft.Json.Linq;
 
     public class HttpServiceClientHandler : HttpClientHandler
     {
@@ -23,7 +23,8 @@ namespace Iot.Common
         private readonly Random random = new Random();
 
         public HttpServiceClientHandler()
-        { }
+        {
+        }
 
         /// <summary>
         /// http://fabric/app/service/#/partitionkey/any|primary|secondary/endpoint-name/api-path
@@ -44,7 +45,7 @@ namespace Iot.Common
             HttpResponseMessage lastResponse = null;
             Exception lastException = null;
 
-            while (retries --> 0)
+            while (retries -- > 0)
             {
                 lastResponse = null;
                 cancellationToken.ThrowIfCancellationRequested();
@@ -164,6 +165,5 @@ namespace Iot.Common
                 throw lastException;
             }
         }
-
     }
 }

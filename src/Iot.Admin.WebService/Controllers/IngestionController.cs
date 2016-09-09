@@ -1,21 +1,26 @@
-﻿using Iot.Admin.WebService.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Fabric;
-using System.Fabric.Description;
-using System.Fabric.Query;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Iot.Admin.WebService.Controllers
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.Fabric;
+    using System.Fabric.Description;
+    using System.Fabric.Query;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Iot.Admin.WebService.Models;
+    using Microsoft.AspNetCore.Mvc;
+
     [Route("api/[Controller]")]
     public class IngestionController : Controller
     {
         private const string IngestionApplicationPrefix = "fabric:/Ingestion";
+        private const string IngestionApplicationTypeName = "IotIngestionApplicationType";
 
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
@@ -30,17 +35,14 @@ namespace Iot.Admin.WebService.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync(
-                    new Uri(IngestionApplicationPrefix), 
-                    operationTimeout, 
-                    this.cancellationTokenSource.Token);
+            ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync();
 
-            return this.Ok(applications.Select(x => x.ApplicationName.ToString()));
+            return this.Ok(applications.Where(x => x.ApplicationTypeName == IngestionApplicationTypeName));
         }
 
         [HttpPost]
         [Route("{name}")]
-        public async Task<IActionResult> Post([FromRoute]string name, [FromBody]IngestionApplicationParams parameters)
+        public async Task<IActionResult> Post([FromRoute] string name, [FromBody] IngestionApplicationParams parameters)
         {
             NameValueCollection appInstanceParameters = new NameValueCollection();
             appInstanceParameters["IotHubConnectionString"] = parameters.IotHubConnectionString;
@@ -60,6 +62,9 @@ namespace Iot.Admin.WebService.Controllers
                 // application instance already exists, move and create the service
             }
 
+            UriBuilder serviceNameUriBuilder = new UriBuilder(application.ApplicationName);
+            serviceNameUriBuilder.Path += "/RouterService";
+
             StatefulServiceDescription service = new StatefulServiceDescription()
             {
                 ApplicationName = application.ApplicationName,
@@ -67,7 +72,7 @@ namespace Iot.Admin.WebService.Controllers
                 MinReplicaSetSize = 3,
                 TargetReplicaSetSize = 3,
                 PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(parameters.PartitionCount, 1, parameters.PartitionCount),
-                ServiceName = new Uri(application.ApplicationName, "RouterService"),
+                ServiceName = serviceNameUriBuilder.Uri,
                 ServiceTypeName = WebService.IngestionRouterServiceType
             };
 
@@ -90,7 +95,6 @@ namespace Iot.Admin.WebService.Controllers
             catch (FabricElementNotFoundException)
             {
                 // service doesn't exist
-
             }
 
             return this.Ok();

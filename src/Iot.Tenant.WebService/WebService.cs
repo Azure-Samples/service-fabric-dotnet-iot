@@ -5,18 +5,18 @@
 
 namespace Iot.Tenant.WebService
 {
+    using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using IoT.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using System;
-    using IoT.Common;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     internal sealed class WebService : StatelessService
     {
@@ -41,7 +41,8 @@ namespace Iot.Tenant.WebService
                             context,
                             tenantName,
                             "ServiceEndpoint",
-                            uri => {
+                            uri =>
+                            {
                                 ServiceEventSource.Current.Message($"Listening on {uri}");
 
                                 return new WebHostBuilder().UseWebListener()
@@ -49,7 +50,7 @@ namespace Iot.Tenant.WebService
                                         services => services
                                             .AddSingleton<FabricClient>(new FabricClient())
                                             .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
-                                   .UseContentRoot(Directory.GetCurrentDirectory())
+                                    .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
                                     .Build();

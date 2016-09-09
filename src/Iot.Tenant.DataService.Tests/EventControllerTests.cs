@@ -1,18 +1,23 @@
-﻿using Iot.Mocks;
-using Iot.Tenant.DataService.Controllers;
-using Iot.Tenant.DataService.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Iot.Tenant.DataService.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Iot.Mocks;
+    using Iot.Tenant.DataService.Controllers;
+    using Iot.Tenant.DataService.Models;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Xunit;
+
     public class EventControllerTests
     {
         [Fact]
@@ -75,7 +80,7 @@ namespace Iot.Tenant.DataService.Tests
 
             EventsController target = new EventsController(stateManager, cancelSource);
 
-            IActionResult result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+            IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
 
@@ -153,7 +158,7 @@ namespace Iot.Tenant.DataService.Tests
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
             EventsController target = new EventsController(stateManager, cancelSource);
-            IActionResult result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+            IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
 
@@ -168,7 +173,7 @@ namespace Iot.Tenant.DataService.Tests
             }
 
             expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(200, TimeSpan.Zero));
-            result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+            result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
 
@@ -199,7 +204,7 @@ namespace Iot.Tenant.DataService.Tests
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
             EventsController target = new EventsController(stateManager, cancelSource);
-            IActionResult result = await target.Post(expectedDeviceId, new[] { expectedDeviceEvent });
+            IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
 
@@ -214,7 +219,7 @@ namespace Iot.Tenant.DataService.Tests
             }
 
             DeviceEvent oldEvent = new DeviceEvent(new DateTimeOffset(10, TimeSpan.Zero));
-            result = await target.Post(expectedDeviceId, new[] { oldEvent });
+            result = await target.Post(expectedDeviceId, new[] {oldEvent});
             Assert.True(result is OkResult);
 
             using (ITransaction tx = stateManager.CreateTransaction())

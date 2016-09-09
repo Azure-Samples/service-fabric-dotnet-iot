@@ -16,7 +16,7 @@ namespace Iot.Tenant.DataService.Models
             this.DeviceId = deviceId;
             this.Events = events;
         }
-        
+
         [DataMember]
         public string DeviceId { get; private set; }
 

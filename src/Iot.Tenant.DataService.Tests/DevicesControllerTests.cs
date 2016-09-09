@@ -1,18 +1,23 @@
-﻿using Iot.Mocks;
-using Iot.Tenant.DataService.Controllers;
-using Iot.Tenant.DataService.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Iot.Tenant.DataService.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Iot.Mocks;
+    using Iot.Tenant.DataService.Controllers;
+    using Iot.Tenant.DataService.Models;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Xunit;
+
     public class DevicesControllerTests
     {
         [Fact]
@@ -24,11 +29,12 @@ namespace Iot.Tenant.DataService.Tests
             IReliableDictionary<string, DeviceEvent> store =
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
-            List<string> expected = new List<string>(new string[]
-            {
-                "device1",
-                "device2"
-            });
+            List<string> expected = new List<string>(
+                new string[]
+                {
+                    "device1",
+                    "device2"
+                });
 
             using (ITransaction tx = stateManager.CreateTransaction())
             {
@@ -40,10 +46,10 @@ namespace Iot.Tenant.DataService.Tests
 
             DevicesController target = new DevicesController(stateManager, cancelSource);
             IActionResult result = await target.GetAsync();
-            
+
             Assert.True(result is OkObjectResult);
-            
-            IEnumerable<string> actual = ((OkObjectResult)result).Value as IEnumerable<string>;
+
+            IEnumerable<string> actual = ((OkObjectResult) result).Value as IEnumerable<string>;
 
             Assert.True(actual.SequenceEqual(expected));
         }
@@ -56,13 +62,13 @@ namespace Iot.Tenant.DataService.Tests
 
             IReliableDictionary<string, DeviceEvent> store =
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
-            
+
             DevicesController target = new DevicesController(stateManager, cancelSource);
             IActionResult result = await target.GetAsync();
 
             Assert.True(result is OkObjectResult);
 
-            IEnumerable<string> actual = ((OkObjectResult)result).Value as IEnumerable<string>;
+            IEnumerable<string> actual = ((OkObjectResult) result).Value as IEnumerable<string>;
 
             Assert.False(actual.Any());
         }
@@ -90,7 +96,7 @@ namespace Iot.Tenant.DataService.Tests
 
             Assert.True(result is OkObjectResult);
 
-            DeviceEvent actual = ((OkObjectResult)result).Value as DeviceEvent;
+            DeviceEvent actual = ((OkObjectResult) result).Value as DeviceEvent;
 
             Assert.Equal(expectedValue.Timestamp, actual.Timestamp);
         }
@@ -103,7 +109,7 @@ namespace Iot.Tenant.DataService.Tests
 
             IReliableDictionary<string, DeviceEvent> store =
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
-            
+
             DevicesController target = new DevicesController(stateManager, cancelSource);
             IActionResult result = await target.GetAsync("somekey");
 
@@ -118,7 +124,7 @@ namespace Iot.Tenant.DataService.Tests
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableQueue<DeviceEventSeries> queue =
-               await stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
+                await stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
 
             using (ITransaction tx = stateManager.CreateTransaction())
             {
@@ -129,7 +135,7 @@ namespace Iot.Tenant.DataService.Tests
             IActionResult result = await target.GetQueueLengthAsync();
 
             Assert.True(result is OkObjectResult);
-            long actual = (long)((OkObjectResult)result).Value;
+            long actual = (long) ((OkObjectResult) result).Value;
 
             Assert.Equal(1, actual);
         }

@@ -5,16 +5,16 @@
 
 namespace Iot.Admin.WebService
 {
-    using IoT.Common;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using IoT.Common;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
 
     internal sealed class WebService : StatelessService
     {

@@ -1,4 +1,5 @@
 ﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
@@ -10,7 +11,6 @@ namespace Iot.Mocks
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Data.Notifications;
     using Fabric = Microsoft.ServiceFabric.Data;
@@ -29,7 +29,7 @@ namespace Iot.Mocks
             set { throw new NotImplementedException(); }
         }
 
-        public Task AddAsync(ITransaction tx, TKey key, TValue value)
+        public Task AddAsync(Fabric.ITransaction tx, TKey key, TValue value)
         {
             if (!this.dictionary.TryAdd(key, value))
             {
@@ -40,7 +40,7 @@ namespace Iot.Mocks
             return Task.FromResult(true);
         }
 
-        public Task AddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task AddAsync(Fabric.ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
         {
             if (!this.dictionary.TryAdd(key, value))
             {
@@ -50,25 +50,27 @@ namespace Iot.Mocks
             return Task.FromResult(true);
         }
 
-        public Task<TValue> AddOrUpdateAsync(ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory)
+        public Task<TValue> AddOrUpdateAsync(
+            Fabric.ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory)
         {
             return Task.FromResult(this.dictionary.AddOrUpdate(key, addValueFactory, updateValueFactory));
         }
 
-        public Task<TValue> AddOrUpdateAsync(ITransaction tx, TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory)
+        public Task<TValue> AddOrUpdateAsync(Fabric.ITransaction tx, TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory)
         {
             return Task.FromResult(this.dictionary.AddOrUpdate(key, addValue, updateValueFactory));
         }
 
         public Task<TValue> AddOrUpdateAsync(
-            ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout,
+            Fabric.ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout,
             CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.AddOrUpdate(key, addValueFactory, updateValueFactory));
         }
 
         public Task<TValue> AddOrUpdateAsync(
-            ITransaction tx, TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout, CancellationToken cancellationToken)
+            Fabric.ITransaction tx, TKey key, TValue addValue, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout,
+            CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.AddOrUpdate(key, addValue, updateValueFactory));
         }
@@ -87,131 +89,132 @@ namespace Iot.Mocks
             return Task.FromResult(true);
         }
 
-        public Task<bool> ContainsKeyAsync(ITransaction tx, TKey key)
+        public Task<bool> ContainsKeyAsync(Fabric.ITransaction tx, TKey key)
         {
             return Task.FromResult(this.dictionary.ContainsKey(key));
         }
 
-        public Task<bool> ContainsKeyAsync(ITransaction tx, TKey key, LockMode lockMode)
+        public Task<bool> ContainsKeyAsync(Fabric.ITransaction tx, TKey key, LockMode lockMode)
         {
             return Task.FromResult(this.dictionary.ContainsKey(key));
         }
 
-        public Task<bool> ContainsKeyAsync(ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<bool> ContainsKeyAsync(Fabric.ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.ContainsKey(key));
         }
 
-        public Task<bool> ContainsKeyAsync(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<bool> ContainsKeyAsync(Fabric.ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.ContainsKey(key));
         }
 
-        public Task<ConditionalValue<TValue>> TryGetValueAsync(ITransaction tx, TKey key)
+        public Task<Fabric.ConditionalValue<TValue>> TryGetValueAsync(Fabric.ITransaction tx, TKey key)
         {
             TValue value;
             bool result = this.dictionary.TryGetValue(key, out value);
 
-            return Task.FromResult(new ConditionalValue<TValue>(result, value));
+            return Task.FromResult(new Fabric.ConditionalValue<TValue>(result, value));
         }
 
-        public Task<ConditionalValue<TValue>> TryGetValueAsync(ITransaction tx, TKey key, LockMode lockMode)
+        public Task<Fabric.ConditionalValue<TValue>> TryGetValueAsync(Fabric.ITransaction tx, TKey key, LockMode lockMode)
         {
             TValue value;
             bool result = this.dictionary.TryGetValue(key, out value);
 
-            return Task.FromResult(new ConditionalValue<TValue>(result, value));
+            return Task.FromResult(new Fabric.ConditionalValue<TValue>(result, value));
         }
 
-        public Task<ConditionalValue<TValue>> TryGetValueAsync(ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<Fabric.ConditionalValue<TValue>> TryGetValueAsync(Fabric.ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
             TValue value;
             bool result = this.dictionary.TryGetValue(key, out value);
 
-            return Task.FromResult(new ConditionalValue<TValue>(result, value));
+            return Task.FromResult(new Fabric.ConditionalValue<TValue>(result, value));
         }
 
-        public Task<ConditionalValue<TValue>> TryGetValueAsync(
-            ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<Fabric.ConditionalValue<TValue>> TryGetValueAsync(
+            Fabric.ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
         {
             TValue value;
             bool result = this.dictionary.TryGetValue(key, out value);
 
-            return Task.FromResult(new ConditionalValue<TValue>(result, value));
+            return Task.FromResult(new Fabric.ConditionalValue<TValue>(result, value));
         }
 
-        public Task SetAsync(ITransaction tx, TKey key, TValue value)
+        public Task SetAsync(Fabric.ITransaction tx, TKey key, TValue value)
         {
             this.dictionary[key] = value;
 
             return Task.FromResult(true);
         }
 
-        public Task SetAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task SetAsync(Fabric.ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
         {
             this.dictionary[key] = value;
 
             return Task.FromResult(true);
         }
 
-        public Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, Func<TKey, TValue> valueFactory)
+        public Task<TValue> GetOrAddAsync(Fabric.ITransaction tx, TKey key, Func<TKey, TValue> valueFactory)
         {
             return Task.FromResult(this.dictionary.GetOrAdd(key, valueFactory));
         }
 
-        public Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, TValue value)
+        public Task<TValue> GetOrAddAsync(Fabric.ITransaction tx, TKey key, TValue value)
         {
             return Task.FromResult(this.dictionary.GetOrAdd(key, value));
         }
 
-        public Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, Func<TKey, TValue> valueFactory, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<TValue> GetOrAddAsync(
+            Fabric.ITransaction tx, TKey key, Func<TKey, TValue> valueFactory, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.GetOrAdd(key, valueFactory));
         }
 
-        public Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<TValue> GetOrAddAsync(Fabric.ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.GetOrAdd(key, value));
         }
 
-        public Task<bool> TryAddAsync(ITransaction tx, TKey key, TValue value)
+        public Task<bool> TryAddAsync(Fabric.ITransaction tx, TKey key, TValue value)
         {
             return Task.FromResult(this.dictionary.TryAdd(key, value));
         }
 
-        public Task<bool> TryAddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<bool> TryAddAsync(Fabric.ITransaction tx, TKey key, TValue value, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.TryAdd(key, value));
         }
 
-        public Task<ConditionalValue<TValue>> TryRemoveAsync(ITransaction tx, TKey key)
+        public Task<Fabric.ConditionalValue<TValue>> TryRemoveAsync(Fabric.ITransaction tx, TKey key)
         {
             TValue outValue;
-            return Task.FromResult(new ConditionalValue<TValue>(this.dictionary.TryRemove(key, out outValue), outValue));
+            return Task.FromResult(new Fabric.ConditionalValue<TValue>(this.dictionary.TryRemove(key, out outValue), outValue));
         }
 
-        public Task<ConditionalValue<TValue>> TryRemoveAsync(ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
+        public Task<Fabric.ConditionalValue<TValue>> TryRemoveAsync(Fabric.ITransaction tx, TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return this.TryRemoveAsync(tx, key);
         }
 
-        public Task<bool> TryUpdateAsync(ITransaction tx, TKey key, TValue newValue, TValue comparisonValue)
+        public Task<bool> TryUpdateAsync(Fabric.ITransaction tx, TKey key, TValue newValue, TValue comparisonValue)
         {
             return Task.FromResult(this.dictionary.TryUpdate(key, newValue, comparisonValue));
         }
 
         public Task<bool> TryUpdateAsync(
-            ITransaction tx, TKey key, TValue newValue, TValue comparisonValue, TimeSpan timeout, CancellationToken cancellationToken)
+            Fabric.ITransaction tx, TKey key, TValue newValue, TValue comparisonValue, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return Task.FromResult(this.dictionary.TryUpdate(key, newValue, comparisonValue));
         }
 
-        public Task<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>> CreateEnumerableAsync(ITransaction txn)
+        public Task<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>> CreateEnumerableAsync(Fabric.ITransaction txn)
         {
             return Task.FromResult<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>>(new MockAsyncEnumerable<KeyValuePair<TKey, TValue>>(this.dictionary));
         }
 
-        public Task<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>> CreateEnumerableAsync(ITransaction txn, EnumerationMode enumerationMode)
+        public Task<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>> CreateEnumerableAsync(Fabric.ITransaction txn, EnumerationMode enumerationMode)
         {
             return Task.FromResult<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>>(
                 new MockAsyncEnumerable<KeyValuePair<TKey, TValue>>(
@@ -221,7 +224,7 @@ namespace Iot.Mocks
         }
 
         public Task<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>> CreateEnumerableAsync(
-            ITransaction txn, Func<TKey, bool> filter, EnumerationMode enumerationMode)
+            Fabric.ITransaction txn, Func<TKey, bool> filter, EnumerationMode enumerationMode)
         {
             return Task.FromResult<Fabric.IAsyncEnumerable<KeyValuePair<TKey, TValue>>>(
                 new MockAsyncEnumerable<KeyValuePair<TKey, TValue>>(
@@ -230,7 +233,7 @@ namespace Iot.Mocks
                         : this.dictionary.Where(x => filter(x.Key)).OrderBy(x => x.Key)));
         }
 
-        public Task<long> GetCountAsync(ITransaction tx)
+        public Task<long> GetCountAsync(Fabric.ITransaction tx)
         {
             return Task.FromResult((long) this.dictionary.Count);
         }

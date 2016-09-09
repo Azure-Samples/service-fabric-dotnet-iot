@@ -8,6 +8,6 @@
   <Section Name="ReplicatorSecurityConfig" />
 
   <Section Name="IoTHubConfigInformation">
-    <Parameter Name="ConnectionString" Value="HostName=vturecek.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=PDsH/ggnNc49Q/JHCqIMXdSxOzZ2Sq/eQqtfpjXZwk0=" />
+    <Parameter Name="ConnectionString" Value="" MustOverride="true" />
   </Section>
 </Settings>

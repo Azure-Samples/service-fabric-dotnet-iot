@@ -1,4 +1,5 @@
 ﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
@@ -10,14 +11,13 @@ namespace Iot.Mocks
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Data.Notifications;
     using Fabric = Microsoft.ServiceFabric.Data;
 
-    public class MockReliableStateManager : IReliableStateManagerReplica
+    public class MockReliableStateManager : Fabric.IReliableStateManagerReplica
     {
-        private ConcurrentDictionary<Uri, IReliableState> store = new ConcurrentDictionary<Uri, IReliableState>();
+        private ConcurrentDictionary<Uri, Fabric.IReliableState> store = new ConcurrentDictionary<Uri, Fabric.IReliableState>();
 
         private Dictionary<Type, Type> dependencyMap = new Dictionary<Type, Type>()
         {
@@ -31,22 +31,22 @@ namespace Iot.Mocks
 
         public event EventHandler<NotifyStateManagerChangedEventArgs> StateManagerChanged;
 
-        public ITransaction CreateTransaction()
+        public Fabric.ITransaction CreateTransaction()
         {
             return new MockTransaction();
         }
 
         public Task RemoveAsync(string name)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(this.ToUri(name), out result);
 
             return Task.FromResult(true);
         }
 
-        public Task RemoveAsync(ITransaction tx, string name)
+        public Task RemoveAsync(Fabric.ITransaction tx, string name)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(this.ToUri(name), out result);
 
             return Task.FromResult(true);
@@ -54,15 +54,15 @@ namespace Iot.Mocks
 
         public Task RemoveAsync(string name, TimeSpan timeout)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(this.ToUri(name), out result);
 
             return Task.FromResult(true);
         }
 
-        public Task RemoveAsync(ITransaction tx, string name, TimeSpan timeout)
+        public Task RemoveAsync(Fabric.ITransaction tx, string name, TimeSpan timeout)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(this.ToUri(name), out result);
 
             return Task.FromResult(true);
@@ -70,7 +70,7 @@ namespace Iot.Mocks
 
         public Task RemoveAsync(Uri name)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(name, out result);
 
             return Task.FromResult(true);
@@ -78,92 +78,92 @@ namespace Iot.Mocks
 
         public Task RemoveAsync(Uri name, TimeSpan timeout)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(name, out result);
 
             return Task.FromResult(true);
         }
 
-        public Task RemoveAsync(ITransaction tx, Uri name)
+        public Task RemoveAsync(Fabric.ITransaction tx, Uri name)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(name, out result);
 
             return Task.FromResult(true);
         }
 
-        public Task RemoveAsync(ITransaction tx, Uri name, TimeSpan timeout)
+        public Task RemoveAsync(Fabric.ITransaction tx, Uri name, TimeSpan timeout)
         {
-            IReliableState result;
+            Fabric.IReliableState result;
             this.store.TryRemove(name, out result);
 
             return Task.FromResult(true);
         }
 
-        public Task<ConditionalValue<T>> TryGetAsync<T>(string name) where T : IReliableState
+        public Task<Fabric.ConditionalValue<T>> TryGetAsync<T>(string name) where T : Fabric.IReliableState
         {
-            IReliableState item;
+            Fabric.IReliableState item;
             bool result = this.store.TryGetValue(this.ToUri(name), out item);
 
-            return Task.FromResult(new ConditionalValue<T>(result, (T) item));
+            return Task.FromResult(new Fabric.ConditionalValue<T>(result, (T) item));
         }
 
-        public Task<ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : IReliableState
+        public Task<Fabric.ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : Fabric.IReliableState
         {
-            IReliableState item;
+            Fabric.IReliableState item;
             bool result = this.store.TryGetValue(name, out item);
 
-            return Task.FromResult(new ConditionalValue<T>(result, (T) item));
+            return Task.FromResult(new Fabric.ConditionalValue<T>(result, (T) item));
         }
 
-        public Task<T> GetOrAddAsync<T>(string name) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(string name) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(this.ToUri(name), this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Fabric.ITransaction tx, string name) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(this.ToUri(name), this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(string name, TimeSpan timeout) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(string name, TimeSpan timeout) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(this.ToUri(name), this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name, TimeSpan timeout) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Fabric.ITransaction tx, string name, TimeSpan timeout) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(this.ToUri(name), this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(Uri name) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Uri name) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(name, this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(Uri name, TimeSpan timeout) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Uri name, TimeSpan timeout) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(name, this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Fabric.ITransaction tx, Uri name) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(name, this.GetDependency(typeof(T))));
         }
 
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name, TimeSpan timeout) where T : IReliableState
+        public Task<T> GetOrAddAsync<T>(Fabric.ITransaction tx, Uri name, TimeSpan timeout) where T : Fabric.IReliableState
         {
             return Task.FromResult((T) this.store.GetOrAdd(name, this.GetDependency(typeof(T))));
         }
 
-        public bool TryAddStateSerializer<T>(IStateSerializer<T> stateSerializer)
+        public bool TryAddStateSerializer<T>(Fabric.IStateSerializer<T> stateSerializer)
         {
             throw new NotImplementedException();
         }
 
-        public Fabric.IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
+        public Fabric.IAsyncEnumerator<Fabric.IReliableState> GetAsyncEnumerator()
         {
-            return new MockAsyncEnumerator<IReliableState>(this.store.Values.GetEnumerator());
+            return new MockAsyncEnumerator<Fabric.IReliableState>(this.store.Values.GetEnumerator());
         }
 
         public void Initialize(StatefulServiceInitializationParameters initializationParameters)
@@ -189,13 +189,14 @@ namespace Iot.Mocks
         {
         }
 
-        public Task BackupAsync(Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
+        public Task BackupAsync(Func<Fabric.BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
             throw new NotImplementedException();
         }
 
         public Task BackupAsync(
-            BackupOption option, TimeSpan timeout, CancellationToken cancellationToken, Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
+            Fabric.BackupOption option, TimeSpan timeout, CancellationToken cancellationToken,
+            Func<Fabric.BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
             throw new NotImplementedException();
         }
@@ -205,12 +206,12 @@ namespace Iot.Mocks
             throw new NotImplementedException();
         }
 
-        public Task RestoreAsync(string backupFolderPath, RestorePolicy restorePolicy, CancellationToken cancellationToken)
+        public Task RestoreAsync(string backupFolderPath, Fabric.RestorePolicy restorePolicy, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task ClearAsync(ITransaction tx)
+        public Task ClearAsync(Fabric.ITransaction tx)
         {
             this.store.Clear();
             return Task.FromResult(true);
@@ -222,11 +223,11 @@ namespace Iot.Mocks
             return Task.FromResult(true);
         }
 
-        private IReliableState GetDependency(Type t)
+        private Fabric.IReliableState GetDependency(Type t)
         {
             Type mockType = this.dependencyMap[t.GetGenericTypeDefinition()];
 
-            return (IReliableState) Activator.CreateInstance(mockType.MakeGenericType(t.GetGenericArguments()));
+            return (Fabric.IReliableState) Activator.CreateInstance(mockType.MakeGenericType(t.GetGenericArguments()));
         }
 
         private Uri ToUri(string name)

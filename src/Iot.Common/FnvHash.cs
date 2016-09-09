@@ -3,10 +3,10 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Text;
-
 namespace Iot.Common
 {
+    using System.Text;
+
     public sealed class FnvHash
     {
         private const ulong FnvPrime = 1099511628211;
@@ -26,7 +26,7 @@ namespace Iot.Common
                 hash *= FnvPrime;
             }
 
-            return (long)hash;
+            return (long) hash;
         }
     }
 }

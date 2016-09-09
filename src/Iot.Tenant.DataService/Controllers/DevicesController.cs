@@ -5,13 +5,13 @@
 
 namespace Iot.Tenant.DataService.Controllers
 {
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Iot.Tenant.DataService.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     [Route("api/[controller]")]
     public class DevicesController : Controller
@@ -37,8 +37,8 @@ namespace Iot.Tenant.DataService.Controllers
             List<string> devices = new List<string>();
             using (ITransaction tx = this.stateManager.CreateTransaction())
             {
-                var enumerable = await store.CreateEnumerableAsync(tx);
-                var enumerator = enumerable.GetAsyncEnumerator();
+                IAsyncEnumerable<KeyValuePair<string, DeviceEvent>> enumerable = await store.CreateEnumerableAsync(tx);
+                IAsyncEnumerator<KeyValuePair<string, DeviceEvent>> enumerator = enumerable.GetAsyncEnumerator();
 
                 while (await enumerator.MoveNextAsync(this.serviceCancellationSource.Token))
                 {

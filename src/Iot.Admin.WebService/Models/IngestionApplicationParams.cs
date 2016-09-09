@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Iot.Admin.WebService.Models
 {
@@ -14,10 +14,10 @@ namespace Iot.Admin.WebService.Models
             this.Version = version;
         }
 
-        public string IotHubConnectionString { get; private set; }
+        public string IotHubConnectionString { get; set; }
 
-        public int PartitionCount { get; private set; }
+        public int PartitionCount { get; set; }
 
-        public string Version { get; private set; }
+        public string Version { get; set; }
     }
 }

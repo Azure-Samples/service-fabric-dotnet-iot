@@ -21,12 +21,10 @@
     "Microsoft.ServiceFabric.Services": "2.2.207",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0"
   },
-
   "tools": {
     "BundlerMinifier.Core": "2.0.238",
     "Microsoft.AspNetCore.Razor.Tools": "1.0.0-preview2-final"
   },
-
   "frameworks": {
     "net452": {
       "dependencies": {
@@ -36,12 +34,11 @@
       }
     }
   },
-
   "buildOptions": {
+    "platform": "x64",
     "emitEntryPoint": true,
     "preserveCompilationContext": true
   },
-
   "publishOptions": {
     "include": [
       "wwwroot",
@@ -51,8 +48,14 @@
       "web.config"
     ]
   },
-
   "scripts": {
     "prepublish": [ "bower install", "dotnet bundle" ]
+  },
+  "configurations": {
+    "LocalServer": {
+      "buildOptions": {
+        "define": [ "LOCALSERVER" ]
+      }
+    }
   }
 }

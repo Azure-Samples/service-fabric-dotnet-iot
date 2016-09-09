@@ -1,13 +1,14 @@
 ﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Iot.Mocks
 {
-    using Collections = System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
+    using Collections = System.Collections.Generic;
 
     /// <summary>
     /// Simple wrapper for a synchronous IEnumerable of T.

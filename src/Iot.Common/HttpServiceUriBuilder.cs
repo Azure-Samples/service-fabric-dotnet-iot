@@ -5,10 +5,10 @@
 
 namespace Iot.Common
 {
-    using Microsoft.ServiceFabric.Services.Client;
     using System;
     using System.Fabric;
     using System.Linq;
+    using Microsoft.ServiceFabric.Services.Client;
 
     /// <summary>
     /// http://fabric/app/service/#/partitionkey/any|primary|secondary/endpoint-name/api-path
@@ -16,20 +16,6 @@ namespace Iot.Common
     public class HttpServiceUriBuilder
     {
         private const short FabricSchemeLength = 8;
-
-        public string Scheme { get; private set; }
-
-        public string Host { get; private set; }
-
-        public Uri ServiceName { get; private set; }
-
-        public ServicePartitionKey PartitionKey { get; private set; }
-
-        public HttpServiceUriTarget Target { get; private set; }
-
-        public string EndpointName { get; private set; }
-
-        public string ServicePathAndQuery { get; private set; }
 
         public HttpServiceUriBuilder()
         {
@@ -39,7 +25,7 @@ namespace Iot.Common
         }
 
         public HttpServiceUriBuilder(string uri)
-            : this (new Uri(uri, UriKind.Absolute))
+            : this(new Uri(uri, UriKind.Absolute))
         {
         }
 
@@ -56,7 +42,7 @@ namespace Iot.Common
             this.PartitionKey = Int64.TryParse(segments[0], out int64PartitionKey)
                 ? new ServicePartitionKey(int64PartitionKey)
                 : String.IsNullOrEmpty(segments[0])
-                    ? new ServicePartitionKey() 
+                    ? new ServicePartitionKey()
                     : new ServicePartitionKey(segments[0]);
 
             HttpServiceUriTarget target;
@@ -69,6 +55,20 @@ namespace Iot.Common
             this.EndpointName = segments[2];
             this.ServicePathAndQuery = String.Join("/", segments.Skip(3));
         }
+
+        public string Scheme { get; private set; }
+
+        public string Host { get; private set; }
+
+        public Uri ServiceName { get; private set; }
+
+        public ServicePartitionKey PartitionKey { get; private set; }
+
+        public HttpServiceUriTarget Target { get; private set; }
+
+        public string EndpointName { get; private set; }
+
+        public string ServicePathAndQuery { get; private set; }
 
         public override string ToString()
         {
@@ -86,7 +86,7 @@ namespace Iot.Common
             builder.Scheme = String.IsNullOrEmpty(this.Scheme) ? "http" : this.Scheme;
             builder.Host = String.IsNullOrEmpty(this.Host) ? "fabric" : this.Host;
             builder.Path = this.ServiceName.AbsolutePath.Trim('/') + '/';
-;
+            ;
             string partitionKey = this.PartitionKey == null || this.PartitionKey.Kind == ServicePartitionKind.Singleton
                 ? String.Empty
                 : this.PartitionKey.Value.ToString();
@@ -132,7 +132,7 @@ namespace Iot.Common
 
             return this;
         }
-        
+
         /// <summary>
         /// Fully-qualified service name URI: fabric:/name/of/service
         /// </summary>

@@ -11,15 +11,14 @@ namespace Iot.Tenant.DataService
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using Iot.Tenant.DataService.Models;
+    using IoT.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using Models;
-    using IoT.Common;
-    using Controllers;
 
     internal sealed class DataService : StatefulService
     {

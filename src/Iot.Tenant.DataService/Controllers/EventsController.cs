@@ -7,15 +7,13 @@ namespace Iot.Tenant.DataService.Controllers
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Iot.Tenant.DataService.Models;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-    using Newtonsoft.Json;
-    using Models;
 
     [Route("api/[controller]")]
     public class EventsController : Controller
@@ -33,7 +31,7 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpPost]
         [Route("{deviceId}")]
-        internal async Task<IActionResult> Post([FromRoute]string deviceId, [FromBody]IEnumerable<DeviceEvent> events)
+        internal async Task<IActionResult> Post([FromRoute] string deviceId, [FromBody] IEnumerable<DeviceEvent> events)
         {
             if (String.IsNullOrEmpty(deviceId) || events == null)
             {
@@ -50,7 +48,7 @@ namespace Iot.Tenant.DataService.Controllers
             //        events = serializer.Deserialize<IEnumerable<DeviceEvent>>(jsonReader);
             //    }
             //}
-            
+
 
             DeviceEvent max = events.FirstOrDefault();
 
@@ -64,7 +62,7 @@ namespace Iot.Tenant.DataService.Controllers
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
-            IReliableQueue<DeviceEventSeries> queue = 
+            IReliableQueue<DeviceEventSeries> queue =
                 await this.stateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(DataService.EventQueueName);
 
             // determine the most recent event in the time series
