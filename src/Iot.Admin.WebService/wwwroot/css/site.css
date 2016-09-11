@@ -24,6 +24,7 @@ fieldset { border: 1px solid #555555; margin: 10px 0; padding: 10px; }
 input[type=text] { display: inline-block; width: 300px; padding: 5px; margin: 10px; background: #555555; color: #EEEEEE; border: 1px solid #999999; }
 button { display: block; width: 100px; padding: 3px; }
 
+a, a:visited, a:hover, a:active { color: #00ABEC }
 h3 { font-size: 2em; font-weight: lighter; }
 ul { margin: 20px 0 0 0; }
     ul li { list-style: none; margin: 3px 0; padding: 0; color: #DDD; }

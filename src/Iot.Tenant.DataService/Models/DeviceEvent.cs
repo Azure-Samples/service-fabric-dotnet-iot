@@ -9,7 +9,7 @@ namespace Iot.Tenant.DataService.Models
     using System.Runtime.Serialization;
 
     [DataContract]
-    internal class DeviceEvent
+    public class DeviceEvent
     {
         public DeviceEvent(DateTimeOffset timestamp)
         {

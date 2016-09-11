@@ -45,7 +45,7 @@ namespace Iot.Common
             HttpResponseMessage lastResponse = null;
             Exception lastException = null;
 
-            while (retries -- > 0)
+            while (retries --> 0)
             {
                 lastResponse = null;
                 cancellationToken.ThrowIfCancellationRequested();

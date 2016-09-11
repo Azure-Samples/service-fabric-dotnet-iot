@@ -14,6 +14,8 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Newtonsoft.Json;
+    using System.IO;
 
     [Route("api/[controller]")]
     public class EventsController : Controller
@@ -31,24 +33,23 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpPost]
         [Route("{deviceId}")]
-        internal async Task<IActionResult> Post([FromRoute] string deviceId, [FromBody] IEnumerable<DeviceEvent> events)
+        public async Task<IActionResult> Post(string deviceId)
         {
-            if (String.IsNullOrEmpty(deviceId) || events == null)
+            if (String.IsNullOrEmpty(deviceId))
             {
                 return this.BadRequest();
             }
 
-            //IEnumerable<DeviceEvent> events;
+            IEnumerable<DeviceEvent> events;
 
-            //JsonSerializer serializer = new JsonSerializer();
-            //using (StreamReader streamReader = new StreamReader(this.Request.Body))
-            //{
-            //    using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
-            //    {
-            //        events = serializer.Deserialize<IEnumerable<DeviceEvent>>(jsonReader);
-            //    }
-            //}
-
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamReader streamReader = new StreamReader(this.Request.Body))
+            {
+                using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
+                {
+                    events = serializer.Deserialize<IEnumerable<DeviceEvent>>(jsonReader);
+                }
+            }
 
             DeviceEvent max = events.FirstOrDefault();
 

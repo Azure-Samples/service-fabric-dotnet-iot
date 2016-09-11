@@ -16,6 +16,7 @@ namespace Iot.Ingestion.RouterService
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using System.Net.Http.Headers;
 
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
@@ -47,7 +48,7 @@ namespace Iot.Ingestion.RouterService
             IReliableDictionary<string, long> epochDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("EpochDictionary");
 
             // Each partition of this service corresponds to a partition in IoT Hub.
-            // IoT Hub partitions are numbered 1-n, up to 32.
+            // IoT Hub partitions are numbered 0..n-1, up to n = 32.
             // This service needs to use the same partitioning scheme, 
             // then for the current partition, grab the low key and use that as the IoT Hub partition key.
             Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation) this.Partition.PartitionInfo;
@@ -93,14 +94,17 @@ namespace Iot.Ingestion.RouterService
 
                                 using (StreamContent postContent = new StreamContent(eventStream))
                                 {
-                                    await httpClient.PostAsync(postUrl, postContent, cancellationToken);
-                                }
+                                    postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                                ServiceEventSource.Current.ServiceMessage(
-                                    this.Context,
-                                    "Sent event data to tenant service '{0}' with partition key '{1}'",
-                                    tenantServiceName,
-                                    tenantServicePartitionKey);
+                                    HttpResponseMessage response = await httpClient.PostAsync(postUrl, postContent, cancellationToken);
+
+                                    ServiceEventSource.Current.ServiceMessage(
+                                        this.Context,
+                                        "Sent event data to tenant service '{0}' with partition key '{1}'. Result: {2}",
+                                        tenantServiceName,
+                                        tenantServicePartitionKey,
+                                        response.StatusCode.ToString());
+                                }
                             }
                         }
 
