@@ -19,8 +19,19 @@ namespace Iot.Ingestion.RouterService
     using System.Net.Http.Headers;
 
     /// <summary>
-    /// An instance of this class is created for each service replica by the Service Fabric runtime.
+    /// This service continuously pulls from IoT Hub and sends events off to tenant applications.
     /// </summary>
+    /// <remarks>
+    /// A custom message format is used for each device event stream:
+    ///
+    /// Message format: [header][body]
+    /// [header] : [7-bit-encoded-int-header-length]tenantId;deviceId
+    /// [body] : JSON payload
+    /// 
+    /// The tenant ID and device ID are needed to figure out which tenant to send the event to.
+    /// This information is NOT included in the JSON payload, however, 
+    /// so that it is not required to deserialize and buffer the entire JSON object in memory in this service.
+    /// </remarks>
     internal sealed class RouterService : StatefulService
     {
 
@@ -36,6 +47,8 @@ namespace Iot.Ingestion.RouterService
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+            // Get the IoT Hub connection string from the Settings.xml config file
+            // from a configuration package named "Config"
             string connectionString =
                 this.Context.CodePackageActivationContext
                     .GetConfigurationPackageObject("Config")
@@ -44,13 +57,15 @@ namespace Iot.Ingestion.RouterService
                     .Parameters["ConnectionString"]
                     .Value;
 
+            // These Reliable Dictionaries are used to keep track of our position in IoT Hub.
+            // If this service fails over, this will allow it to pick up where it left off in the event stream.
             IReliableDictionary<long, string> offsetDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<long, string>>("OffsetDictionary");
             IReliableDictionary<string, long> epochDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("EpochDictionary");
 
             // Each partition of this service corresponds to a partition in IoT Hub.
             // IoT Hub partitions are numbered 0..n-1, up to n = 32.
-            // This service needs to use the same partitioning scheme, 
-            // then for the current partition, grab the low key and use that as the IoT Hub partition key.
+            // This service needs to use an identical partitioning scheme. 
+            // The low key of every partition corresponds to the IoT Hub partition key.
             Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation) this.Partition.PartitionInfo;
             long partitionKey = partitionInfo.LowKey;
 
@@ -62,12 +77,9 @@ namespace Iot.Ingestion.RouterService
 
                 try
                 {
+                    // It's important to set a low wait time here in lieu of a cancellation token
+                    // so that this doesn't block RunAsync from completing when Service Fabric needs it to complete.
                     EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromMilliseconds(500));
-
-                    // Message format:
-                    // <header><body>
-                    // <header> : <7-bit-encoded-int-header-length>tenantId;deviceId
-                    // <body> : JSON payload
 
                     if (eventData != null)
                     {
@@ -75,15 +87,22 @@ namespace Iot.Ingestion.RouterService
                         {
                             using (BinaryReader reader = new BinaryReader(eventStream))
                             {
+                                // parse out the tenant and device ID from the device event stream
                                 string header = reader.ReadString();
                                 int delimeter = header.IndexOf(';');
 
                                 string tenantId = header.Substring(0, delimeter);
                                 string deviceId = header.Substring(delimeter + 1);
 
+                                // This is the named service instance of the tenant data service that the event should be sent to.
+                                // The tenant ID is part of the named service instance name.
+                                // The incoming device data stream specifie which tenant the data belongs to.
                                 Uri tenantServiceName = new Uri($"{Names.TenantApplicationNamePrefix}/{tenantId}/{Names.TenantDataServiceName}");
                                 long tenantServicePartitionKey = FnvHash.Hash(deviceId);
 
+                                // The tenant data service exposes an HTTP API.
+                                // For incoming device events, the URL is /api/events/{deviceId}
+                                // This sets up a URL and sends a POST request with the device JSON payload.
                                 Uri postUrl = new HttpServiceUriBuilder()
                                     .SetServiceName(tenantServiceName)
                                     .SetPartitionKey(tenantServicePartitionKey)
@@ -92,6 +111,8 @@ namespace Iot.Ingestion.RouterService
 
                                 HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
 
+                                // The device stream payload isn't deserialized and buffered in memory here.
+                                // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request.
                                 using (StreamContent postContent = new StreamContent(eventStream))
                                 {
                                     postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -108,6 +129,8 @@ namespace Iot.Ingestion.RouterService
                             }
                         }
 
+                        // Finally, save the current Iot Hub data stream offset.
+                        // This will allow the service to pick up from its current location if it fails over.
                         using (ITransaction tx = this.StateManager.CreateTransaction())
                         {
                             await offsetDictionary.SetAsync(tx, partitionKey, eventData.Offset);
@@ -122,6 +145,16 @@ namespace Iot.Ingestion.RouterService
             }
         }
 
+        /// <summary>
+        /// Creates an EventHubReceiver from the given connection sting and partition key.
+        /// The Reliable Dictionaries are used to create a receiver from wherever the service last left off,
+        /// or from the current date/time if it's the first time the service is coming up.
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="partitionKey"></param>
+        /// <param name="epochDictionary"></param>
+        /// <param name="offsetDictionary"></param>
+        /// <returns></returns>
         private async Task<EventHubReceiver> GetEventHubClient(
             string connectionString,
             long partitionKey,
@@ -164,7 +197,7 @@ namespace Iot.Ingestion.RouterService
                     eventHubReceiver =
                         await
                             eventHubClient.GetDefaultConsumerGroup()
-                                .CreateReceiverAsync(partitionKey.ToString(), DateTime.Parse("2016-08-28T17:30:00Z"), newEpoch);
+                                .CreateReceiverAsync(partitionKey.ToString(), DateTime.UtcNow, newEpoch);
                 }
 
                 // epoch is recorded each time the service fails over or restarts.
