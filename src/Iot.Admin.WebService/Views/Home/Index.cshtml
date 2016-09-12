@@ -3,27 +3,38 @@
 }
 <div id="main">
     <div id="result"></div>
-    <div class="iotHubs">
-        <h3>IoT Hub ingestion applications</h3>
-        <ul id="iotHubList"></ul>
-        <fieldset class="applicationControls">
-            <legend>Add IoT Hub</legend>
-            <input id="iotHubName" type="text" placeholder="Name" />
-            <input id="iotHubConnectionString" type="text" placeholder="Iot Hub connection string" />
-            <input id="iotHubPartitionCount" type="text" placeholder="Iot Hub partition count" />
-            <button id="addIotHubButton">Add</button>
-        </fieldset>
+    <div class="column">
+        <h3 class="columnHeader">IoT Hub ingestion applications</h3>
+        <div class="tile">
+            <h4 class="header">Add ingestion application</h4>
+            <div class="addApplication">
+                <label>Name</label><input id="iotHubName" type="text" placeholder="example: MainHub" />
+                <label>Iot Hub connection string</label><input id="iotHubConnectionString" type="text" placeholder="" />
+                <label>Iot Hub partition count</label><input id="iotHubPartitionCount" type="text" placeholder="example: 2" />
+                <button id="addIotHubButton">Add</button>
+            </div>
+        </div>
+        <div class="tile">
+            <h4 class="header">Running ingestion applications</h4>
+            <ul id="iotHubList"></ul>
+        </div>
     </div>
-    <div class="tenants">
-        <h3>Tenant applications</h3>
-        <ul id="tenantList"></ul>
-        <fieldset class="applicationControls">
-            <legend>Add tenant</legend>
-            <input id="tenantName" type="text" placeholder="Tenant name" />
-            <input id="tenantPartitionCount" type="text" placeholder="Data service partition count" />
-            <input id="tenantInstanceCount" type="text" placeholder="Web service instance count" />
-            <button id="addTenantButton">Add</button>
-        </fieldset>
+    <div class="column">
+        <h3 class="columnHeader">Tenant applications</h3>
+        <div class="tile">
+            <h4 class="header">Add tenant application</h4>
+            <div class="addApplication">
+                <label>Name</label><input id="tenantName" type="text" placeholder="example: Contoso" />
+                <label>Data service partition count</label><input id="tenantPartitionCount" type="text" placeholder="example: 2" />
+                <label>Web service instance count</label><input id="tenantInstanceCount" type="text" placeholder="1 for local, -1 for Azure" />
+                <button id="addTenantButton">Add</button>
+            </div>
+        </div>
+        <div class="tile">
+            <h4 class="header">Running tenant applications</h4>
+            <ul id="tenantList"></ul>
+        </div>
+
     </div>
 </div>
 @section scripts
@@ -80,40 +91,53 @@
                             $result.html('');
                             $result.removeClass();
                             refreshApplicationList(apiUrl, $applicationList, createDetails);
-                        }, 10000);
+                        }, 100000);
                     });
             }
 
             ingestionApplicationDetails = function (application) {
+
+
+                var iotHubString = '';
+                for (var i = 0; i < application.applicationParameters.length; i++) {
+                    if (application.applicationParameters[i].name == 'IotHubConnectionString') {
+                        iotHubString = application.applicationParameters[i].value;
+                    }
+                }
+
                 var deleteApiUrl = 'api/ingestion/' + last(application.applicationName);
 
-                return '<li><ul class="applicationDetails">'
-                                + '<li><label>Name:</label>' + application.applicationName + '</li>'
+                return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
+                                + '<h5>' + application.applicationName + '</h5>'
+                                + '<ul class="applicationDetails">'
                                 + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
                                 + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
-                                + '<li><label>Parameters:</label>' + JSON.stringify(application.applicationParameters) + '</li>'
+                                + '<li><label>Iot Hub:</label>' + iotHubString + '</li>'
                                 + '</ul>'
-                                + '<a href="javascript:void(0)" onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</a>'
-                                + '</li>'
+                                + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
+                                + '</div></li>'
             }
 
             tenantApplicationDetails = function (application) {
                 var webPath = last(application.applicationName);
                 var deleteApiUrl = 'api/tenants/' + last(application.applicationName);
 
-                return '<li><ul class="applicationDetails">'
-                                + '<li><label>Name:</label>' + application.applicationName + '</li>'
+                return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
+                                + '<h5>' + application.applicationName + '</h5>'
+                                + '<ul class="applicationDetails">'
                                 + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
                                 + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
                                 + '<li><label>Web portal:</label><a href="/' + webPath + '">' + webPath + '</a></li>'
-                                + '<li><label>Parameters:</label>' + JSON.stringify(application.applicationParameters) + '</li>'
                                 + '</ul>'
-                                + '<a href="javascript:void(0)" onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</a>'
-                                + '</li>'
+                                + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
+                                + '</div></li>'
             }
 
 
             $('#addIotHubButton').click(function () {
+                var button = $(this);
+                button.prop("disabled", true);
+
                 $result.html('');
                 $result.removeClass();
 
@@ -129,19 +153,25 @@
                     data: JSON.stringify(params),
                     contentType: 'application/json'
                 })
-                    .done(function () {
-                        $result.removeClass();
-                        $result.addClass('successResult');
-                        $result.html('success');
-                    })
-                    .error(function (error) {
-                        $result.removeClass();
-                        $result.addClass('errorResult');
-                        $result.html(error.responseText);
-                    })
+                .done(function () {
+                    $result.removeClass();
+                    $result.addClass('successResult');
+                    $result.html('success');
+                })
+                .error(function (error) {
+                    $result.removeClass();
+                    $result.addClass('errorResult');
+                    $result.html(error.responseText);
+                })
+                .always(function () {
+                    button.prop("disabled", false);
+                })
             });
 
             $('#addTenantButton').click(function () {
+                var button = $(this);
+                button.prop("disabled", true);
+
                 $result.html('');
                 $result.removeClass();
 
@@ -157,16 +187,19 @@
                     data: JSON.stringify(params),
                     contentType: 'application/json'
                 })
-                    .done(function () {
-                        $result.removeClass();
-                        $result.addClass('successResult');
-                        $result.html('success');
-                    })
-                    .error(function (error) {
-                        $result.removeClass();
-                        $result.addClass('errorResult');
-                        $result.html(error.responseText);
-                    })
+                .done(function () {
+                    $result.removeClass();
+                    $result.addClass('successResult');
+                    $result.html('success');
+                })
+                .error(function (error) {
+                    $result.removeClass();
+                    $result.addClass('errorResult');
+                    $result.html(error.responseText);
+                })
+                .always(function () {
+                    button.prop("disabled", false);
+                })
             });
 
             refreshApplicationList('api/ingestion', $('#iotHubList'), ingestionApplicationDetails);

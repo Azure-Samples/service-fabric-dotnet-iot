@@ -16,6 +16,7 @@ namespace Iot.Admin.WebService.Controllers
     using Iot.Admin.WebService.Models;
     using Microsoft.AspNetCore.Mvc;
     using Common;
+    using ViewModels;
 
     [Route("api/[Controller]")]
     public class IngestionController : Controller
@@ -35,7 +36,9 @@ namespace Iot.Admin.WebService.Controllers
         {
             ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync();
 
-            return this.Ok(applications.Where(x => x.ApplicationTypeName == Names.IngestionApplicationTypeName));
+            return this.Ok(applications
+                .Where(x => x.ApplicationTypeName == Names.IngestionApplicationTypeName)
+                .Select(x => new ApplicationViewModel(x.ApplicationName.ToString(), x.ApplicationStatus.ToString(), x.ApplicationTypeVersion, x.ApplicationParameters)));
         }
 
         [HttpPost]
@@ -51,14 +54,7 @@ namespace Iot.Admin.WebService.Controllers
                 parameters.Version,
                 appInstanceParameters);
 
-            try
-            {
-                await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
-            }
-            catch (FabricElementAlreadyExistsException)
-            {
-                // application instance already exists, move and create the service
-            }
+            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
 
             ServiceUriBuilder serviceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.IngestionRouterServiceName);
 
@@ -68,7 +64,7 @@ namespace Iot.Admin.WebService.Controllers
                 HasPersistedState = true,
                 MinReplicaSetSize = 3,
                 TargetReplicaSetSize = 3,
-                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(parameters.PartitionCount, 0, parameters.PartitionCount-1),
+                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(parameters.PartitionCount, 0, parameters.PartitionCount - 1),
                 ServiceName = serviceNameUriBuilder.Build(),
                 ServiceTypeName = Names.IngestionRouterServiceTypeName
             };

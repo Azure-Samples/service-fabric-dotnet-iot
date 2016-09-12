@@ -16,29 +16,43 @@ time, mark, audio, video { margin: 0; padding: 0; border: 0; font-size: 100%; fo
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section { display: block; }
 
-body { line-height: 1; font: 0.8em/1.2 Segoe UI,Arial,sans-serif; background: #222222; color: #DDDDDD; }
+body { line-height: 1; font: 0.8em/1.2 Segoe UI,Arial,sans-serif; background: #333333; color: #AAAAAA; }
+header { height:50px; background:#111111;}
 footer { clear: both; }
 
 /* forms */
 fieldset { border: 1px solid #555555; margin: 10px 0; padding: 10px; }
-input[type=text] { display: inline-block; width: 300px; padding: 5px; margin: 10px; background: #555555; color: #EEEEEE; border: 1px solid #999999; }
+input[type=text] { display: inline-block; padding: 5px; background: #333333; color: #DDDDDD; border: 1px solid #555555; }
 button { display: block; width: 100px; padding: 3px; }
 
-a, a:visited, a:hover, a:active { color: #00ABEC }
-h3 { font-size: 2em; font-weight: lighter; }
-ul { margin: 20px 0 0 0; }
-    ul li { list-style: none; margin: 3px 0; padding: 0; color: #DDD; }
+a, a:visited, a:hover, a:active { color: #00ABEC; }
+h3 { font-size: 1.5em; font-weight: lighter; color:#FFFFFF; }
+h4 { font-size: 1.3em; font-weight: lighter; color:#FFFFFF; }
+h5 { font-size: 1.2em; font-weight: lighter; color:#DDDDDD; }
+ul li { list-style: none; margin: 3px 0; padding: 0; }
 
-#main { margin: 50px 20px; clear: both; }
+#main { clear: both; }
 
-.iotHubs { width: 600px; float: left; }
-.tenants { width: 600px; float: left; }
+#result { width: 100%; padding: 10px; height:15px; margin: 1px 0; }
+.errorResult { border: 1px solid #DD0000; color: #DD0000; }
+.successResult { border: 1px solid #00DD00; color: #00DD00; }
 
-.applicationDetails { background:#444444; padding:10px; text-wrap:normal }
-    .applicationDetails label { display: inline-block; width: 100px; font-weight: bold; }
-.applicationControls { width: 550px; }
-    .applicationControls label { display: inline-block; width: 180px; font-weight: bold; text-align: right; }
+.column { float:left;  margin:0 10px;  }
+.columnHeader { margin: 10px 0 }
+.tile { background:#444444; margin:1px 0; padding:10px; width:350px; }
+.header { margin: 0 0 15px 0; padding: 5px; width: 340px;}
 
-#result { width:100%; padding:10px; margin: 20px 0}
-.errorResult { border:1px solid #DD0000; color: #DD0000 }
-.successResult { border:1px solid #00DD00; color: #00DD00 }
+.addApplication { margin: 20px 0  }
+    .addApplication label { font-size: 12px; }
+    .addApplication input[type=text] { width: 340px; margin: 2px 0 8px 0; }
+
+.applicationInfo { width:330px; margin:5px 0; padding:10px; background:#222222; border: 1px solid; text-wrap: normal;  word-wrap: break-word;  }
+    .applicationInfo label { display: inline-block; width: 100px; font-weight: bold; color:#DDDDDD; }
+    .applicationInfo .applicationDetails { margin: 20px 0 }
+
+/* application and service statuses */
+.ready { border-color: #00ABEC; }
+.creating { border-color: #D17D00; }
+.active { border-color: #00ABEC; }
+.upgrading { border-color: #00C69F; }
+.deleting { border-color: #AAAAAA; }
