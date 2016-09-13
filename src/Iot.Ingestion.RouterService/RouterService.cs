@@ -66,7 +66,7 @@ namespace Iot.Ingestion.RouterService
             // IoT Hub partitions are numbered 0..n-1, up to n = 32.
             // This service needs to use an identical partitioning scheme. 
             // The low key of every partition corresponds to the IoT Hub partition key.
-            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation) this.Partition.PartitionInfo;
+            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation)this.Partition.PartitionInfo;
             long partitionKey = partitionInfo.LowKey;
 
             EventHubReceiver eventHubReceiver = await this.GetEventHubClient(connectionString, partitionKey, epochDictionary, offsetDictionary);
@@ -79,10 +79,13 @@ namespace Iot.Ingestion.RouterService
                 {
                     // It's important to set a low wait time here in lieu of a cancellation token
                     // so that this doesn't block RunAsync from completing when Service Fabric needs it to complete.
-                    EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromMilliseconds(500));
-
-                    if (eventData != null)
+                    using (EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromMilliseconds(500)))
                     {
+                        if (eventData == null)
+                        {
+                            continue;
+                        }
+
                         using (Stream eventStream = eventData.GetBodyStream())
                         {
                             using (BinaryReader reader = new BinaryReader(eventStream))
@@ -137,6 +140,7 @@ namespace Iot.Ingestion.RouterService
                             await tx.CommitAsync();
                         }
                     }
+
                 }
                 catch (Exception ex)
                 {
