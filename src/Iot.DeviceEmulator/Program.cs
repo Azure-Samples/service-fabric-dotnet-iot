@@ -47,13 +47,16 @@ namespace Iot.DeviceEmulator
             Console.WriteLine("Device key: ");
             string deviceKey = Console.ReadLine();
 
+            Console.WriteLine("Device ID: ");
+            string deviceName = Console.ReadLine();
+
             Console.WriteLine("IoT Hub host name: ");
             string iotHubUri = Console.ReadLine();
 
             Console.WriteLine("Enter the name of the tenant that owns the device. This should match the name used when creating a tenant application (e.g., Contoso):");
             string tenant = Console.ReadLine();
 
-            DeviceClient deviceClient = DeviceClient.Create(iotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey("testdevice", deviceKey));
+            DeviceClient deviceClient = DeviceClient.Create(iotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey(deviceName, deviceKey));
 
             string deviceId = Guid.NewGuid().ToString();
             string header = $"{tenant};{deviceId}";
