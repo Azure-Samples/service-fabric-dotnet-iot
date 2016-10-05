@@ -37,4 +37,8 @@
   </PropertyGroup>
   <Import Project="$(ApplicationProjectTargetsPath)" Condition="Exists('$(ApplicationProjectTargetsPath)')" />
   <Import Project="..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.2.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.2.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets')" />
+  <Target Name="PackageApplications" AfterTargets="Package">
+    <MSBuild Projects="..\Iot.Tenant.Application\Iot.Tenant.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package"></MSBuild>
+    <MSBuild Projects="..\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package"></MSBuild>
+  </Target>
 </Project>
