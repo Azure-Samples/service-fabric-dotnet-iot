@@ -33,22 +33,16 @@ namespace Iot.Tenant.DataService.Controllers
 
         [HttpPost]
         [Route("{deviceId}")]
-        public async Task<IActionResult> Post(string deviceId)
+        public async Task<IActionResult> Post(string deviceId, [FromBody] IEnumerable<DeviceEvent> events)
         {
             if (String.IsNullOrEmpty(deviceId))
             {
                 return this.BadRequest();
             }
 
-            IEnumerable<DeviceEvent> events;
-
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamReader streamReader = new StreamReader(this.Request.Body))
+            if (events == null)
             {
-                using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
-                {
-                    events = serializer.Deserialize<IEnumerable<DeviceEvent>>(jsonReader);
-                }
+                return this.BadRequest();
             }
 
             DeviceEvent max = events.FirstOrDefault();

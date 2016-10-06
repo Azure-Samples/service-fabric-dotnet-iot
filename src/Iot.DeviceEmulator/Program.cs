@@ -74,10 +74,11 @@ namespace Iot.DeviceEmulator
 
             Microsoft.Azure.Devices.Client.Message message;
             JsonSerializer serializer = new JsonSerializer();
+            UTF8Encoding encoding = new UTF8Encoding(false); // must pass in FALSE here so a BOM is written to the stream. The BOM messes up the JSON parser later on.
             using (MemoryStream stream = new MemoryStream())
             {
-                using (BinaryWriter binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true))
-                using (StreamWriter streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+                using (BinaryWriter binaryWriter = new BinaryWriter(stream, encoding, true))
+                using (StreamWriter streamWriter = new StreamWriter(stream, encoding, 1024, true))
                 using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
                 {
                     binaryWriter.Write(header);
