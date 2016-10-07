@@ -16,21 +16,32 @@ time, mark, audio, video { margin: 0; padding: 0; border: 0; font-size: 100%; fo
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section { display: block; }
 
-body { line-height: 1; font: 0.8em/1.2 Segoe UI,Arial,sans-serif; background: #222222; color: #DDDDDD; }
+body { line-height: 1; font: 0.8em/1.2 Segoe UI,Arial,sans-serif; background: #333333; color: #AAAAAA; }
+header { height:50px; background:#111111; font-size:20px; font-weight:lighter}
+header h1 {display:inline-block; margin:12px; font-size: 20px; font-weight:lighter; color: #00ABEC}
 footer { clear: both; }
 
 /* forms */
 fieldset { border: 1px solid #555555; margin: 10px 0; padding: 10px; }
-input[type=text] { display: inline-block; width: 300px; padding: 5px; margin: 10px; background: #555555; color: #EEEEEE; border: 1px solid #999999; }
+input[type=text] { display: inline-block; padding: 5px; background: #333333; color: #DDDDDD; border: 1px solid #555555; }
 button { display: block; width: 100px; padding: 3px; }
 
-a, a:visited, a:hover, a:active { color: #00ABEC }
-h3 { font-size: 2em; font-weight: lighter; }
-ul { margin: 20px 0 0 0; }
-    ul li { list-style: none; margin: 3px 0; padding: 0; color: #DDD; }
+a, a:visited, a:hover, a:active { color: #00ABEC; }
+h3 { font-size: 1.5em; font-weight: lighter; color:#FFFFFF; }
+h4 { font-size: 1.3em; font-weight: lighter; color:#FFFFFF; }
+h5 { font-size: 1.2em; font-weight: lighter; color:#DDDDDD; }
+ul li { list-style: none; margin: 3px 0; padding: 0; }
 
-#main { margin: 50px 20px; clear: both; }
+#main { clear: both; }
 
-#result { width:100%; padding:10px; margin: 20px 0}
-.errorResult { border:1px solid #DD0000; color: #DD0000 }
-.successResult { border:1px solid #00DD00; color: #00DD00 }
+#result { width: 100%; padding: 10px; height:15px; margin: 1px 0; }
+.errorResult { border: 1px solid #DD0000; color: #DD0000; }
+.successResult { border: 1px solid #00DD00; color: #00DD00; }
+.tile { background:#444444; margin:1px 20px; padding:10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) }
+.header { margin: 0 0 15px 0; padding: 5px; width: 340px;}
+#queueLength { font-size:64px; font-weight:lighter; color:#00ABEC}
+
+.deviceInfo { margin:5px 0; padding:5px; background:#222222; text-wrap: normal;  word-wrap: break-word;  }
+    .deviceInfo  label { display: inline-block; min-width: 75px; font-weight: bold; color:#DDDDDD; }
+    .deviceInfo  .deviceData  { margin: 5px 0 }
+    .deviceInfo a {float: right; margin-right:10px;}

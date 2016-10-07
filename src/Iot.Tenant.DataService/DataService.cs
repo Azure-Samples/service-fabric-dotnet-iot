@@ -105,6 +105,9 @@ namespace Iot.Tenant.DataService
                             await tx.CommitAsync();
 
                             ServiceEventSource.Current.ServiceMessage(this.Context, $"Batch offload complete.");
+
+                            // skip the delay and move on to the next batch.
+                            continue;
                         }
                     }
                 }

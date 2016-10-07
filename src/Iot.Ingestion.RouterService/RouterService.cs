@@ -70,6 +70,7 @@ namespace Iot.Ingestion.RouterService
             long partitionKey = partitionInfo.LowKey;
 
             EventHubReceiver eventHubReceiver = await this.GetEventHubClient(connectionString, partitionKey, epochDictionary, offsetDictionary);
+            HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
 
             while (true)
             {
@@ -112,7 +113,6 @@ namespace Iot.Ingestion.RouterService
                                     .SetServicePathAndQuery($"/api/events/{deviceId}")
                                     .Build();
 
-                                HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
 
                                 // The device stream payload isn't deserialized and buffered in memory here.
                                 // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request.
@@ -170,7 +170,7 @@ namespace Iot.Ingestion.RouterService
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                ConditionalValue<string> offsetResult = await offsetDictionary.TryGetValueAsync(tx, partitionKey, LockMode.Update);
+                ConditionalValue<string> offsetResult = await offsetDictionary.TryGetValueAsync(tx, partitionKey, LockMode.Default);
                 ConditionalValue<long> epochResult = await epochDictionary.TryGetValueAsync(tx, "epoch", LockMode.Update);
 
                 long newEpoch = epochResult.HasValue

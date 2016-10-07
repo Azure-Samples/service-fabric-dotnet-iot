@@ -38,6 +38,7 @@
   },
 
   "buildOptions": {
+    "platform": "x64",
     "emitEntryPoint": true,
     "preserveCompilationContext": true
   },
@@ -54,5 +55,13 @@
 
   "scripts": {
     "prepublish": [ "bower install", "dotnet bundle" ]
+  },
+
+  "configurations": {
+    "LocalServer": {
+      "buildOptions": {
+        "define": [ "LOCALSERVER" ]
+      }
+    }
   }
 }

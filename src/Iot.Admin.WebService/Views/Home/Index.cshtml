@@ -42,29 +42,36 @@
     <script>
 
         $(function () {
-            var path = window.location.pathname;
-            var $result = $('#result')
+            var path = window.location.pathname.replace(/\/+$/, "");
+            var $result = $('#result');
+            var refreshRate = 2000;
 
             function last(path) {
-                var s = path.split('/');
+                var s = path.replace(/\/+$/, "").split('/');
                 return s[s.length - 1];
             }
 
             removeApplication = function (apiUrl) {
+                var button = $(this);
+                button.prop("disabled", true);
+
                 $.ajax({
                     url: path + apiUrl,
                     method: 'DELETE'
                 })
-                   .done(function () {
-                       $result.removeClass();
-                       $result.addClass('successResult');
-                       $result.html('success');
-                   })
-                    .error(function (error) {
-                        $result.removeClass();
-                        $result.addClass('errorResult');
-                        $result.html(error.responseText);
-                    })
+                .done(function () {
+                    $result.removeClass();
+                    $result.addClass('successResult');
+                    $result.html('success');
+                })
+                .error(function (error) {
+                    $result.removeClass();
+                    $result.addClass('errorResult');
+                    $result.html(error.responseText);
+                })
+                .always(function () {
+                    button.prop("disabled", false);
+                })
             }
 
             refreshApplicationList = function (apiUrl, $applicationList, createDetails) {
@@ -91,7 +98,7 @@
                             $result.html('');
                             $result.removeClass();
                             refreshApplicationList(apiUrl, $applicationList, createDetails);
-                        }, 10000);
+                        }, refreshRate);
                     });
             }
 
@@ -105,7 +112,7 @@
                     }
                 }
 
-                var deleteApiUrl = 'api/ingestion/' + last(application.applicationName);
+                var deleteApiUrl = '/api/ingestion/' + last(application.applicationName);
 
                 return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
                                 + '<h5>' + application.applicationName + '</h5>'
@@ -127,7 +134,7 @@
                                 + '<ul class="applicationDetails">'
                                 + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
                                 + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
-                                + '<li><label>Web portal:</label><a href="/' + webPath + '">' + webPath + '</a></li>'
+                                + '<li><label>Web portal:</label><a target="_blank" href="/' + webPath + '">' + webPath + '</a></li>'
                                 + '</ul>'
                                 + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
                                 + '</div></li>'
@@ -148,7 +155,7 @@
                 params.Version = '1.0.0';
 
                 $.ajax({
-                    url: path + 'api/ingestion/' + name,
+                    url: path + '/api/ingestion/' + name,
                     method: 'POST',
                     data: JSON.stringify(params),
                     contentType: 'application/json'
@@ -182,7 +189,7 @@
                 params.Version = '1.0.0';
 
                 $.ajax({
-                    url: path + 'api/tenants/' + name,
+                    url: path + '/api/tenants/' + name,
                     method: 'POST',
                     data: JSON.stringify(params),
                     contentType: 'application/json'
@@ -202,8 +209,8 @@
                 })
             });
 
-            refreshApplicationList('api/ingestion', $('#iotHubList'), ingestionApplicationDetails);
-            refreshApplicationList('api/tenants', $('#tenantList'), tenantApplicationDetails);
+            refreshApplicationList('/api/ingestion', $('#iotHubList'), ingestionApplicationDetails);
+            refreshApplicationList('/api/tenants', $('#tenantList'), tenantApplicationDetails);
 
         });
 

@@ -39,7 +39,7 @@ ul li { list-style: none; margin: 3px 0; padding: 0; }
 
 .column { float:left;  margin:0 10px;  }
 .columnHeader { margin: 10px 0 }
-.tile { background:#444444; margin:1px 0; padding:10px; width:350px; }
+.tile { background:#444444; margin:1px 0; padding:10px; width:350px;  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) }
 .header { margin: 0 0 15px 0; padding: 5px; width: 340px;}
 
 .addApplication { margin: 20px 0  }

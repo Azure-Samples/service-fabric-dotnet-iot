@@ -2,3 +2,125 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div id="main">
+    <div id="result"></div>
+    <div class="tile">
+        <h3>Device event streams queued for processing:</h3>
+        <div id="queueLength">Loading..</div>
+    </div>
+    <div class="tile">
+        <h3>Devices</h3>
+        <ul id="deviceList"></ul>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+
+        $(function () {
+            var path = window.location.pathname.replace(/\/+$/, "");
+            var $result = $('#result');
+            var refreshRate = 2000;
+
+            function last(path) {
+                var s = path.replace(/\/+$/, "").split('/');
+                return s[s.length - 1];
+            }
+
+            refreshDeviceList = function (apiUrl, $deviceList) {
+                $.ajax({
+                    url: path + apiUrl,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    dataType: 'json'
+                })
+                    .done(function (devices) {
+
+                        $deviceList.html('');
+                        for (var i = 0; i < devices.length; ++i) {
+                            var deviceId = devices[i];
+                            $deviceList.append(
+                                '<li>' +
+                                    '<div class="deviceInfo">' +
+                                        '<label>Device ID: </label>' + deviceId +
+                                        '<a href="javascript:void(0)" onclick="getDeviceData(' + deviceId + ')">Show data</a>' +
+                                        '<ul class="deviceData" id="deviceData_' + deviceId + '"></ul>' +
+                                    '</div>' +
+                                '</li>');
+                        }
+                    })
+                    .error(function (error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
+                    })
+                    .always(function () {
+                        setTimeout(function () {
+                            $result.html('');
+                            $result.removeClass();
+                            refreshDeviceList(apiUrl, $deviceList);
+                        }, refreshRate);
+                    });
+            }
+
+            getDeviceData = function (deviceId) {
+                $.ajax({
+                    url: path + '/api/devices/' + deviceId,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    dataType: 'json'
+                })
+                .done(function (result) {
+                    var html = '';
+                    for (var item in result)
+                    {
+                        html += '<li><label>' + item + ':</label>' + result[item] + '</li>';
+                    }
+                    $('#deviceData_' + deviceId).html(html);
+
+                })
+                .error(function (error) {
+                    $result.removeClass();
+                    $result.addClass('errorResult');
+                    $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
+                })
+                .always(function () {
+                    setTimeout(function () {
+                        $result.html('');
+                        $result.removeClass();
+                    });
+                });
+}
+
+            refreshQueueLength = function (apiUrl, $queueElement) {
+                $.ajax({
+                    url: path + apiUrl,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    dataType: 'json'
+                })
+                    .done(function (result) {
+                        $queueElement.html(result);
+                    })
+                    .error(function (error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
+                    })
+                    .always(function () {
+                        setTimeout(function () {
+                            $result.html('');
+                            $result.removeClass();
+                            refreshQueueLength(apiUrl, $queueElement);
+                        }, refreshRate);
+                    });
+            }
+
+            refreshDeviceList('/api/devices', $('#deviceList'));
+            refreshQueueLength('/api/devices/queue/length', $('#queueLength'));
+
+        });
+
+    </script>
+}

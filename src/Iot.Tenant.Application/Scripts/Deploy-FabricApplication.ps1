@@ -192,7 +192,7 @@ $IsUpgrade = ($publishProfile.UpgradeDeployment -and $publishProfile.UpgradeDepl
 
 if ($IsUpgrade)
 {
-    $Action = "RegisterAndUpgrade"
+    $Action = "Register"
     if ($DeployOnly)
     {
         $Action = "Register"
@@ -210,7 +210,7 @@ if ($IsUpgrade)
 }
 else
 {
-    $Action = "RegisterAndCreate"
+    $Action = "Register"
     if ($DeployOnly)
     {
         $Action = "Register"

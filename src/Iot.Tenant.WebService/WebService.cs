@@ -48,6 +48,7 @@ namespace Iot.Tenant.WebService
                                 return new WebHostBuilder().UseWebListener()
                                     .ConfigureServices(
                                         services => services
+                                            .AddSingleton<StatelessServiceContext>(context)
                                             .AddSingleton<FabricClient>(new FabricClient())
                                             .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
                                     .UseContentRoot(Directory.GetCurrentDirectory())

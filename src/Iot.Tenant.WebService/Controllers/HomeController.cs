@@ -6,11 +6,22 @@
 namespace Iot.Tenant.WebService.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
+    using System;
+    using System.Fabric;
+    using System.Linq;
 
     public class HomeController : Controller
     {
+        private readonly StatelessServiceContext context;
+
+        public HomeController(StatelessServiceContext context)
+        {
+            this.context = context;
+        }
+
         public IActionResult Index()
         {
+            ViewData["Tenant"] = context.ServiceName.AbsolutePath.Split('/').Last();
             return this.View();
         }
 

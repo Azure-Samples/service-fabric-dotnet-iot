@@ -13,12 +13,22 @@ namespace Iot.Tenant.WebService
         // Entry point for the application.
         public static void Main(string[] args)
         {
+#if LOCALSERVER
+
+            using (LocalServer listener = new LocalServer())
+            {
+                listener.Open();
+            }
+
+#else
+
             ServiceRuntime.RegisterServiceAsync(
                 "WebServiceType",
                 context =>
                     new WebService(context)).GetAwaiter().GetResult();
 
             Thread.Sleep(Timeout.Infinite);
+#endif
         }
     }
 }
