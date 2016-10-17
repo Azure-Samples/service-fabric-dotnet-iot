@@ -7,19 +7,19 @@ Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Iot.Ingestion.Application",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iot.Ingestion.RouterService", "Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj", "{09284C49-3741-4B96-8F24-95B5B99F4BF1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IngestionApplication", "IngestionApplication", "{35FD05F1-64BC-4904-A931-17641E3AABEB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ingestion Application", "Ingestion Application", "{35FD05F1-64BC-4904-A931-17641E3AABEB}"
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Iot.Admin.Application", "Iot.Admin.Application\Iot.Admin.Application.sfproj", "{79A0B13A-6859-48C0-9517-269D788BC046}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Iot.Admin.WebService", "Iot.Admin.WebService\Iot.Admin.WebService.xproj", "{BE2ED2D0-7235-4AE7-8623-0F3CAF513CEB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdminApplication", "AdminApplication", "{7C8BE60B-689C-457F-8260-5583CDF823DE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Admin Application", "Admin Application", "{7C8BE60B-689C-457F-8260-5583CDF823DE}"
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Iot.Tenant.Application", "Iot.Tenant.Application\Iot.Tenant.Application.sfproj", "{291371BE-4218-4EEC-996A-CD5B783B6CD0}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Iot.Tenant.WebService", "Iot.Tenant.WebService\Iot.Tenant.WebService.xproj", "{4A8D8BAB-78FB-45DE-94CA-91D94DC6BA52}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TenantApplication", "TenantApplication", "{BE5420F3-CD91-437C-9BCD-23612FB56C7B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tenant Application", "Tenant Application", "{BE5420F3-CD91-437C-9BCD-23612FB56C7B}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Iot.Tenant.DataService", "Iot.Tenant.DataService\Iot.Tenant.DataService.xproj", "{906E4A1B-85F5-4813-8A20-38803D301BDC}"
 EndProject
@@ -30,6 +30,15 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Iot.Tenant.DataService.Tests", "Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj", "{C4D84DBD-D19A-44E3-B96B-1455E8935C69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iot.DeviceEmulator", "Iot.DeviceEmulator\Iot.DeviceEmulator.csproj", "{5CA93865-4B0A-4DBC-9378-BDAD1C396886}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Deploy", "_Deploy", "{1F2DBBB7-69AD-4F94-B7F8-5A20E3AE329A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishProfiles", "PublishProfiles", "{2219253F-3D38-4287-93A9-9F61CB532044}"
+	ProjectSection(SolutionItems) = preProject
+		Deploy\Cloud.xml = Deploy\Cloud.xml
+		Deploy\Local.1Node.xml = Deploy\Local.1Node.xml
+		Deploy\Local.5Node.xml = Deploy\Local.5Node.xml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -178,6 +187,7 @@ Global
 		{4A8D8BAB-78FB-45DE-94CA-91D94DC6BA52} = {BE5420F3-CD91-437C-9BCD-23612FB56C7B}
 		{906E4A1B-85F5-4813-8A20-38803D301BDC} = {BE5420F3-CD91-437C-9BCD-23612FB56C7B}
 		{C4D84DBD-D19A-44E3-B96B-1455E8935C69} = {BE5420F3-CD91-437C-9BCD-23612FB56C7B}
+		{2219253F-3D38-4287-93A9-9F61CB532044} = {1F2DBBB7-69AD-4F94-B7F8-5A20E3AE329A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8

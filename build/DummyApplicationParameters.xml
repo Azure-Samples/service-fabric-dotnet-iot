@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Publish-NewServiceFabricApplication requires an application parameter file. 
+     This empty file is used to run Publish-NewServiceFabricApplication for the IoT.Ingestion.Application and IoT.Tenant.Application. 
+	 The parameters aren't actually used because instances of the application are not created at publish time.
+	 -->
+<Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/Dummy" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+  </Parameters>
+</Application>

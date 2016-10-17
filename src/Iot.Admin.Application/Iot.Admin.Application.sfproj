@@ -19,14 +19,11 @@
     <None Include="ApplicationPackageRoot\ApplicationManifest.xml" />
     <None Include="ApplicationParameters\Cloud.xml" />
     <None Include="ApplicationParameters\Local.5Node.xml" />
-    <None Include="PublishProfiles\Cloud.xml" />
-    <None Include="PublishProfiles\Local.5Node.xml" />
     <None Include="Scripts\Deploy-FabricApplication.ps1" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ApplicationParameters\Local.1Node.xml" />
     <Content Include="packages.config" />
-    <Content Include="PublishProfiles\Local.1Node.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Iot.Admin.WebService\Iot.Admin.WebService.xproj" />
@@ -38,7 +35,9 @@
   <Import Project="$(ApplicationProjectTargetsPath)" Condition="Exists('$(ApplicationProjectTargetsPath)')" />
   <Import Project="..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.2.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.2.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets')" />
   <Target Name="PackageApplications" AfterTargets="Package">
-    <MSBuild Projects="..\Iot.Tenant.Application\Iot.Tenant.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package"></MSBuild>
-    <MSBuild Projects="..\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package"></MSBuild>
+    <MSBuild Projects="..\Iot.Tenant.Application\Iot.Tenant.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package">
+    </MSBuild>
+    <MSBuild Projects="..\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj" Properties="Configuration=$(Configuration)" Targets="Package">
+    </MSBuild>
   </Target>
 </Project>
