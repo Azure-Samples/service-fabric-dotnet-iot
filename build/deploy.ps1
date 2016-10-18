@@ -23,6 +23,9 @@ Overwrite Behavior if an application exists in the cluster with the same name. A
 'Always' will remove the existing application even if its Application type and Version is different from the application being created. 
 'SameAppTypeAndVersion' will remove the existing application only if its Application type and Version is same as the application being created.
 
+.PARAMETER CopyPackageTimeoutSec
+Timeout in seconds for copying application package to image store.
+
 .PARAMETER SkipPackageValidation
 Switch signaling whether the package should be validated or not before deployment.
 
@@ -56,6 +59,9 @@ Param
     [String]
     [ValidateSet('Never','Always','SameAppTypeAndVersion')]
     $OverwriteBehavior = 'SameAppTypeAndVersion',
+
+    [int]
+    $CopyPackageTimeoutSec = 600,
     
     [Switch]
     $SkipPackageValidation,
@@ -175,6 +181,7 @@ Publish-NewServiceFabricApplication `
     -ApplicationParameter $ApplicationParameters `
     -OverwriteBehavior $OverwriteBehavior `
     -SkipPackageValidation:$SkipPackageValidation `
+    -CopyPackageTimeoutSec $CopyPackageTimeoutSec `
     -ErrorAction Stop
 
     
@@ -186,6 +193,7 @@ Publish-NewServiceFabricApplication `
     -ApplicationParameter @{} `
     -OverwriteBehavior $OverwriteBehavior `
     -SkipPackageValidation:$SkipPackageValidation `
+    -CopyPackageTimeoutSec $CopyPackageTimeoutSec `
     -ErrorAction Stop
     
 
@@ -197,4 +205,5 @@ Publish-NewServiceFabricApplication `
     -ApplicationParameter @{} `
     -OverwriteBehavior $OverwriteBehavior `
     -SkipPackageValidation:$SkipPackageValidation `
+    -CopyPackageTimeoutSec $CopyPackageTimeoutSec `
     -ErrorAction Stop
