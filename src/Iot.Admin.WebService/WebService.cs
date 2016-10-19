@@ -38,6 +38,7 @@ namespace Iot.Admin.WebService
                     {
                         return new WebHostCommunicationListener(
                             context,
+                            "iot",
                             "ServiceEndpoint",
                             uri =>
                             {

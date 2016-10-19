@@ -17,6 +17,7 @@ namespace Iot.Admin.WebService.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Common;
     using ViewModels;
+    using Microsoft.ServiceBus.Messaging;
 
     [Route("api/[Controller]")]
     public class IngestionController : Controller
@@ -45,6 +46,12 @@ namespace Iot.Admin.WebService.Controllers
         [Route("{name}")]
         public async Task<IActionResult> Post([FromRoute] string name, [FromBody] IngestionApplicationParams parameters)
         {
+            // Determine the number of IoT Hub partitions.
+            // The ingestion service will be created with the same number of partitions.
+            EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString(parameters.IotHubConnectionString, "messages/events");
+            EventHubRuntimeInformation eventHubInfo = await eventHubClient.GetRuntimeInformationAsync();
+
+            // Application parameters are passed to the Ingestion application instance.
             NameValueCollection appInstanceParameters = new NameValueCollection();
             appInstanceParameters["IotHubConnectionString"] = parameters.IotHubConnectionString;
 
@@ -54,8 +61,10 @@ namespace Iot.Admin.WebService.Controllers
                 parameters.Version,
                 appInstanceParameters);
 
+            // Create a named application instance
             await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
 
+            // Next, create named instances of the services that run in the application.
             ServiceUriBuilder serviceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.IngestionRouterServiceName);
 
             StatefulServiceDescription service = new StatefulServiceDescription()
@@ -64,7 +73,7 @@ namespace Iot.Admin.WebService.Controllers
                 HasPersistedState = true,
                 MinReplicaSetSize = 3,
                 TargetReplicaSetSize = 3,
-                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(parameters.PartitionCount, 0, parameters.PartitionCount - 1),
+                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(eventHubInfo.PartitionCount, 0, eventHubInfo.PartitionCount - 1),
                 ServiceName = serviceNameUriBuilder.Build(),
                 ServiceTypeName = Names.IngestionRouterServiceTypeName
             };
@@ -81,7 +90,7 @@ namespace Iot.Admin.WebService.Controllers
             try
             {
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
-                    new Uri($"{Names.IngestionApplicationPrefix}/{name}"),
+                    new DeleteApplicationDescription(new Uri($"{Names.IngestionApplicationPrefix}/{name}")),
                     this.operationTimeout,
                     this.cancellationTokenSource.Token);
             }

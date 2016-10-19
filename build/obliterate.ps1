@@ -25,39 +25,36 @@ Deploy a Release build of the IoT project to a cluster defined in a publish prof
 
 Param
 (
-
-    [String]
-    $Configuration = "Debug",
-    
     [String]
     $PublishProfileName = "Local.5Node",
-
-    [Hashtable]
-    $ApplicationParameters = @{},
-
-    [String]
-    [ValidateSet('Never','Always','SameAppTypeAndVersion')]
-    $OverwriteBehavior = 'SameAppTypeAndVersion',
-
-    [int]
-    $CopyPackageTimeoutSec = 600,
-    
-    [Switch]
-    $SkipPackageValidation,
 
     [Switch]
     $UseExistingClusterConnection
 )
 
+# These are the application types defined in the IoT solution.
+# All application instances of these types will be deleted, and the types will be unregistered.
+$applicationTypes = "IotAdminApplicationType", "IotIngestionApplicationType", "IotTenantApplicationType"
+
+# Get references to the solution directory and the directory of this script.
+$LocalDir = (Split-Path $MyInvocation.MyCommand.Path)
+$SolutionDir = [System.IO.Path]::Combine((get-item $LocalDir).Parent.FullName, "src") 
+
 # This is included with the solution
 Import-Module "$LocalDir\functions.psm1"
+
+# Get a publish profile from the profile XML files in the Deploy directory
+if (!$PublishProfileName.EndsWith(".xml"))
+{
+    $PublishProfileName = $PublishProfileName + ".xml"
+}
+
+$PublishProfileFile = [System.IO.Path]::Combine($SolutionDir, "Deploy\$PublishProfileName")
+$PublishProfile = Read-PublishProfile $PublishProfileFile
 
 # Using the publish profile, connect to the SF cluster
 if (-not $UseExistingClusterConnection)
 {
-    # Get a publish profile from the profile XML files in the Deploy directory
-    $PublishProfile = Read-PublishProfile $PublishProfileName
-
     $ClusterConnectionParameters = $publishProfile.ClusterConnectionParameters
     if ($SecurityToken)
     {
@@ -74,10 +71,6 @@ if (-not $UseExistingClusterConnection)
         throw
     }
 }
-
-# These are the application types defined in the IoT solution.
-# All application instances of these types will be deleted, and the types will be unregistered.
-$applicationTypes = "IotAdminApplicationType", "IotIngestionApplicationType", "IotTenantApplicationType"
 
 Get-ServiceFabricApplication | Where-Object { $applicationTypes -contains $_.ApplicationTypeName } | Remove-ServiceFabricApplication -Force
 Get-ServiceFabricApplicationType | Where-Object { $applicationTypes -contains $_.ApplicationTypeName } | Unregister-ServiceFabricApplicationType -Force

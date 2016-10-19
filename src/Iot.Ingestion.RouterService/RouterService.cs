@@ -133,9 +133,26 @@ namespace Iot.Ingestion.RouterService
                     }
 
                 }
+                catch (TimeoutException te)
+                {
+                    // transient error. Retry.
+                    ServiceEventSource.Current.ServiceMessage(this.Context, $"TimeoutException in RunAsync: {te.ToString()}");
+                }
+                catch (FabricTransientException fte)
+                {
+                    // transient error. Retry.
+                    ServiceEventSource.Current.ServiceMessage(this.Context, $"FabricTransientException in RunAsync: {fte.ToString()}");
+                }
+                catch (FabricNotPrimaryException)
+                {
+                    // not primary any more, time to quit.
+                    return;
+                }
                 catch (Exception ex)
                 {
                     ServiceEventSource.Current.ServiceMessage(this.Context, ex.ToString());
+
+                    throw;
                 }
             }
         }
@@ -157,8 +174,10 @@ namespace Iot.Ingestion.RouterService
             IReliableDictionary<long, string> offsetDictionary)
         {
             EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, "messages/events");
-
+            EventHubRuntimeInformation eventHubRuntimeInfo = await eventHubClient.GetRuntimeInformationAsync();
             EventHubReceiver eventHubReceiver;
+
+            string eventHubPartitionId = eventHubRuntimeInfo.PartitionIds[partitionKey];
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
@@ -174,11 +193,11 @@ namespace Iot.Ingestion.RouterService
                     // continue where the service left off before the last failover or restart.
                     ServiceEventSource.Current.ServiceMessage(
                         this.Context,
-                        "Creating listener on partitionkey {0} with offset {1}",
-                        partitionKey,
+                        "Creating listener on partition {0} with offset {1}",
+                        eventHubPartitionId,
                         offsetResult.Value);
 
-                    eventHubReceiver = await eventHubClient.GetDefaultConsumerGroup().CreateReceiverAsync(partitionKey.ToString(), offsetResult.Value, newEpoch);
+                    eventHubReceiver = await eventHubClient.GetDefaultConsumerGroup().CreateReceiverAsync(eventHubPartitionId, offsetResult.Value, newEpoch);
                 }
                 else
                 {
@@ -186,14 +205,14 @@ namespace Iot.Ingestion.RouterService
                     // start with the current time.
                     ServiceEventSource.Current.ServiceMessage(
                         this.Context,
-                        "Creating listener on partitionkey {0} with offset {1}",
-                        partitionKey,
+                        "Creating listener on partition {0} with offset {1}",
+                        eventHubPartitionId,
                         DateTime.UtcNow);
 
                     eventHubReceiver =
                         await
                             eventHubClient.GetDefaultConsumerGroup()
-                                .CreateReceiverAsync(partitionKey.ToString(), DateTime.UtcNow, newEpoch);
+                                .CreateReceiverAsync(eventHubPartitionId, DateTime.UtcNow, newEpoch);
                 }
 
                 // epoch is recorded each time the service fails over or restarts.

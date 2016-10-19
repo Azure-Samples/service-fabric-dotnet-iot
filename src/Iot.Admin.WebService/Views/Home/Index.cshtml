@@ -10,7 +10,6 @@
             <div class="addApplication">
                 <label>Name</label><input id="iotHubName" type="text" placeholder="example: MainHub" />
                 <label>Iot Hub connection string</label><input id="iotHubConnectionString" type="text" placeholder="" />
-                <label>Iot Hub partition count</label><input id="iotHubPartitionCount" type="text" placeholder="example: 2" />
                 <button id="addIotHubButton">Add</button>
             </div>
         </div>
@@ -151,7 +150,6 @@
                 var name = $('#iotHubName').val();
                 var params = {};
                 params.IotHubConnectionString = $('#iotHubConnectionString').val();
-                params.PartitionCount = $('#iotHubPartitionCount').val();
                 params.Version = '1.0.0';
 
                 $.ajax({

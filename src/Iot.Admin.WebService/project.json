@@ -20,7 +20,8 @@
     "Microsoft.ServiceFabric": "5.3.301",
     "Microsoft.ServiceFabric.Data": "2.3.301",
     "Microsoft.ServiceFabric.Services": "2.3.301",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0"
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
+    "WindowsAzure.ServiceBus": "3.4.0"
   },
   "tools": {
     "Microsoft.AspNetCore.Razor.Tools": "1.0.0-preview2-final"

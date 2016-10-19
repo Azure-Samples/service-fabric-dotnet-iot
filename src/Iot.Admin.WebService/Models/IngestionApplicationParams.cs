@@ -10,14 +10,11 @@ namespace Iot.Admin.WebService.Models
         public IngestionApplicationParams(string iotHubConnectionString, int partitionCount, string version)
         {
             this.IotHubConnectionString = iotHubConnectionString;
-            this.PartitionCount = partitionCount;
             this.Version = version;
         }
 
         public string IotHubConnectionString { get; set; }
-
-        public int PartitionCount { get; set; }
-
+        
         public string Version { get; set; }
     }
 }
