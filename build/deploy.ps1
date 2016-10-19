@@ -70,67 +70,6 @@ Param
     $UseExistingClusterConnection
 )
 
-# Functions taken from Deploy-FabricApplication.ps1
-function Read-XmlElementAsHashtable
-{
-    Param (
-        [System.Xml.XmlElement]
-        $Element
-    )
-
-    $hashtable = @{}
-    if ($Element.Attributes)
-    {
-        $Element.Attributes | 
-            ForEach-Object {
-                $boolVal = $null
-                if ([bool]::TryParse($_.Value, [ref]$boolVal)) {
-                    $hashtable[$_.Name] = $boolVal
-                }
-                else {
-                    $hashtable[$_.Name] = $_.Value
-                }
-            }
-    }
-
-    return $hashtable
-}
-
-function Read-PublishProfile
-{
-    Param (
-        [ValidateScript({Test-Path $_ -PathType Leaf})]
-        [String]
-        $PublishProfileFile
-    )
-
-    $publishProfileXml = [Xml] (Get-Content $PublishProfileFile)
-    $publishProfile = @{}
-
-    $publishProfile.ClusterConnectionParameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("ClusterConnectionParameters")
-    $publishProfile.UpgradeDeployment = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("UpgradeDeployment")
-
-    if ($publishProfileXml.PublishProfile.Item("UpgradeDeployment"))
-    {
-        $publishProfile.UpgradeDeployment.Parameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("UpgradeDeployment").Item("Parameters")
-        if ($publishProfile.UpgradeDeployment["Mode"])
-        {
-            $publishProfile.UpgradeDeployment.Parameters[$publishProfile.UpgradeDeployment["Mode"]] = $true
-        }
-    }
-
-    $publishProfileFolder = (Split-Path $PublishProfileFile)
-    $publishProfile.ApplicationParameterFile = $publishProfileXml.PublishProfile.ApplicationParameterFile.Path
-
-    return $publishProfile
-}
-
-
-# Import the Service Fabric SDK PowerShell module. This is installed with the Service Fabric SDK.
-$RegKey = "HKLM:\SOFTWARE\Microsoft\Service Fabric SDK"
-$ModuleFolderPath = (Get-ItemProperty -Path $RegKey -Name FabricSDKPSModulePath).FabricSDKPSModulePath
-Import-Module "$ModuleFolderPath\ServiceFabricSDK.psm1"
-
 # Get references to the solution directory and the directory of this script.
 $LocalDir = (Split-Path $MyInvocation.MyCommand.Path)
 $SolutionDir = [System.IO.Path]::Combine((get-item $LocalDir).Parent.FullName, "src") 
@@ -141,14 +80,23 @@ $IngestionApplicationDir = "$SolutionDir\Iot.Ingestion.Application"
 $TenantApplicationDir = "$SolutionDir\Iot.Tenant.Application"
 
 
+# Import the Service Fabric SDK PowerShell module and a functions module included with the solution. 
+# This is installed with the Service Fabric SDK.
+$RegKey = "HKLM:\SOFTWARE\Microsoft\Service Fabric SDK"
+$ModuleFolderPath = (Get-ItemProperty -Path $RegKey -Name FabricSDKPSModulePath).FabricSDKPSModulePath
+Import-Module "$ModuleFolderPath\ServiceFabricSDK.psm1"
+
+# This is included with the solution
+Import-Module "$LocalDir\functions.psm1"
+
 # Get a publish profile from the profile XML files in the Deploy directory
 if (!$PublishProfileName.EndsWith(".xml"))
 {
     $PublishProfileName = $PublishProfileName + ".xml"
 }
 
-$PublishProfileFilePath = [System.IO.Path]::Combine($SolutionDir, "Deploy\$PublishProfileName")
-$PublishProfile = Read-PublishProfile $PublishProfileFilePath
+$PublishProfileFile = [System.IO.Path]::Combine($SolutionDir, "Deploy\$PublishProfileName")
+$PublishProfile = Read-PublishProfile $PublishProfileFile
 
 # Using the publish profile, connect to the SF cluster
 if (-not $UseExistingClusterConnection)
@@ -169,6 +117,7 @@ if (-not $UseExistingClusterConnection)
         throw
     }
 }
+
 # Build and package the applications
 & "$LocalDir\build.cmd"
 

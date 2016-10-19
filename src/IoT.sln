@@ -40,6 +40,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishProfiles", "PublishP
 		Deploy\Local.5Node.xml = Deploy\Local.5Node.xml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4A6A00A1-E16C-4ED2-AB81-4B15AA9A6012}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\build.cmd = ..\build\build.cmd
+		..\build\deploy.ps1 = ..\build\deploy.ps1
+		..\build\obliterate.ps1 = ..\build\obliterate.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -188,6 +195,7 @@ Global
 		{906E4A1B-85F5-4813-8A20-38803D301BDC} = {BE5420F3-CD91-437C-9BCD-23612FB56C7B}
 		{C4D84DBD-D19A-44E3-B96B-1455E8935C69} = {BE5420F3-CD91-437C-9BCD-23612FB56C7B}
 		{2219253F-3D38-4287-93A9-9F61CB532044} = {1F2DBBB7-69AD-4F94-B7F8-5A20E3AE329A}
+		{4A6A00A1-E16C-4ED2-AB81-4B15AA9A6012} = {1F2DBBB7-69AD-4F94-B7F8-5A20E3AE329A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8

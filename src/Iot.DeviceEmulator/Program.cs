@@ -20,26 +20,32 @@ namespace Iot.DeviceEmulator
             Console.WriteLine("Enter IoT Hub connection string: ");
             connectionString = Console.ReadLine();
 
-            while (true)
+            Task.Run(async () =>
             {
-                Console.WriteLine("Commands:");
-                Console.WriteLine("1: Register or get a device");
-                Console.WriteLine("2: Send data from a device");
-
-                string command = Console.ReadLine();
-
-                switch (command)
+                while (true)
                 {
-                    case "1":
-                        AddDeviceAsync().Wait();
-                        break;
-                    case "2":
-                        SendDeviceToCloudMessagesAsync().Wait();
-                        break;
-                    default:
-                        break;
+                    Console.WriteLine("Commands:");
+                    Console.WriteLine("1: Register or get a device");
+                    Console.WriteLine("2: Send data from a device");
+                    Console.WriteLine("3: Exit");
+
+                    string command = Console.ReadLine();
+
+                    switch (command)
+                    {
+                        case "1":
+                            await AddDeviceAsync();
+                            break;
+                        case "2":
+                            await SendDeviceToCloudMessagesAsync();
+                            break;
+                        case "3":
+                            return;
+                        default:
+                            break;
+                    }
                 }
-            }
+            }).GetAwaiter().GetResult();
         }
 
         private static async Task SendDeviceToCloudMessagesAsync()
@@ -49,18 +55,18 @@ namespace Iot.DeviceEmulator
 
             Console.WriteLine("Device ID: ");
             string deviceName = Console.ReadLine();
-
-            Console.WriteLine("IoT Hub host name: ");
-            string iotHubUri = Console.ReadLine();
-
+            
             Console.WriteLine("Enter the name of the tenant that owns the device. This should match the name used when creating a tenant application (e.g., Contoso):");
             string tenant = Console.ReadLine();
 
-            DeviceClient deviceClient = DeviceClient.Create(iotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey(deviceName, deviceKey));
+            string iotHubUri = connectionString.Split(';')
+                .First(x => x.StartsWith("HostName=", StringComparison.InvariantCultureIgnoreCase))
+                .Replace("HostName=", "").Trim();
 
             string deviceId = Guid.NewGuid().ToString();
-            string header = $"{tenant};{deviceId}";
 
+            DeviceClient deviceClient = DeviceClient.Create(iotHubUri, new DeviceAuthenticationWithRegistrySymmetricKey(deviceName, deviceKey));
+            
             List<object> events = new List<object>();
             for (int i = 0; i < 20; ++i)
             {
@@ -74,18 +80,18 @@ namespace Iot.DeviceEmulator
 
             Microsoft.Azure.Devices.Client.Message message;
             JsonSerializer serializer = new JsonSerializer();
-            UTF8Encoding encoding = new UTF8Encoding(false); // must pass in FALSE here so a BOM is written to the stream. The BOM messes up the JSON parser later on.
             using (MemoryStream stream = new MemoryStream())
             {
-                using (BinaryWriter binaryWriter = new BinaryWriter(stream, encoding, true))
-                using (StreamWriter streamWriter = new StreamWriter(stream, encoding, 1024, true))
+                using (StreamWriter streamWriter = new StreamWriter(stream))
                 using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
                 {
-                    binaryWriter.Write(header);
                     serializer.Serialize(jsonWriter, events);
                 }
 
                 message = new Microsoft.Azure.Devices.Client.Message(stream.GetBuffer());
+                message.Properties.Add("TenantID", tenant);
+                message.Properties.Add("DeviceID", deviceId);
+
                 await deviceClient.SendEventAsync(message);
                 
                 Console.WriteLine($"Sent message: {Encoding.UTF8.GetString(stream.GetBuffer())}");
