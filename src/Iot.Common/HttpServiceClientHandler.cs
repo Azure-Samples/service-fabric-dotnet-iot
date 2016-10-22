@@ -102,7 +102,12 @@ namespace Iot.Common
                     lastException = se;
                     resolveAddress = true;
                 }
-                catch (Exception ex) when (ex is HttpRequestException || ex is WebException)
+                catch (HttpRequestException hre)
+                {
+                    lastException = hre;
+                    resolveAddress = true;
+                }
+                catch (Exception ex)
                 {
                     lastException = ex;
                     WebException we = ex as WebException;
@@ -128,13 +133,8 @@ namespace Iot.Common
                                 resolveAddress = true;
                             }
 
-                            if (errorResponse.StatusCode == HttpStatusCode.InternalServerError)
-                            {
-                                // The address is correct, but the server processing failed.
-                                // This could be due to conflicts when writing the word to the dictionary.
-                                // Retry the operation without re-resolving the address.
-                                resolveAddress = false;
-                            }
+                            // On any other HTTP status codes, re-throw the exception to the caller.
+                            throw;
                         }
 
                         if (we.Status == WebExceptionStatus.Timeout ||
@@ -147,7 +147,7 @@ namespace Iot.Common
                     }
                     else
                     {
-                        resolveAddress = true;
+                        throw;
                     }
                 }
 

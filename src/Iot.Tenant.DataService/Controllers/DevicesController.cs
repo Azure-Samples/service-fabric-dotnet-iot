@@ -34,7 +34,7 @@ namespace Iot.Tenant.DataService.Controllers
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
-            List<string> devices = new List<string>();
+            List<object> devices = new List<object>();
             using (ITransaction tx = this.stateManager.CreateTransaction())
             {
                 IAsyncEnumerable<KeyValuePair<string, DeviceEvent>> enumerable = await store.CreateEnumerableAsync(tx);
@@ -42,31 +42,15 @@ namespace Iot.Tenant.DataService.Controllers
 
                 while (await enumerator.MoveNextAsync(this.serviceCancellationSource.Token))
                 {
-                    devices.Add(enumerator.Current.Key);
+                    devices.Add(new
+                    {
+                        Id = enumerator.Current.Key,
+                        Timestamp = enumerator.Current.Value.Timestamp
+                    });
                 }
             }
 
             return this.Ok(devices);
-        }
-
-        [HttpGet]
-        [Route("{deviceId}")]
-        public async Task<IActionResult> GetAsync(string deviceId)
-        {
-            IReliableDictionary<string, DeviceEvent> store =
-                await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
-
-            using (ITransaction tx = this.stateManager.CreateTransaction())
-            {
-                ConditionalValue<DeviceEvent> result = await store.TryGetValueAsync(tx, deviceId);
-
-                if (result.HasValue)
-                {
-                    return this.Ok(result.Value);
-                }
-
-                return this.NotFound();
-            }
         }
 
         [HttpGet]

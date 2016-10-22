@@ -16,6 +16,7 @@ namespace Iot.Tenant.WebService.Controllers
     using Iot.Common;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using ViewModels;
 
     [Route("api/[controller]")]
     public class DevicesController : Controller
@@ -80,7 +81,7 @@ namespace Iot.Tenant.WebService.Controllers
 
             HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
 
-            List<string> deviceIds = new List<string>();
+            List<DeviceViewModel> deviceViewModels = new List<DeviceViewModel>();
             foreach (Partition partition in partitions)
             {
                 Uri getUrl = new HttpServiceUriBuilder()
@@ -101,43 +102,18 @@ namespace Iot.Tenant.WebService.Controllers
                 {
                     using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
                     {
-                        List<string> result = serializer.Deserialize<List<string>>(jsonReader);
+                        List<DeviceViewModel> result = serializer.Deserialize<List<DeviceViewModel>>(jsonReader);
 
                         if (result != null)
                         {
-                            deviceIds.AddRange(result);
+                            deviceViewModels.AddRange(result);
                         }
                     }
                 }
             }
 
-            return this.Ok(deviceIds);
+            return this.Ok(deviceViewModels);
         }
-
-        [HttpGet]
-        [Route("{deviceId}")]
-        public async Task<IActionResult> GetDevicesAsync(string deviceId)
-        {
-            ServiceUriBuilder uriBuilder = new ServiceUriBuilder(TenantDataServiceName);
-            Uri serviceUri = uriBuilder.Build();
-
-            Uri getUrl = new HttpServiceUriBuilder()
-                .SetServiceName(serviceUri)
-                .SetPartitionKey(FnvHash.Hash(deviceId))
-                .SetServicePathAndQuery($"/api/devices/{deviceId}")
-                .Build();
-
-            HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
-            HttpResponseMessage response = await httpClient.GetAsync(getUrl, this.cancellationSource.Token);
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                return this.StatusCode((int) response.StatusCode);
-            }
-
-            string result = await response.Content.ReadAsStringAsync();
-
-            return this.Ok(result);
-        }
+        
     }
 }

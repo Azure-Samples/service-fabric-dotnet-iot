@@ -72,51 +72,7 @@ namespace Iot.Tenant.DataService.Tests
 
             Assert.False(actual.Any());
         }
-
-        [Fact]
-        public async Task GetDevice()
-        {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
-            MockReliableStateManager stateManager = new MockReliableStateManager();
-
-            IReliableDictionary<string, DeviceEvent> store =
-                await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
-
-            string expectedKey = "device1";
-            DeviceEvent expectedValue = new DeviceEvent(new DateTimeOffset(1, TimeSpan.Zero));
-
-            using (ITransaction tx = stateManager.CreateTransaction())
-            {
-                await store.SetAsync(tx, expectedKey, expectedValue);
-                await store.SetAsync(tx, "device2", new DeviceEvent(new DateTimeOffset(2, TimeSpan.Zero)));
-            }
-
-            DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.GetAsync(expectedKey);
-
-            Assert.True(result is OkObjectResult);
-
-            DeviceEvent actual = ((OkObjectResult) result).Value as DeviceEvent;
-
-            Assert.Equal(expectedValue.Timestamp, actual.Timestamp);
-        }
-
-        [Fact]
-        public async Task GetDeviceNotFound()
-        {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
-            MockReliableStateManager stateManager = new MockReliableStateManager();
-
-            IReliableDictionary<string, DeviceEvent> store =
-                await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
-
-            DevicesController target = new DevicesController(stateManager, cancelSource);
-            IActionResult result = await target.GetAsync("somekey");
-
-            Assert.True(result is NotFoundResult);
-        }
-
-
+        
         [Fact]
         public async Task GetQueueLength()
         {

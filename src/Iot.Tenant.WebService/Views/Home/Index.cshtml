@@ -21,7 +21,7 @@
         $(function () {
             var path = window.location.pathname.replace(/\/+$/, "");
             var $result = $('#result');
-            var refreshRate = 2000;
+            var refreshRate = 3000;
 
             function last(path) {
                 var s = path.replace(/\/+$/, "").split('/');
@@ -39,15 +39,14 @@
 
                         $deviceList.html('');
                         for (var i = 0; i < devices.length; ++i) {
-                            var deviceId = devices[i];
+                            var device = devices[i];
                             $deviceList.append(
-                                '<li>' +
-                                    '<div class="deviceInfo">' +
-                                        '<label>Device ID: </label>' + deviceId +
-                                        '<a href="javascript:void(0)" onclick="getDeviceData("' + deviceId + '")">Show data</a>' +
-                                        '<ul class="deviceData" id="deviceData_' + deviceId + '"></ul>' +
-                                    '</div>' +
-                                '</li>');
+                            '<li>' +
+                                '<div class="deviceInfo">' +
+                                    '<h5>' + device.id + '</h5>' +
+                                    '<ul class="deviceData"><li><label>Timestamp:</label>' + device.timestamp + '</li></ul>' +
+                                '</div>' +
+                            '</li>');
                         }
                     })
                     .error(function (error) {
@@ -63,35 +62,6 @@
                         }, refreshRate);
                     });
             }
-
-            getDeviceData = function (deviceId) {
-                $.ajax({
-                    url: path + '/api/devices/' + deviceId,
-                    method: 'GET',
-                    contentType: 'application/json',
-                    dataType: 'json'
-                })
-                .done(function (result) {
-                    var html = '';
-                    for (var item in result)
-                    {
-                        html += '<li><label>' + item + ':</label>' + result[item] + '</li>';
-                    }
-                    $('#deviceData_' + deviceId).html(html);
-
-                })
-                .error(function (error) {
-                    $result.removeClass();
-                    $result.addClass('errorResult');
-                    $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
-                })
-                .always(function () {
-                    setTimeout(function () {
-                        $result.html('');
-                        $result.removeClass();
-                    });
-                });
-}
 
             refreshQueueLength = function (apiUrl, $queueElement) {
                 $.ajax({
