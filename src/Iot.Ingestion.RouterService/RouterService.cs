@@ -26,6 +26,15 @@ namespace Iot.Ingestion.RouterService
     /// </remarks>
     internal sealed class RouterService : StatefulService
     {
+        /// <summary>
+        /// The offset interval specifies how frequently the offset is saved.
+        /// A lower value will save more often which can reduce repeat message processing at the cost of performance. 
+        /// </summary>
+        private const int OffsetInterval = 5;
+
+        /// <summary>
+        /// Names of the dictionaries that hold the current offset value and partition epoch.
+        /// </summary>
         private const string OffsetDictionaryName = "OffsetDictionary";
         private const string EpochDictionaryName = "EpochDictionary";
 
@@ -81,6 +90,8 @@ namespace Iot.Ingestion.RouterService
                 messagingFactory = iotHubInfo.Item2;
 
                 HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
+
+                int offsetIteration = 0;
 
                 while (true)
                 {
@@ -154,14 +165,19 @@ namespace Iot.Ingestion.RouterService
                                 }
                             }
 
-                            // Finally, save the current Iot Hub data stream offset.
+                            // Save the current Iot Hub data stream offset.
                             // This will allow the service to pick up from its current location if it fails over.
                             // Duplicate device messages may still be sent to the the tenant service 
                             // if this service fails over after the message is sent but before the offset is saved.
-                            using (ITransaction tx = this.StateManager.CreateTransaction())
+                            if (++offsetIteration % OffsetInterval == 0)
                             {
-                                await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
-                                await tx.CommitAsync();
+                                using (ITransaction tx = this.StateManager.CreateTransaction())
+                                {
+                                    await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
+                                    await tx.CommitAsync();
+                                }
+
+                                offsetIteration = 0;
                             }
                         }
                     }
