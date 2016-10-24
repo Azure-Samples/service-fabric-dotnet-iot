@@ -70,7 +70,7 @@ namespace Iot.Tenant.DataService
 
             IReliableQueue<DeviceEventSeries> queue = await this.StateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(EventQueueName);
 
-            for (int iteration = 0; ; ++iteration)
+            for (int iteration = 0;; ++iteration)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -79,13 +79,13 @@ namespace Iot.Tenant.DataService
                     using (ITransaction tx = this.StateManager.CreateTransaction())
                     {
                         // When the number of items in the queue reaches a certain size..
-                        int count = (int)await queue.GetCountAsync(tx);
+                        int count = (int) await queue.GetCountAsync(tx);
 
                         ServiceEventSource.Current.ServiceMessage(this.Context, $"Current queue size: {count}");
 
                         // if the queue size reaches the batch size, start draining the queue
                         // always drain the queue every nth iteration so that nothing sits in the queue indefinitely
-                        if (count >= OffloadBatchSize || iteration % DrainIteration == 0)
+                        if (count >= OffloadBatchSize || iteration%DrainIteration == 0)
                         {
                             ServiceEventSource.Current.ServiceMessage(this.Context, $"Starting batch offload..");
 

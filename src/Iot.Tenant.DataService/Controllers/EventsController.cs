@@ -14,8 +14,6 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-    using Newtonsoft.Json;
-    using System.IO;
 
     [Route("api/[controller]")]
     public class EventsController : Controller

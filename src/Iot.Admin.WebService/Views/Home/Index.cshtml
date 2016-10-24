@@ -8,8 +8,8 @@
         <div class="tile">
             <h4 class="header">Add ingestion application</h4>
             <div class="addApplication">
-                <label>Name</label><input id="iotHubName" type="text" placeholder="example: MainHub" />
-                <label>Iot Hub connection string</label><input id="iotHubConnectionString" type="text" placeholder="" />
+                <label>Name</label><input id="iotHubName" type="text" placeholder="example: MainHub"/>
+                <label>Iot Hub connection string</label><input id="iotHubConnectionString" type="text" placeholder=""/>
                 <button id="addIotHubButton">Add</button>
             </div>
         </div>
@@ -23,9 +23,9 @@
         <div class="tile">
             <h4 class="header">Add tenant application</h4>
             <div class="addApplication">
-                <label>Name</label><input id="tenantName" type="text" placeholder="example: Contoso" />
-                <label>Data service partition count</label><input id="tenantPartitionCount" type="text" placeholder="example: 2" />
-                <label>Web service instance count</label><input id="tenantInstanceCount" type="text" placeholder="1 for local, -1 for Azure" />
+                <label>Name</label><input id="tenantName" type="text" placeholder="example: Contoso"/>
+                <label>Data service partition count</label><input id="tenantPartitionCount" type="text" placeholder="example: 2"/>
+                <label>Web service instance count</label><input id="tenantInstanceCount" type="text" placeholder="1 for local, -1 for Azure"/>
                 <button id="addTenantButton">Add</button>
             </div>
         </div>
@@ -40,7 +40,7 @@
 {
     <script>
 
-        $(function () {
+        $(function() {
             var path = window.location.pathname.replace(/\/+$/, "");
             var $result = $('#result');
             var refreshRate = 2000;
@@ -50,50 +50,50 @@
                 return s[s.length - 1];
             }
 
-            removeApplication = function (apiUrl) {
+            removeApplication = function(apiUrl) {
                 var button = $(this);
                 button.prop("disabled", true);
 
                 $.ajax({
-                    url: path + apiUrl,
-                    method: 'DELETE'
-                })
-                .done(function () {
-                    $result.removeClass();
-                    $result.addClass('successResult');
-                    $result.html('success');
-                })
-                .error(function (error) {
-                    $result.removeClass();
-                    $result.addClass('errorResult');
-                    $result.html(error.responseText);
-                })
-                .always(function () {
-                    button.prop("disabled", false);
-                })
+                        url: path + apiUrl,
+                        method: 'DELETE'
+                    })
+                    .done(function() {
+                        $result.removeClass();
+                        $result.addClass('successResult');
+                        $result.html('success');
+                    })
+                    .error(function(error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html(error.responseText);
+                    })
+                    .always(function() {
+                        button.prop("disabled", false);
+                    })
             }
 
-            refreshApplicationList = function (apiUrl, $applicationList, createDetails) {
+            refreshApplicationList = function(apiUrl, $applicationList, createDetails) {
                 $.ajax({
-                    url: path + apiUrl,
-                    method: 'GET',
-                    contentType: 'application/json',
-                    dataType: 'json'
-                })
-                    .done(function (applications) {
+                        url: path + apiUrl,
+                        method: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    })
+                    .done(function(applications) {
 
                         $applicationList.html('');
                         for (var i = 0; i < applications.length; ++i) {
                             $applicationList.append(createDetails(applications[i]));
                         }
                     })
-                    .error(function (error) {
+                    .error(function(error) {
                         $result.removeClass();
                         $result.addClass('errorResult');
                         $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
                     })
-                    .always(function () {
-                        setTimeout(function () {
+                    .always(function() {
+                        setTimeout(function() {
                             $result.html('');
                             $result.removeClass();
                             refreshApplicationList(apiUrl, $applicationList, createDetails);
@@ -101,7 +101,7 @@
                     });
             }
 
-            ingestionApplicationDetails = function (application) {
+            ingestionApplicationDetails = function(application) {
 
 
                 var iotHubString = '';
@@ -114,33 +114,33 @@
                 var deleteApiUrl = '/api/ingestion/' + last(application.applicationName);
 
                 return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
-                                + '<h5>' + application.applicationName + '</h5>'
-                                + '<ul class="applicationDetails">'
-                                + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
-                                + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
-                                + '<li><label>Iot Hub:</label>' + iotHubString + '</li>'
-                                + '</ul>'
-                                + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
-                                + '</div></li>'
+                    + '<h5>' + application.applicationName + '</h5>'
+                    + '<ul class="applicationDetails">'
+                    + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
+                    + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
+                    + '<li><label>Iot Hub:</label>' + iotHubString + '</li>'
+                    + '</ul>'
+                    + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
+                    + '</div></li>'
             }
 
-            tenantApplicationDetails = function (application) {
+            tenantApplicationDetails = function(application) {
                 var webPath = last(application.applicationName);
                 var deleteApiUrl = 'api/tenants/' + last(application.applicationName);
 
                 return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
-                                + '<h5>' + application.applicationName + '</h5>'
-                                + '<ul class="applicationDetails">'
-                                + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
-                                + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
-                                + '<li><label>Web portal:</label><a target="_blank" href="/' + webPath + '">' + webPath + '</a></li>'
-                                + '</ul>'
-                                + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
-                                + '</div></li>'
+                    + '<h5>' + application.applicationName + '</h5>'
+                    + '<ul class="applicationDetails">'
+                    + '<li><label>Status:</label>' + application.applicationStatus + '</li>'
+                    + '<li><label>Version:</label>' + application.applicationTypeVersion + '</li>'
+                    + '<li><label>Web portal:</label><a target="_blank" href="/' + webPath + '">' + webPath + '</a></li>'
+                    + '</ul>'
+                    + '<button onclick="removeApplication(' + "'" + deleteApiUrl + "'" + ')">Remove</button>'
+                    + '</div></li>'
             }
 
 
-            $('#addIotHubButton').click(function () {
+            $('#addIotHubButton').click(function() {
                 var button = $(this);
                 button.prop("disabled", true);
 
@@ -153,27 +153,27 @@
                 params.Version = '1.0.0';
 
                 $.ajax({
-                    url: path + '/api/ingestion/' + name,
-                    method: 'POST',
-                    data: JSON.stringify(params),
-                    contentType: 'application/json'
-                })
-                .done(function () {
-                    $result.removeClass();
-                    $result.addClass('successResult');
-                    $result.html('success');
-                })
-                .error(function (error) {
-                    $result.removeClass();
-                    $result.addClass('errorResult');
-                    $result.html(error.responseText);
-                })
-                .always(function () {
-                    button.prop("disabled", false);
-                })
+                        url: path + '/api/ingestion/' + name,
+                        method: 'POST',
+                        data: JSON.stringify(params),
+                        contentType: 'application/json'
+                    })
+                    .done(function() {
+                        $result.removeClass();
+                        $result.addClass('successResult');
+                        $result.html('success');
+                    })
+                    .error(function(error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html(error.responseText);
+                    })
+                    .always(function() {
+                        button.prop("disabled", false);
+                    })
             });
 
-            $('#addTenantButton').click(function () {
+            $('#addTenantButton').click(function() {
                 var button = $(this);
                 button.prop("disabled", true);
 
@@ -187,24 +187,24 @@
                 params.Version = '1.0.0';
 
                 $.ajax({
-                    url: path + '/api/tenants/' + name,
-                    method: 'POST',
-                    data: JSON.stringify(params),
-                    contentType: 'application/json'
-                })
-                .done(function () {
-                    $result.removeClass();
-                    $result.addClass('successResult');
-                    $result.html('success');
-                })
-                .error(function (error) {
-                    $result.removeClass();
-                    $result.addClass('errorResult');
-                    $result.html(error.responseText);
-                })
-                .always(function () {
-                    button.prop("disabled", false);
-                })
+                        url: path + '/api/tenants/' + name,
+                        method: 'POST',
+                        data: JSON.stringify(params),
+                        contentType: 'application/json'
+                    })
+                    .done(function() {
+                        $result.removeClass();
+                        $result.addClass('successResult');
+                        $result.html('success');
+                    })
+                    .error(function(error) {
+                        $result.removeClass();
+                        $result.addClass('errorResult');
+                        $result.html(error.responseText);
+                    })
+                    .always(function() {
+                        button.prop("disabled", false);
+                    })
             });
 
             refreshApplicationList('/api/ingestion', $('#iotHubList'), ingestionApplicationDetails);

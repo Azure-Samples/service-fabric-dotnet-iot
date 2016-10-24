@@ -72,7 +72,7 @@ namespace Iot.Tenant.DataService.Tests
 
             Assert.False(actual.Any());
         }
-        
+
         [Fact]
         public async Task GetQueueLength()
         {

@@ -5,10 +5,9 @@
 
 namespace Iot.Tenant.WebService.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-    using System;
     using System.Fabric;
     using System.Linq;
+    using Microsoft.AspNetCore.Mvc;
 
     public class HomeController : Controller
     {
@@ -21,7 +20,7 @@ namespace Iot.Tenant.WebService.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Tenant"] = context.ServiceName.AbsolutePath.Split('/').Last();
+            this.ViewData["Tenant"] = this.context.ServiceName.AbsolutePath.Split('/').Last();
             return this.View();
         }
 

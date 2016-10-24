@@ -1,4 +1,9 @@
-﻿namespace Iot.Common
+﻿// ------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
+namespace Iot.Common
 {
     public static class Names
     {
@@ -13,6 +18,5 @@
         public const string TenantDataServiceTypeName = "DataServiceType";
         public const string TenantWebServiceName = "WebService";
         public const string TenantWebServiceTypeName = "WebServiceType";
-
     }
 }

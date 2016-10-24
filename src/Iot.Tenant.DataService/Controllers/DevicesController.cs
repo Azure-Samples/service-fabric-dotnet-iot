@@ -42,11 +42,12 @@ namespace Iot.Tenant.DataService.Controllers
 
                 while (await enumerator.MoveNextAsync(this.serviceCancellationSource.Token))
                 {
-                    devices.Add(new
-                    {
-                        Id = enumerator.Current.Key,
-                        Timestamp = enumerator.Current.Value.Timestamp
-                    });
+                    devices.Add(
+                        new
+                        {
+                            Id = enumerator.Current.Key,
+                            Timestamp = enumerator.Current.Value.Timestamp
+                        });
                 }
             }
 

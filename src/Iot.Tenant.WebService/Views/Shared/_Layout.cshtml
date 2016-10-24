@@ -14,7 +14,9 @@
 </head>
 <body>
 <div class="container body-content">
-    <header><h1>@ViewData["Tenant"]</h1>Dashboard</header>
+    <header>
+        <h1>@ViewData["Tenant"]</h1>Dashboard
+    </header>
     @RenderBody()
     <footer></footer>
 </div>
@@ -27,6 +29,7 @@
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
             asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
             asp-fallback-test="window.jQuery">
+    
     </script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
 </environment>

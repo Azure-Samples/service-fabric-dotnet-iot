@@ -28,7 +28,7 @@ namespace Iot.Ingestion.RouterService
     {
         private const string OffsetDictionaryName = "OffsetDictionary";
         private const string EpochDictionaryName = "EpochDictionary";
-        
+
         public RouterService(StatefulServiceContext context)
             : base(context)
         {
@@ -53,17 +53,17 @@ namespace Iot.Ingestion.RouterService
 
             // These Reliable Dictionaries are used to keep track of our position in IoT Hub.
             // If this service fails over, this will allow it to pick up where it left off in the event stream.
-            IReliableDictionary<string, string> offsetDictionary = 
+            IReliableDictionary<string, string> offsetDictionary =
                 await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>(OffsetDictionaryName);
 
-            IReliableDictionary<string, long> epochDictionary = 
+            IReliableDictionary<string, long> epochDictionary =
                 await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>(EpochDictionaryName);
- 
+
             // Each partition of this service corresponds to a partition in IoT Hub.
             // IoT Hub partitions are numbered 0..n-1, up to n = 32.
             // This service needs to use an identical partitioning scheme. 
             // The low key of every partition corresponds to an IoT Hub partition.
-            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation)this.Partition.PartitionInfo;
+            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation) this.Partition.PartitionInfo;
             long servicePartitionKey = partitionInfo.LowKey;
 
             EventHubReceiver eventHubReceiver = null;
@@ -74,7 +74,7 @@ namespace Iot.Ingestion.RouterService
                 // Get an EventHubReceiver and the MessagingFactory used to create it.
                 // The EventHubReceiver is used to get events from IoT Hub.
                 // The MessagingFactory is just saved for later so it can be closed before RunAsync exits.
-                Tuple<EventHubReceiver, MessagingFactory> iotHubInfo = 
+                Tuple<EventHubReceiver, MessagingFactory> iotHubInfo =
                     await this.ConnectToIoTHubAsync(iotHubConnectionString, servicePartitionKey, epochDictionary, offsetDictionary);
 
                 eventHubReceiver = iotHubInfo.Item1;
@@ -99,8 +99,8 @@ namespace Iot.Ingestion.RouterService
                                 continue;
                             }
 
-                            string tenantId = (string)eventData.Properties["TenantID"];
-                            string deviceId = (string)eventData.Properties["DeviceID"];
+                            string tenantId = (string) eventData.Properties["TenantID"];
+                            string deviceId = (string) eventData.Properties["DeviceID"];
 
                             // This is the named service instance of the tenant data service that the event should be sent to.
                             // The tenant ID is part of the named service instance name.
@@ -120,35 +120,37 @@ namespace Iot.Ingestion.RouterService
                             // The device stream payload isn't deserialized and buffered in memory here.
                             // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request stream.
                             using (Stream eventStream = eventData.GetBodyStream())
-                            using (StreamContent postContent = new StreamContent(eventStream))
                             {
-                                postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                                HttpResponseMessage response = await httpClient.PostAsync(postUrl, postContent, cancellationToken);
-
-                                ServiceEventSource.Current.ServiceMessage(
-                                    this.Context,
-                                    "Sent event data to tenant service '{0}' with partition key '{1}'. Result: {2}",
-                                    tenantServiceName,
-                                    tenantServicePartitionKey,
-                                    response.StatusCode.ToString());
-
-                                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                                using (StreamContent postContent = new StreamContent(eventStream))
                                 {
-                                    // This service expects the receiving tenant service to return HTTP 400 if the device message was malformed.
-                                    // In this example, the message is simply logged.
-                                    // Your application should handle all possible error status codes from the receiving service
-                                    // and treat the message as a "poison" message.
-                                    // Message processing should be allowed to continue after a poison message is detected.
+                                    postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                                    string responseContent = await response.Content.ReadAsStringAsync();
+                                    HttpResponseMessage response = await httpClient.PostAsync(postUrl, postContent, cancellationToken);
 
                                     ServiceEventSource.Current.ServiceMessage(
                                         this.Context,
-                                        "Tenant service '{0}' returned HTTP 400 due to a bad device message from device '{1}'. Error message: '{2}'",
+                                        "Sent event data to tenant service '{0}' with partition key '{1}'. Result: {2}",
                                         tenantServiceName,
-                                        deviceId,
-                                        responseContent);
+                                        tenantServicePartitionKey,
+                                        response.StatusCode.ToString());
+
+                                    if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                                    {
+                                        // This service expects the receiving tenant service to return HTTP 400 if the device message was malformed.
+                                        // In this example, the message is simply logged.
+                                        // Your application should handle all possible error status codes from the receiving service
+                                        // and treat the message as a "poison" message.
+                                        // Message processing should be allowed to continue after a poison message is detected.
+
+                                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                                        ServiceEventSource.Current.ServiceMessage(
+                                            this.Context,
+                                            "Tenant service '{0}' returned HTTP 400 due to a bad device message from device '{1}'. Error message: '{2}'",
+                                            tenantServiceName,
+                                            deviceId,
+                                            responseContent);
+                                    }
                                 }
                             }
 
@@ -162,7 +164,6 @@ namespace Iot.Ingestion.RouterService
                                 await tx.CommitAsync();
                             }
                         }
-
                     }
                     catch (TimeoutException te)
                     {
@@ -222,7 +223,7 @@ namespace Iot.Ingestion.RouterService
             EventHubClient eventHubClient = messagingFactory.CreateEventHubClient("messages/events");
             EventHubRuntimeInformation eventHubRuntimeInfo = await eventHubClient.GetRuntimeInformationAsync();
             EventHubReceiver eventHubReceiver;
-            
+
             // Get an IoT Hub partition ID that corresponds to this partition's low key.
             // This assumes that this service has a partition count 'n' that is equal to the IoT Hub partition count and a partition range of 0..n-1.
             // For example, given an IoT Hub with 32 partitions, this service should be created with:

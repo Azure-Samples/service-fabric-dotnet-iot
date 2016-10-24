@@ -18,7 +18,7 @@
 {
     <script>
 
-        $(function () {
+        $(function() {
             var path = window.location.pathname.replace(/\/+$/, "");
             var $result = $('#result');
             var refreshRate = 3000;
@@ -28,34 +28,34 @@
                 return s[s.length - 1];
             }
 
-            refreshDeviceList = function (apiUrl, $deviceList) {
+            refreshDeviceList = function(apiUrl, $deviceList) {
                 $.ajax({
-                    url: path + apiUrl,
-                    method: 'GET',
-                    contentType: 'application/json',
-                    dataType: 'json'
-                })
-                    .done(function (devices) {
+                        url: path + apiUrl,
+                        method: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    })
+                    .done(function(devices) {
 
                         $deviceList.html('');
                         for (var i = 0; i < devices.length; ++i) {
                             var device = devices[i];
                             $deviceList.append(
-                            '<li>' +
+                                '<li>' +
                                 '<div class="deviceInfo">' +
-                                    '<h5>' + device.id + '</h5>' +
-                                    '<ul class="deviceData"><li><label>Timestamp:</label>' + device.timestamp + '</li></ul>' +
+                                '<h5>' + device.id + '</h5>' +
+                                '<ul class="deviceData"><li><label>Timestamp:</label>' + device.timestamp + '</li></ul>' +
                                 '</div>' +
-                            '</li>');
+                                '</li>');
                         }
                     })
-                    .error(function (error) {
+                    .error(function(error) {
                         $result.removeClass();
                         $result.addClass('errorResult');
                         $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
                     })
-                    .always(function () {
-                        setTimeout(function () {
+                    .always(function() {
+                        setTimeout(function() {
                             $result.html('');
                             $result.removeClass();
                             refreshDeviceList(apiUrl, $deviceList);
@@ -63,23 +63,23 @@
                     });
             }
 
-            refreshQueueLength = function (apiUrl, $queueElement) {
+            refreshQueueLength = function(apiUrl, $queueElement) {
                 $.ajax({
-                    url: path + apiUrl,
-                    method: 'GET',
-                    contentType: 'application/json',
-                    dataType: 'json'
-                })
-                    .done(function (result) {
+                        url: path + apiUrl,
+                        method: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    })
+                    .done(function(result) {
                         $queueElement.html(result);
                     })
-                    .error(function (error) {
+                    .error(function(error) {
                         $result.removeClass();
                         $result.addClass('errorResult');
                         $result.html('Failed to refresh info from ' + apiUrl + '. ' + error.responseText);
                     })
-                    .always(function () {
-                        setTimeout(function () {
+                    .always(function() {
+                        setTimeout(function() {
                             $result.html('');
                             $result.removeClass();
                             refreshQueueLength(apiUrl, $queueElement);

@@ -13,7 +13,7 @@ namespace Iot.Admin.WebService.Models
             this.WebInstanceCount = webInstanceCount;
             this.Version = version;
         }
-        
+
         public int DataPartitionCount { get; set; }
 
         public int WebInstanceCount { get; set; }

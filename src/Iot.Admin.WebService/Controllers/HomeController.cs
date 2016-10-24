@@ -13,7 +13,7 @@ namespace Iot.Admin.WebService.Controllers
         {
             return this.View();
         }
-        
+
         public IActionResult Error()
         {
             return this.View();

@@ -18,7 +18,6 @@ namespace Iot.Admin.WebService
 
     internal sealed class WebService : StatelessService
     {
-
         private readonly CancellationTokenSource webApiCancellationSource;
         private readonly FabricClient fabricClient;
 

@@ -14,7 +14,7 @@ namespace Iot.Admin.WebService.Models
         }
 
         public string IotHubConnectionString { get; set; }
-        
+
         public string Version { get; set; }
     }
 }

@@ -5,7 +5,6 @@
 
 namespace Iot.Tenant.DataService
 {
-    using System.Diagnostics;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
 
@@ -14,7 +13,6 @@ namespace Iot.Tenant.DataService
         // Entry point for the application.
         public static void Main(string[] args)
         {
-            
             ServiceRuntime.RegisterServiceAsync(
                 "DataServiceType",
                 context =>

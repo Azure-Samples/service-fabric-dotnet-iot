@@ -14,9 +14,9 @@ namespace Iot.Admin.WebService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Iot.Admin.WebService.Models;
+    using Iot.Admin.WebService.ViewModels;
+    using Iot.Common;
     using Microsoft.AspNetCore.Mvc;
-    using Common;
-    using ViewModels;
     using Microsoft.ServiceBus.Messaging;
 
     [Route("api/[Controller]")]
@@ -37,9 +37,16 @@ namespace Iot.Admin.WebService.Controllers
         {
             ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync();
 
-            return this.Ok(applications
-                .Where(x => x.ApplicationTypeName == Names.IngestionApplicationTypeName)
-                .Select(x => new ApplicationViewModel(x.ApplicationName.ToString(), x.ApplicationStatus.ToString(), x.ApplicationTypeVersion, x.ApplicationParameters)));
+            return this.Ok(
+                applications
+                    .Where(x => x.ApplicationTypeName == Names.IngestionApplicationTypeName)
+                    .Select(
+                        x =>
+                            new ApplicationViewModel(
+                                x.ApplicationName.ToString(),
+                                x.ApplicationStatus.ToString(),
+                                x.ApplicationTypeVersion,
+                                x.ApplicationParameters)));
         }
 
         [HttpPost]

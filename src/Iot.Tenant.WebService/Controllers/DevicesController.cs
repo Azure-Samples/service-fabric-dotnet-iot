@@ -14,9 +14,9 @@ namespace Iot.Tenant.WebService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Iot.Common;
+    using Iot.Tenant.WebService.ViewModels;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
-    using ViewModels;
 
     [Route("api/[controller]")]
     public class DevicesController : Controller
@@ -114,6 +114,5 @@ namespace Iot.Tenant.WebService.Controllers
 
             return this.Ok(deviceViewModels);
         }
-        
     }
 }

@@ -6,7 +6,6 @@
 namespace Iot.Admin.WebService.Controllers
 {
     using System;
-    using System.Collections.Specialized;
     using System.Fabric;
     using System.Fabric.Description;
     using System.Fabric.Query;
@@ -14,9 +13,9 @@ namespace Iot.Admin.WebService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Iot.Admin.WebService.Models;
+    using Iot.Admin.WebService.ViewModels;
+    using Iot.Common;
     using Microsoft.AspNetCore.Mvc;
-    using Common;
-    using ViewModels;
 
     [Route("api/[Controller]")]
     public class TenantsController : Controller
@@ -36,9 +35,16 @@ namespace Iot.Admin.WebService.Controllers
         {
             ApplicationList applications = await this.fabricClient.QueryManager.GetApplicationListAsync();
 
-            return this.Ok(applications
-                .Where(x => x.ApplicationTypeName == Names.TenantApplicationTypeName)
-                .Select(x => new ApplicationViewModel(x.ApplicationName.ToString(), x.ApplicationStatus.ToString(), x.ApplicationTypeVersion, x.ApplicationParameters)));
+            return this.Ok(
+                applications
+                    .Where(x => x.ApplicationTypeName == Names.TenantApplicationTypeName)
+                    .Select(
+                        x =>
+                            new ApplicationViewModel(
+                                x.ApplicationName.ToString(),
+                                x.ApplicationStatus.ToString(),
+                                x.ApplicationTypeVersion,
+                                x.ApplicationParameters)));
         }
 
         [HttpPost]
@@ -51,9 +57,9 @@ namespace Iot.Admin.WebService.Controllers
                 new Uri($"{Names.TenantApplicationNamePrefix}/{tenantName}"),
                 Names.TenantApplicationTypeName,
                 parameters.Version);
-            
+
             await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
-          
+
             // Now create the data service in the new application instance.
             ServiceUriBuilder dataServiceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.TenantDataServiceName);
             StatefulServiceDescription dataServiceDescription = new StatefulServiceDescription()
