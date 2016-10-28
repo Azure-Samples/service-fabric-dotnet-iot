@@ -6,6 +6,8 @@ author: vturecek
 
 # Service Fabric IoT Sample #
 
+This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub for device message ingress and Azure Service Fabric for device message access and processing. 
+
 ## Setup
 
  1. [Set up your Service Fabric development environment](https://azure.microsoft.com/documentation/articles/service-fabric-get-started/).
@@ -47,7 +49,7 @@ author: vturecek
 
 ## Conceptual overview
 
-This IoT sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub for device message ingress and Azure Service Fabric for device message access and processing. In this example, the system allows an adminstrator to add any number of "tenants" to the system to consume messages through any number of IoT Hub instances. Tenants can view their devices and device messages through a Web UI. Messages sent from devices are expected to include a tenant name and device ID for the message ingestion application to determine which tenant to send the message to.
+In this example, the system allows an adminstrator to add any number of "tenants" to the system to consume messages from device field gateways through any number of IoT Hub instances. Tenants can view their devices and device messages through a Web UI. Messages sent from devices are expected to include a tenant name and device ID for the message ingestion application to determine which tenant to send the message to.
 
 ![Conceptual][1]
 
