@@ -119,7 +119,15 @@ if ($UsePublishProfileClusterConnection)
     }
 }
 
-Test-ServiceFabricClusterConnection
+try
+{
+    Test-ServiceFabricClusterConnection
+}
+catch
+{
+	Write-Host "Please connect to a cluster."
+	Exit
+}
 
 # Build and package the applications
 & "$LocalDir\build.cmd"
