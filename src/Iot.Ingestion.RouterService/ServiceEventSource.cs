@@ -10,7 +10,7 @@ namespace Iot.Ingestion.RouterService
     using System.Fabric;
     using System.Threading.Tasks;
 
-    [EventSource(Name = "MyCompany-Iot.Ingestion.RouterService")]
+    [EventSource(Name = "Microsoft-Iot.Ingestion.RouterService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

@@ -38,7 +38,7 @@ namespace Iot.Tenant.WebService
             loggerFactory.AddConsole(this.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (true /*env.IsDevelopment()*/)
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();

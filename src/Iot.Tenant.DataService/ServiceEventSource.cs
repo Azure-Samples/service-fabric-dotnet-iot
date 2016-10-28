@@ -10,7 +10,7 @@ namespace Iot.Tenant.DataService
     using System.Fabric;
     using System.Threading.Tasks;
 
-    [EventSource(Name = "MyCompany-IoT.Tenant.DataService")]
+    [EventSource(Name = "Microsoft-IoT.Tenant.DataService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

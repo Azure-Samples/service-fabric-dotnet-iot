@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "BundlerMinifier.Core": "2.2.281",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.AspNetCore.Hosting": "1.0.0",
     "Microsoft.AspNetCore.Mvc": "1.0.1",
@@ -54,7 +53,7 @@
   },
 
   "scripts": {
-    "prepublish": [ "bower install", "dotnet bundle" ]
+    "prepublish": [ "bower install" ]
   },
 
   "configurations": {

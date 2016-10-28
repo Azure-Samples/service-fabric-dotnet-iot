@@ -67,7 +67,7 @@ Param
     $SkipPackageValidation,
 
     [Switch]
-    $UseExistingClusterConnection
+    $UsePublishProfileClusterConnection = $false
 )
 
 # Get references to the solution directory and the directory of this script.
@@ -89,6 +89,7 @@ Import-Module "$ModuleFolderPath\ServiceFabricSDK.psm1"
 # This is included with the solution
 Import-Module "$LocalDir\functions.psm1"
 
+
 # Get a publish profile from the profile XML files in the Deploy directory
 if (!$PublishProfileName.EndsWith(".xml"))
 {
@@ -99,7 +100,7 @@ $PublishProfileFile = [System.IO.Path]::Combine($SolutionDir, "Deploy\$PublishPr
 $PublishProfile = Read-PublishProfile $PublishProfileFile
 
 # Using the publish profile, connect to the SF cluster
-if (-not $UseExistingClusterConnection)
+if ($UsePublishProfileClusterConnection)
 {
     $ClusterConnectionParameters = $publishProfile.ClusterConnectionParameters
     if ($SecurityToken)
@@ -109,7 +110,7 @@ if (-not $UseExistingClusterConnection)
 
     try
     {
-        [void](Connect-ServiceFabricCluster @ClusterConnectionParameters)
+        Connect-ServiceFabricCluster @ClusterConnectionParameters
     }
     catch [System.Fabric.FabricObjectClosedException]
     {
@@ -117,6 +118,8 @@ if (-not $UseExistingClusterConnection)
         throw
     }
 }
+
+Test-ServiceFabricClusterConnection
 
 # Build and package the applications
 & "$LocalDir\build.cmd"

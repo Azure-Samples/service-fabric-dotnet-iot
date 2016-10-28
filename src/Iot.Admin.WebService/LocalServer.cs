@@ -23,7 +23,7 @@ namespace Iot.Admin.WebService
 
         public void Open()
         {
-            string serverUrl = "http://localhost:5001/";
+            string serverUrl = "http://localhost:5001/iot";
 
             CancellationTokenSource webApiCancellationSource = new CancellationTokenSource();
             FabricClient fabricClient = new FabricClient();

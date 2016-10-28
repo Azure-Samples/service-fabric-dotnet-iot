@@ -10,7 +10,7 @@ namespace Iot.Admin.WebService
     using System.Fabric;
     using System.Threading.Tasks;
 
-    [EventSource(Name = "MyCompany-IoT.Admin.WebService")]
+    [EventSource(Name = "Microsoft-IoT.Admin.WebService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

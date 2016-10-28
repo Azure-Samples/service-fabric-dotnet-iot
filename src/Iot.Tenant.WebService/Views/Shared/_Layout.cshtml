@@ -4,13 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Tenant"] Dashboard</title>
-
-    <environment names="Development">
-        <link rel="stylesheet" href="~/css/site.css"/>
-    </environment>
-    <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
-    </environment>
+    <link rel="stylesheet" href="~/css/site.css"/>
 </head>
 <body>
 <div class="container body-content">
@@ -20,20 +14,8 @@
     @RenderBody()
     <footer></footer>
 </div>
-
-<environment names="Development">
     <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-</environment>
-<environment names="Staging,Production">
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-            asp-fallback-test="window.jQuery">
-    
-    </script>
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
-</environment>
-
+    <script src="~/js/site.js"></script>
 @RenderSection("scripts", required: false)
 </body>
 </html>

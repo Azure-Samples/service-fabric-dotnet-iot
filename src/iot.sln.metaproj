@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="ValidateSolutionConfiguration;ValidateToolsVersions;ValidateProjects" DefaultTargets="Build">
+  <PropertyGroup>
+    <FrameworkSDKRoot />
+    <MSBuildRuntimeVersion>4.0.30319</MSBuildRuntimeVersion>
+    <MSBuildToolsPath32>C:\Windows\Microsoft.NET\Framework\v4.0.30319\</MSBuildToolsPath32>
+    <MSBuildToolsRoot>C:\Windows\Microsoft.NET\Framework\</MSBuildToolsRoot>
+    <SDK35ToolsPath />
+    <SDK40ToolsPath />
+    <AspNetConfiguration>Debug</AspNetConfiguration>
+    <SolutionDir>C:\gitazure-samples\service-fabric-dotnet-iot\src\</SolutionDir>
+    <SolutionExt>.sln</SolutionExt>
+    <SolutionFileName>iot.sln</SolutionFileName>
+    <SolutionName>iot</SolutionName>
+    <SolutionPath>C:\gitazure-samples\service-fabric-dotnet-iot\src\iot.sln</SolutionPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+  <ProjectConfiguration Project="{FDBD3F26-52E6-4088-B9F9-940E5FC76249}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{09284C49-3741-4B96-8F24-95B5B99F4BF1}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{79A0B13A-6859-48C0-9517-269D788BC046}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{BE2ED2D0-7235-4AE7-8623-0F3CAF513CEB}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{291371BE-4218-4EEC-996A-CD5B783B6CD0}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{4A8D8BAB-78FB-45DE-94CA-91D94DC6BA52}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{906E4A1B-85F5-4813-8A20-38803D301BDC}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{35072B44-BC38-4D61-B96C-AF2BCFFAFB41}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{E05F8F27-A728-4C38-BAF9-D78228099FCE}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj" BuildProjectInSolution="True">Debug|x64</ProjectConfiguration>
+  <ProjectConfiguration Project="{C4D84DBD-D19A-44E3-B96B-1455E8935C69}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+  <ProjectConfiguration Project="{5CA93865-4B0A-4DBC-9378-BDAD1C396886}" AbsolutePath="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj" BuildProjectInSolution="True">Debug|AnyCPU</ProjectConfiguration>
+</SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=AnyCPU; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=AnyCPU; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=AnyCPU; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=x64; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=AnyCPU; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectReference>
+    <ProjectReference Include="C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj">
+      <ToolsVersion>
+      </ToolsVersion>
+      <SkipNonexistentProjects>False</SkipNonexistentProjects>
+      <AdditionalProperties>Configuration=Debug; Platform=AnyCPU; VisualStudioVersion=14.0</AdditionalProperties>
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectReference>
+  </ItemGroup>
+  <Target Name="ValidateSolutionConfiguration">
+    <Error Condition="('$(CurrentSolutionConfigurationContents)' == '') and ('$(SkipInvalidConfigurations)' != 'true')" Text="The specified solution configuration &quot;$(Configuration)|$(Platform)&quot; is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform=&quot;Any CPU&quot;) or leave those properties blank to use the default solution configuration." Code="MSB4126" HelpKeyword="MSBuild.SolutionInvalidSolutionConfiguration" />
+    <Warning Condition="('$(CurrentSolutionConfigurationContents)' == '') and ('$(SkipInvalidConfigurations)' == 'true')" Text="The specified solution configuration &quot;$(Configuration)|$(Platform)&quot; is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform=&quot;Any CPU&quot;) or leave those properties blank to use the default solution configuration." Code="MSB4126" HelpKeyword="MSBuild.SolutionInvalidSolutionConfiguration" />
+    <Message Condition="'$(CurrentSolutionConfigurationContents)' != ''" Text="Building solution configuration &quot;$(Configuration)|$(Platform)&quot;." />
+  </Target>
+  <Target Name="ValidateToolsVersions">
+    <Error Condition="'$(MSBuildToolsVersion)' == '2.0' and ('$(ProjectToolsVersion)' != '2.0' and '$(ProjectToolsVersion)' != '')" Text="The tools version &quot;$(MSBuildToolsVersion)&quot; of the solution does not support building projects with a different tools version." Code="MSB4149" HelpKeyword="MSBuild.SolutionToolsVersionDoesNotSupportProjectToolsVersion" />
+  </Target>
+  <Target Name="ValidateProjects">
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.Application&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'LocalServer') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.Application&quot; is not selected for building in solution configuration &quot;LocalServer|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.Application&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.RouterService&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'LocalServer') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.RouterService&quot; is not selected for building in solution configuration &quot;LocalServer|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Ingestion.RouterService&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Admin.Application&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'LocalServer') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Admin.Application&quot; is not selected for building in solution configuration &quot;LocalServer|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Admin.Application&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Tenant.Application&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'LocalServer') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Tenant.Application&quot; is not selected for building in solution configuration &quot;LocalServer|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Tenant.Application&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Common&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'LocalServer') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Common&quot; is not selected for building in solution configuration &quot;LocalServer|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Common&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Mocks&quot; is not selected for building in solution configuration &quot;Debug|Any CPU&quot;." />
+    <Message Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Any CPU') " Text="The project &quot;Iot.Mocks&quot; is not selected for building in solution configuration &quot;Release|Any CPU&quot;." />
+  </Target>
+  <Target Name="Build" Outputs="@(CollectedBuildOutput)">
+    <MSBuild Projects="@(ProjectReference)" BuildInParallel="True" Properties="BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" SkipNonexistentProjects="%(ProjectReference.SkipNonexistentProjects)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Clean">
+    <MSBuild Projects="@(ProjectReference-&gt;Reverse())" Targets="Clean" BuildInParallel="True" Properties="BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" SkipNonexistentProjects="%(ProjectReference.SkipNonexistentProjects)" />
+  </Target>
+  <Target Name="Rebuild" Outputs="@(CollectedBuildOutput)">
+    <MSBuild Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" Properties="BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" SkipNonexistentProjects="%(ProjectReference.SkipNonexistentProjects)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Publish">
+    <MSBuild Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" Properties="BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" SkipNonexistentProjects="%(ProjectReference.SkipNonexistentProjects)" />
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_Application" Outputs="@(IngestionApplication_Iot_Ingestion_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="IngestionApplication_Iot_Ingestion_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_Application:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_Application:Rebuild" Outputs="@(IngestionApplication_Iot_Ingestion_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="IngestionApplication_Iot_Ingestion_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_Application:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.Application\Iot.Ingestion.Application.sfproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_RouterService" Outputs="@(IngestionApplication_Iot_Ingestion_RouterServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="IngestionApplication_Iot_Ingestion_RouterServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_RouterService:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_RouterService:Rebuild" Outputs="@(IngestionApplication_Iot_Ingestion_RouterServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="IngestionApplication_Iot_Ingestion_RouterServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="IngestionApplication\Iot_Ingestion_RouterService:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Ingestion.RouterService\Iot.Ingestion.RouterService.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_Application" Outputs="@(AdminApplication_Iot_Admin_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="AdminApplication_Iot_Admin_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_Application:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_Application:Rebuild" Outputs="@(AdminApplication_Iot_Admin_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="AdminApplication_Iot_Admin_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_Application:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.Application\Iot.Admin.Application.sfproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_WebService" Outputs="@(AdminApplication_Iot_Admin_WebServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="AdminApplication_Iot_Admin_WebServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_WebService:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_WebService:Rebuild" Outputs="@(AdminApplication_Iot_Admin_WebServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="AdminApplication_Iot_Admin_WebServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="AdminApplication\Iot_Admin_WebService:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Admin.WebService\Iot.Admin.WebService.xproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_Application" Outputs="@(TenantApplication_Iot_Tenant_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_Application:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_Application:Rebuild" Outputs="@(TenantApplication_Iot_Tenant_ApplicationBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_ApplicationBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_Application:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.Application\Iot.Tenant.Application.sfproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_WebService" Outputs="@(TenantApplication_Iot_Tenant_WebServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_WebServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_WebService:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_WebService:Rebuild" Outputs="@(TenantApplication_Iot_Tenant_WebServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_WebServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_WebService:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService" Outputs="@(TenantApplication_Iot_Tenant_DataServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_DataServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService:Rebuild" Outputs="@(TenantApplication_Iot_Tenant_DataServiceBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_DataServiceBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_Common" Outputs="@(Iot_CommonBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_CommonBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_Common:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_Common:Rebuild" Outputs="@(Iot_CommonBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_CommonBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_Common:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Common\Iot.Common.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_Mocks" Outputs="@(Iot_MocksBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_MocksBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_Mocks:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_Mocks:Rebuild" Outputs="@(Iot_MocksBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_MocksBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_Mocks:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Mocks\Iot.Mocks.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=x64;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService_Tests" Outputs="@(TenantApplication_Iot_Tenant_DataService_TestsBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_DataService_TestsBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService_Tests:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService_Tests:Rebuild" Outputs="@(TenantApplication_Iot_Tenant_DataService_TestsBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="TenantApplication_Iot_Tenant_DataService_TestsBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="TenantApplication\Iot_Tenant_DataService_Tests:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.Tenant.DataService.Tests\Iot.Tenant.DataService.Tests.xproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_DeviceEmulator" Outputs="@(Iot_DeviceEmulatorBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj'" Projects="@(ProjectReference)" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_DeviceEmulatorBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_DeviceEmulator:Clean">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj'" Projects="@(ProjectReference)" Targets="Clean" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+  <Target Name="Iot_DeviceEmulator:Rebuild" Outputs="@(Iot_DeviceEmulatorBuildOutput)">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj'" Projects="@(ProjectReference)" Targets="Rebuild" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)">
+      <Output TaskParameter="TargetOutputs" ItemName="Iot_DeviceEmulatorBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="Iot_DeviceEmulator:Publish">
+    <MSBuild Condition="'%(ProjectReference.Identity)' == 'C:\gitazure-samples\service-fabric-dotnet-iot\src\Iot.DeviceEmulator\Iot.DeviceEmulator.csproj'" Projects="@(ProjectReference)" Targets="Publish" BuildInParallel="True" ToolsVersion="$(ProjectToolsVersion)" Properties="Configuration=Debug; Platform=AnyCPU;BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" />
+  </Target>
+</Project>
