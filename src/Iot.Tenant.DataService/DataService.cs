@@ -53,6 +53,7 @@ namespace Iot.Tenant.DataService
                                 return new WebHostBuilder().UseWebListener()
                                     .ConfigureServices(
                                         services => services
+                                            .AddSingleton<StatefulServiceContext>(this.Context)
                                             .AddSingleton<IReliableStateManager>(this.StateManager)
                                             .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
@@ -70,7 +71,8 @@ namespace Iot.Tenant.DataService
 
             IReliableQueue<DeviceEventSeries> queue = await this.StateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(EventQueueName);
 
-            for (int iteration = 0;; ++iteration)
+            int iteration = 0;
+            while(true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -81,13 +83,18 @@ namespace Iot.Tenant.DataService
                         // When the number of items in the queue reaches a certain size..
                         int count = (int) await queue.GetCountAsync(tx);
 
-                        ServiceEventSource.Current.ServiceMessage(this.Context, $"Current queue size: {count}");
+                        ServiceEventSource.Current.ServiceMessage(
+                            this.Context, 
+                            "Current queue size: {0}",
+                            count);
 
                         // if the queue size reaches the batch size, start draining the queue
                         // always drain the queue every nth iteration so that nothing sits in the queue indefinitely
-                        if (count >= OffloadBatchSize || iteration%DrainIteration == 0)
+                        if (count >= OffloadBatchSize || iteration == DrainIteration)
                         {
-                            ServiceEventSource.Current.ServiceMessage(this.Context, $"Starting batch offload..");
+                            ServiceEventSource.Current.ServiceMessage(
+                                this.Context, 
+                                "Starting batch offload..");
 
                             // Dequeue the items into a batch
                             List<DeviceEventSeries> batch = new List<DeviceEventSeries>(count);
@@ -104,12 +111,18 @@ namespace Iot.Tenant.DataService
                                 }
                             }
 
+                            //TODO: Process the data or send to a storage location.
+
                             // Commit the dequeue operations
                             await tx.CommitAsync();
 
-                            ServiceEventSource.Current.ServiceMessage(this.Context, $"Batch offload complete.");
+                            ServiceEventSource.Current.ServiceMessage(
+                                this.Context, 
+                                "Batch offloaded {0} events.",
+                                count);
 
                             // skip the delay and move on to the next batch.
+                            iteration = 0;
                             continue;
                         }
                     }
@@ -117,12 +130,12 @@ namespace Iot.Tenant.DataService
                 catch (TimeoutException)
                 {
                     // transient error. Retry.
-                    ServiceEventSource.Current.ServiceMessage(this.Context, $"TimeoutException in RunAsync.");
+                    ServiceEventSource.Current.ServiceMessage(this.Context, "TimeoutException in RunAsync.");
                 }
-                catch (FabricTransientException)
+                catch (FabricTransientException fte)
                 {
                     // transient error. Retry.
-                    ServiceEventSource.Current.ServiceMessage(this.Context, $"FabricTransientException in RunAsync.");
+                    ServiceEventSource.Current.ServiceMessage(this.Context, "FabricTransientException in RunAsync: {0}", fte.Message);
                 }
                 catch (FabricNotPrimaryException)
                 {

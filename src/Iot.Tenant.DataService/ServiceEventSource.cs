@@ -70,7 +70,7 @@ namespace Iot.Tenant.DataService
                 this.WriteEvent(MessageEventId, message);
             }
         }
-
+        
         [NonEvent]
         public void ServiceMessage(ServiceContext serviceContext, string message, params object[] args)
         {

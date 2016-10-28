@@ -8,6 +8,7 @@ namespace Iot.Ingestion.RouterService
     using System;
     using System.Fabric;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading;
@@ -72,7 +73,7 @@ namespace Iot.Ingestion.RouterService
             // IoT Hub partitions are numbered 0..n-1, up to n = 32.
             // This service needs to use an identical partitioning scheme. 
             // The low key of every partition corresponds to an IoT Hub partition.
-            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation) this.Partition.PartitionInfo;
+            Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation)this.Partition.PartitionInfo;
             long servicePartitionKey = partitionInfo.LowKey;
 
             EventHubReceiver eventHubReceiver = null;
@@ -110,8 +111,8 @@ namespace Iot.Ingestion.RouterService
                                 continue;
                             }
 
-                            string tenantId = (string) eventData.Properties["TenantID"];
-                            string deviceId = (string) eventData.Properties["DeviceID"];
+                            string tenantId = (string)eventData.Properties["TenantID"];
+                            string deviceId = (string)eventData.Properties["DeviceID"];
 
                             // This is the named service instance of the tenant data service that the event should be sent to.
                             // The tenant ID is part of the named service instance name.
@@ -171,6 +172,11 @@ namespace Iot.Ingestion.RouterService
                             // if this service fails over after the message is sent but before the offset is saved.
                             if (++offsetIteration % OffsetInterval == 0)
                             {
+                                ServiceEventSource.Current.ServiceMessage(
+                                        this.Context,
+                                        "Saving offset {0}",
+                                        eventData.Offset);
+
                                 using (ITransaction tx = this.StateManager.CreateTransaction())
                                 {
                                     await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
@@ -229,9 +235,15 @@ namespace Iot.Ingestion.RouterService
             IReliableDictionary<string, long> epochDictionary,
             IReliableDictionary<string, string> offsetDictionary)
         {
+
             // EventHubs doesn't support NetMessaging, so ensure the transport type is AMQP.
             ServiceBusConnectionStringBuilder connectionStringBuilder = new ServiceBusConnectionStringBuilder(connectionString);
             connectionStringBuilder.TransportType = TransportType.Amqp;
+
+            ServiceEventSource.Current.ServiceMessage(
+                      this.Context,
+                      "RouterService connecting to IoT Hub at {0}",
+                      String.Join(",", connectionStringBuilder.Endpoints.Select(x => x.ToString())));
 
             // A new MessagingFactory is created here so that each partition of this service will have its own MessagingFactory.
             // This gives each partition its own dedicated TCP connection to IoT Hub.
@@ -261,7 +273,7 @@ namespace Iot.Ingestion.RouterService
                     // continue where the service left off before the last failover or restart.
                     ServiceEventSource.Current.ServiceMessage(
                         this.Context,
-                        "Creating listener on partition {0} with offset {1}",
+                        "Creating EventHub listener on partition {0} with offset {1}",
                         eventHubPartitionId,
                         offsetResult.Value);
 
@@ -273,7 +285,7 @@ namespace Iot.Ingestion.RouterService
                     // start with the current time.
                     ServiceEventSource.Current.ServiceMessage(
                         this.Context,
-                        "Creating listener on partition {0} with offset {1}",
+                        "Creating EventHub listener on partition {0} with offset {1}",
                         eventHubPartitionId,
                         DateTime.UtcNow);
 

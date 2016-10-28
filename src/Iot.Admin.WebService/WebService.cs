@@ -41,7 +41,7 @@ namespace Iot.Admin.WebService
                             "ServiceEndpoint",
                             uri =>
                             {
-                                ServiceEventSource.Current.Message($"Listening on {uri}");
+                                ServiceEventSource.Current.Message($"Admin WebService starting on {uri}");
 
                                 return new WebHostBuilder().UseWebListener()
                                     .ConfigureServices(

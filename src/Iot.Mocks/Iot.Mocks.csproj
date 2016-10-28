@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MockAsyncEnumerable.cs" />
+    <Compile Include="MockCodePackageActivationContext.cs" />
     <Compile Include="MockReliableDictionary.cs" />
     <Compile Include="MockReliableQueue.cs" />
     <Compile Include="MockReliableStateManager.cs" />

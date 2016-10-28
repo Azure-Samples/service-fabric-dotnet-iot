@@ -17,9 +17,33 @@ namespace Iot.Tenant.DataService.Tests
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Xunit;
+    using System.Fabric;
 
     public class EventControllerTests
     {
+        private static ICodePackageActivationContext codePackageContext = new MockCodePackageActivationContext(
+            "fabric:/someapp",
+            "SomeAppType",
+            "Code",
+            "1.0.0.0",
+            Guid.NewGuid().ToString(),
+            @"C:\Log",
+            @"C:\Temp",
+            @"C:\Work",
+            "ServiceManifest",
+            "1.0.0.0"
+            );
+        
+        private StatefulServiceContext statefulServiceContext = new StatefulServiceContext(
+            new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "TEST.MACHINE"),
+            codePackageContext,
+            "MockServiceType",
+            new Uri("fabric:/someapp/someservice"),
+            null,
+            Guid.NewGuid(),
+            long.MaxValue
+            );
+        
         [Fact]
         public async Task MissingPayload()
         {
@@ -28,7 +52,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
 
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
 
             IActionResult result = await target.Post(expectedDeviceId, null);
 
@@ -41,7 +65,7 @@ namespace Iot.Tenant.DataService.Tests
             CancellationTokenSource cancelSource = new CancellationTokenSource();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
 
             IActionResult result = await target.Post(null, new DeviceEvent[0]);
 
@@ -56,7 +80,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
 
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
 
             IActionResult result = await target.Post(expectedDeviceId, new DeviceEvent[0]);
 
@@ -78,7 +102,7 @@ namespace Iot.Tenant.DataService.Tests
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(1, TimeSpan.Zero));
 
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
 
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
@@ -121,7 +145,7 @@ namespace Iot.Tenant.DataService.Tests
             }
             expectedDeviceList.Insert(4, expectedDeviceEvent);
 
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
 
             IActionResult result = await target.Post(expectedDeviceId, expectedDeviceList);
 
@@ -157,7 +181,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
@@ -203,7 +227,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
-            EventsController target = new EventsController(stateManager, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
@@ -232,5 +256,6 @@ namespace Iot.Tenant.DataService.Tests
                 await tx.CommitAsync();
             }
         }
+        
     }
 }

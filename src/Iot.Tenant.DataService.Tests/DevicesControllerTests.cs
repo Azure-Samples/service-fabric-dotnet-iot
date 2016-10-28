@@ -29,18 +29,16 @@ namespace Iot.Tenant.DataService.Tests
             IReliableDictionary<string, DeviceEvent> store =
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
-            List<string> expected = new List<string>(
-                new string[]
-                {
-                    "device1",
-                    "device2"
-                });
+            Dictionary<string, DeviceEvent> expected = new Dictionary<string, DeviceEvent>();
+            expected.Add("device1", new DeviceEvent(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(1))));
+            expected.Add("device2", new DeviceEvent(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(2))));
+               
 
             using (ITransaction tx = stateManager.CreateTransaction())
             {
-                for (int i = 0; i < expected.Count; ++i)
+                foreach (var item in expected)
                 {
-                    await store.SetAsync(tx, expected[i], new DeviceEvent(DateTimeOffset.UtcNow));
+                    await store.SetAsync(tx, item.Key, item.Value);
                 }
             }
 
@@ -49,9 +47,12 @@ namespace Iot.Tenant.DataService.Tests
 
             Assert.True(result is OkObjectResult);
 
-            IEnumerable<string> actual = ((OkObjectResult) result).Value as IEnumerable<string>;
+            IEnumerable<dynamic> actual = ((OkObjectResult) result).Value as IEnumerable<dynamic>;
 
-            Assert.True(actual.SequenceEqual(expected));
+            foreach (dynamic item in actual)
+            {
+                Assert.Equal< DateTimeOffset>(expected[item.Id].Timestamp, item.Timestamp);
+            }
         }
 
         [Fact]
@@ -68,7 +69,7 @@ namespace Iot.Tenant.DataService.Tests
 
             Assert.True(result is OkObjectResult);
 
-            IEnumerable<string> actual = ((OkObjectResult) result).Value as IEnumerable<string>;
+            IEnumerable<dynamic> actual = ((OkObjectResult) result).Value as IEnumerable<dynamic>;
 
             Assert.False(actual.Any());
         }

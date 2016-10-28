@@ -14,6 +14,7 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using System.Fabric;
 
     [Route("api/[controller]")]
     public class EventsController : Controller
@@ -22,9 +23,12 @@ namespace Iot.Tenant.DataService.Controllers
 
         private readonly IReliableStateManager stateManager;
 
-        public EventsController(IReliableStateManager stateManager, CancellationTokenSource serviceCancellationSource)
+        private readonly StatefulServiceContext context;
+
+        public EventsController(IReliableStateManager stateManager, StatefulServiceContext context, CancellationTokenSource serviceCancellationSource)
         {
             this.stateManager = stateManager;
+            this.context = context;
             this.serviceCancellationSource = serviceCancellationSource;
         }
 
@@ -42,6 +46,12 @@ namespace Iot.Tenant.DataService.Controllers
             {
                 return this.BadRequest();
             }
+
+            ServiceEventSource.Current.ServiceMessage(
+                this.context,
+                "Received {0} events from device {1}",
+                events.Count(),
+                deviceId);
 
             DeviceEvent max = events.FirstOrDefault();
 
