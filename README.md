@@ -11,7 +11,7 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
 ## Setup
 
  1. [Set up your Service Fabric development environment](https://azure.microsoft.com/documentation/articles/service-fabric-get-started/).
- 2. [Create an IoT Hub in Azure](https://azure.microsoft.com/documentation/articles/iot-hub-csharp-csharp-getstarted/#create-an-iot-hub) or use an existing IoT Hub in your Azure subscription that is not currently being used in a production application. If you're creating a new IoT Hub to run the sample, you can simply use the **F1 - Free** tier under **pricing and scale tier** to avoid incurring charges to your subscription while running the sample. 
+ 2. [Create an IoT Hub in Azure](https://azure.microsoft.com/documentation/articles/iot-hub-csharp-csharp-getstarted/#create-an-iot-hub) or use an existing IoT Hub in your Azure subscription that is not currently being used in a production application. If you're creating a new IoT Hub to run the sample, you can simply use the **F1 - Free** tier under **pricing and scale tier** in the Azure portal. 
 
 ## Deploy
 
