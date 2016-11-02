@@ -99,7 +99,7 @@ namespace Iot.Admin.WebService.Controllers
             try
             {
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
-                    new Uri($"{Names.TenantApplicationNamePrefix}/{tenantName}"),
+                    new DeleteApplicationDescription(new Uri($"{Names.TenantApplicationNamePrefix}/{tenantName}")),
                     this.operationTimeout,
                     this.cancellationTokenSource.Token);
             }

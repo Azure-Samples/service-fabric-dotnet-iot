@@ -67,7 +67,10 @@ Param
     $SkipPackageValidation,
 
     [Switch]
-    $UsePublishProfileClusterConnection = $false
+    $UsePublishProfileClusterConnection = $false,
+
+    [Switch]
+    $SkipBuild = $false
 )
 
 # Get references to the solution directory and the directory of this script.
@@ -130,7 +133,10 @@ catch
 }
 
 # Build and package the applications
-& "$LocalDir\build.cmd"
+if (!$SkipBuild)
+{
+    & "$LocalDir\build.cmd"
+}
 
 # Publish the packages
 $appParameterPath = [System.IO.Path]::Combine($AdminApplicationDir, $publishProfile.ApplicationParameterFile)

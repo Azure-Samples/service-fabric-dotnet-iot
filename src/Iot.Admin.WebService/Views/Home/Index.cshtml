@@ -126,7 +126,7 @@
 
             tenantApplicationDetails = function(application) {
                 var webPath = last(application.applicationName);
-                var deleteApiUrl = 'api/tenants/' + last(application.applicationName);
+                var deleteApiUrl = '/api/tenants/' + last(application.applicationName);
 
                 return '<li><div class="applicationInfo ' + application.applicationStatus.toLowerCase() + '">'
                     + '<h5>' + application.applicationName + '</h5>'
