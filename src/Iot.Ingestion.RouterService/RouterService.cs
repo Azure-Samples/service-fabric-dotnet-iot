@@ -90,123 +90,127 @@ namespace Iot.Ingestion.RouterService
                 eventHubReceiver = iotHubInfo.Item1;
                 messagingFactory = iotHubInfo.Item2;
 
-                HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
-
-                int offsetIteration = 0;
-
-                while (true)
+                // HttpClient is designed as a shared object. 
+                // A single instance should be used throughout the lifetime of RunAsync.
+                using (HttpClient httpClient = new HttpClient(new HttpServiceClientHandler()))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
 
-                    try
+                    int offsetIteration = 0;
+
+                    while (true)
                     {
-                        // It's important to set a low wait time here in lieu of a cancellation token
-                        // so that this doesn't block RunAsync from exiting when Service Fabric needs it to complete.
-                        // ReceiveAsync is a long-poll operation, so the timeout should not be too low,
-                        // yet not too high to block RunAsync from exiting within a few seconds.
-                        using (EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromSeconds(5)))
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        try
                         {
-                            if (eventData == null)
+                            // It's important to set a low wait time here in lieu of a cancellation token
+                            // so that this doesn't block RunAsync from exiting when Service Fabric needs it to complete.
+                            // ReceiveAsync is a long-poll operation, so the timeout should not be too low,
+                            // yet not too high to block RunAsync from exiting within a few seconds.
+                            using (EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromSeconds(5)))
                             {
-                                continue;
-                            }
-
-                            string tenantId = (string)eventData.Properties["TenantID"];
-                            string deviceId = (string)eventData.Properties["DeviceID"];
-
-                            // This is the named service instance of the tenant data service that the event should be sent to.
-                            // The tenant ID is part of the named service instance name.
-                            // The incoming device data stream specifie which tenant the data belongs to.
-                            Uri tenantServiceName = new Uri($"{Names.TenantApplicationNamePrefix}/{tenantId}/{Names.TenantDataServiceName}");
-                            long tenantServicePartitionKey = FnvHash.Hash(deviceId);
-
-                            // The tenant data service exposes an HTTP API.
-                            // For incoming device events, the URL is /api/events/{deviceId}
-                            // This sets up a URL and sends a POST request with the device JSON payload.
-                            Uri postUrl = new HttpServiceUriBuilder()
-                                .SetServiceName(tenantServiceName)
-                                .SetPartitionKey(tenantServicePartitionKey)
-                                .SetServicePathAndQuery($"/api/events/{deviceId}")
-                                .Build();
-
-                            // The device stream payload isn't deserialized and buffered in memory here.
-                            // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request stream.
-                            using (Stream eventStream = eventData.GetBodyStream())
-                            {
-                                using (StreamContent postContent = new StreamContent(eventStream))
+                                if (eventData == null)
                                 {
-                                    postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                                    continue;
+                                }
 
-                                    HttpResponseMessage response = await httpClient.PostAsync(postUrl, postContent, cancellationToken);
+                                string tenantId = (string)eventData.Properties["TenantID"];
+                                string deviceId = (string)eventData.Properties["DeviceID"];
 
-                                    ServiceEventSource.Current.ServiceMessage(
-                                        this.Context,
-                                        "Sent event data to tenant service '{0}' with partition key '{1}'. Result: {2}",
-                                        tenantServiceName,
-                                        tenantServicePartitionKey,
-                                        response.StatusCode.ToString());
+                                // This is the named service instance of the tenant data service that the event should be sent to.
+                                // The tenant ID is part of the named service instance name.
+                                // The incoming device data stream specifie which tenant the data belongs to.
+                                Uri tenantServiceName = new Uri($"{Names.TenantApplicationNamePrefix}/{tenantId}/{Names.TenantDataServiceName}");
+                                long tenantServicePartitionKey = FnvHash.Hash(deviceId);
 
-                                    if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                                // The tenant data service exposes an HTTP API.
+                                // For incoming device events, the URL is /api/events/{deviceId}
+                                // This sets up a URL and sends a POST request with the device JSON payload.
+                                Uri postUrl = new HttpServiceUriBuilder()
+                                    .SetServiceName(tenantServiceName)
+                                    .SetPartitionKey(tenantServicePartitionKey)
+                                    .SetServicePathAndQuery($"/api/events/{deviceId}")
+                                    .Build();
+
+                                // The device stream payload isn't deserialized and buffered in memory here.
+                                // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request stream.
+                                using (Stream eventStream = eventData.GetBodyStream())
+                                {
+                                    using (StreamContent postContent = new StreamContent(eventStream))
                                     {
-                                        // This service expects the receiving tenant service to return HTTP 400 if the device message was malformed.
-                                        // In this example, the message is simply logged.
-                                        // Your application should handle all possible error status codes from the receiving service
-                                        // and treat the message as a "poison" message.
-                                        // Message processing should be allowed to continue after a poison message is detected.
+                                        postContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                                        string responseContent = await response.Content.ReadAsStringAsync();
+                                        HttpResponseMessage response = await httpClient.PostAsync(postUrl, postContent, cancellationToken);
 
                                         ServiceEventSource.Current.ServiceMessage(
                                             this.Context,
-                                            "Tenant service '{0}' returned HTTP 400 due to a bad device message from device '{1}'. Error message: '{2}'",
+                                            "Sent event data to tenant service '{0}' with partition key '{1}'. Result: {2}",
                                             tenantServiceName,
-                                            deviceId,
-                                            responseContent);
+                                            tenantServicePartitionKey,
+                                            response.StatusCode.ToString());
+
+                                        if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                                        {
+                                            // This service expects the receiving tenant service to return HTTP 400 if the device message was malformed.
+                                            // In this example, the message is simply logged.
+                                            // Your application should handle all possible error status codes from the receiving service
+                                            // and treat the message as a "poison" message.
+                                            // Message processing should be allowed to continue after a poison message is detected.
+
+                                            string responseContent = await response.Content.ReadAsStringAsync();
+
+                                            ServiceEventSource.Current.ServiceMessage(
+                                                this.Context,
+                                                "Tenant service '{0}' returned HTTP 400 due to a bad device message from device '{1}'. Error message: '{2}'",
+                                                tenantServiceName,
+                                                deviceId,
+                                                responseContent);
+                                        }
                                     }
                                 }
-                            }
 
-                            // Save the current Iot Hub data stream offset.
-                            // This will allow the service to pick up from its current location if it fails over.
-                            // Duplicate device messages may still be sent to the the tenant service 
-                            // if this service fails over after the message is sent but before the offset is saved.
-                            if (++offsetIteration % OffsetInterval == 0)
-                            {
-                                ServiceEventSource.Current.ServiceMessage(
-                                        this.Context,
-                                        "Saving offset {0}",
-                                        eventData.Offset);
-
-                                using (ITransaction tx = this.StateManager.CreateTransaction())
+                                // Save the current Iot Hub data stream offset.
+                                // This will allow the service to pick up from its current location if it fails over.
+                                // Duplicate device messages may still be sent to the the tenant service 
+                                // if this service fails over after the message is sent but before the offset is saved.
+                                if (++offsetIteration % OffsetInterval == 0)
                                 {
-                                    await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
-                                    await tx.CommitAsync();
-                                }
+                                    ServiceEventSource.Current.ServiceMessage(
+                                            this.Context,
+                                            "Saving offset {0}",
+                                            eventData.Offset);
 
-                                offsetIteration = 0;
+                                    using (ITransaction tx = this.StateManager.CreateTransaction())
+                                    {
+                                        await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
+                                        await tx.CommitAsync();
+                                    }
+
+                                    offsetIteration = 0;
+                                }
                             }
                         }
-                    }
-                    catch (TimeoutException te)
-                    {
-                        // transient error. Retry.
-                        ServiceEventSource.Current.ServiceMessage(this.Context, $"TimeoutException in RunAsync: {te.ToString()}");
-                    }
-                    catch (FabricTransientException fte)
-                    {
-                        // transient error. Retry.
-                        ServiceEventSource.Current.ServiceMessage(this.Context, $"FabricTransientException in RunAsync: {fte.ToString()}");
-                    }
-                    catch (FabricNotPrimaryException)
-                    {
-                        // not primary any more, time to quit.
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        ServiceEventSource.Current.ServiceMessage(this.Context, ex.ToString());
+                        catch (TimeoutException te)
+                        {
+                            // transient error. Retry.
+                            ServiceEventSource.Current.ServiceMessage(this.Context, $"TimeoutException in RunAsync: {te.ToString()}");
+                        }
+                        catch (FabricTransientException fte)
+                        {
+                            // transient error. Retry.
+                            ServiceEventSource.Current.ServiceMessage(this.Context, $"FabricTransientException in RunAsync: {fte.ToString()}");
+                        }
+                        catch (FabricNotPrimaryException)
+                        {
+                            // not primary any more, time to quit.
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            ServiceEventSource.Current.ServiceMessage(this.Context, ex.ToString());
 
-                        throw;
+                            throw;
+                        }
                     }
                 }
             }
