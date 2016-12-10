@@ -22,12 +22,12 @@ namespace Iot.Admin.WebService.Controllers
     {
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
-        private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly CancellationToken serviceCancellationToken;
 
-        public TenantsController(FabricClient fabricClient, CancellationTokenSource cancellationTokenSource)
+        public TenantsController(FabricClient fabricClient, ServiceCancellation serviceCancellation)
         {
             this.fabricClient = fabricClient;
-            this.cancellationTokenSource = cancellationTokenSource;
+            this.serviceCancellationToken = serviceCancellation.Token;
         }
 
         [HttpGet]
@@ -58,7 +58,7 @@ namespace Iot.Admin.WebService.Controllers
                 Names.TenantApplicationTypeName,
                 parameters.Version);
 
-            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
+            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.serviceCancellationToken);
 
             // Now create the data service in the new application instance.
             ServiceUriBuilder dataServiceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.TenantDataServiceName);
@@ -73,7 +73,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.TenantDataServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(dataServiceDescription, this.operationTimeout, this.cancellationTokenSource.Token);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(dataServiceDescription, this.operationTimeout, this.serviceCancellationToken);
 
             // And finally, create the web service in the new application instance.
             ServiceUriBuilder webServiceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.TenantWebServiceName);
@@ -86,7 +86,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.TenantWebServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(webServiceDescription, this.operationTimeout, this.cancellationTokenSource.Token);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(webServiceDescription, this.operationTimeout, this.serviceCancellationToken);
 
 
             return this.Ok();
@@ -101,7 +101,7 @@ namespace Iot.Admin.WebService.Controllers
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
                     new DeleteApplicationDescription(new Uri($"{Names.TenantApplicationNamePrefix}/{tenantName}")),
                     this.operationTimeout,
-                    this.cancellationTokenSource.Token);
+                    this.serviceCancellationToken);
             }
             catch (FabricElementNotFoundException)
             {

@@ -17,13 +17,14 @@ namespace Iot.Tenant.DataService.Tests
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Xunit;
+    using Common;
 
     public class DevicesControllerTests
     {
         [Fact]
         public async Task GetAll()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -58,7 +59,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task GetAllEmpty()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -77,7 +78,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task GetQueueLength()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableQueue<DeviceEventSeries> queue =

@@ -237,6 +237,7 @@
     <Compile Include="HttpServiceUriTarget.cs" />
     <Compile Include="Names.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceCancellation.cs" />
     <Compile Include="ServiceUriBuilder.cs" />
     <Compile Include="WebHostCommunicationListener.cs" />
   </ItemGroup>

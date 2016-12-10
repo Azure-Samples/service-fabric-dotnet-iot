@@ -10,7 +10,7 @@ namespace Iot.Admin.WebService
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
-    using IoT.Common;
+    using Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -18,13 +18,11 @@ namespace Iot.Admin.WebService
 
     internal sealed class WebService : StatelessService
     {
-        private readonly CancellationTokenSource webApiCancellationSource;
         private readonly FabricClient fabricClient;
 
         public WebService(StatelessServiceContext context)
             : base(context)
         {
-            this.webApiCancellationSource = new CancellationTokenSource();
             this.fabricClient = new FabricClient();
         }
 
@@ -39,7 +37,7 @@ namespace Iot.Admin.WebService
                             context,
                             "iot",
                             "ServiceEndpoint",
-                            uri =>
+                            (uri, serviceCancellation) =>
                             {
                                 ServiceEventSource.Current.Message($"Admin WebService starting on {uri}");
 
@@ -47,7 +45,7 @@ namespace Iot.Admin.WebService
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<FabricClient>(this.fabricClient)
-                                            .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
+                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
@@ -55,13 +53,6 @@ namespace Iot.Admin.WebService
                             });
                     })
             };
-        }
-
-        protected override Task RunAsync(CancellationToken cancellationToken)
-        {
-            cancellationToken.Register(() => this.webApiCancellationSource.Cancel());
-
-            return Task.FromResult(true);
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Iot.Tenant.DataService.Tests
     using Microsoft.ServiceFabric.Data.Collections;
     using Xunit;
     using System.Fabric;
+    using Common;
 
     public class EventControllerTests
     {
@@ -47,7 +48,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task MissingPayload()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             string expectedDeviceId = "some-device";
@@ -62,7 +63,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task MissingDeviceId()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
@@ -75,7 +76,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task NoEvents()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             string expectedDeviceId = "some-device";
@@ -90,7 +91,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task SingleEvent()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -126,7 +127,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task AddMostRecentEvent()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -170,7 +171,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task UpdateMostRecentEvent()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -216,7 +217,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task IgnoreOldEvent()
         {
-            CancellationTokenSource cancelSource = new CancellationTokenSource();
+            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =

@@ -12,13 +12,13 @@ namespace Iot.Tenant.DataService
     using System.Threading;
     using System.Threading.Tasks;
     using Iot.Tenant.DataService.Models;
-    using IoT.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using Common;
 
     internal sealed class DataService : StatefulService
     {
@@ -28,12 +28,10 @@ namespace Iot.Tenant.DataService
         private const int DrainIteration = 5;
         private readonly TimeSpan OffloadBatchInterval = TimeSpan.FromSeconds(10);
 
-        private readonly CancellationTokenSource webApiCancellationSource;
 
         public DataService(StatefulServiceContext context)
             : base(context)
         {
-            this.webApiCancellationSource = new CancellationTokenSource();
         }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
@@ -46,7 +44,7 @@ namespace Iot.Tenant.DataService
                         return new WebHostCommunicationListener(
                             context,
                             "ServiceEndpoint",
-                            uri =>
+                            (uri, serviceCancellation) =>
                             {
                                 ServiceEventSource.Current.Message($"Listening on {uri}");
 
@@ -55,7 +53,7 @@ namespace Iot.Tenant.DataService
                                         services => services
                                             .AddSingleton<StatefulServiceContext>(this.Context)
                                             .AddSingleton<IReliableStateManager>(this.StateManager)
-                                            .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
+                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
@@ -67,8 +65,6 @@ namespace Iot.Tenant.DataService
 
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            cancellationToken.Register(() => this.webApiCancellationSource.Cancel());
-
             IReliableQueue<DeviceEventSeries> queue = await this.StateManager.GetOrAddAsync<IReliableQueue<DeviceEventSeries>>(EventQueueName);
 
             int iteration = 0;

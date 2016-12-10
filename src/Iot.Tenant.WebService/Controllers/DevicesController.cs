@@ -23,12 +23,14 @@ namespace Iot.Tenant.WebService.Controllers
     {
         private const string TenantDataServiceName = "DataService";
         private readonly FabricClient fabricClient;
-        private readonly CancellationTokenSource cancellationSource;
+        private readonly CancellationToken serviceCancellationToken;
+        private readonly HttpClient httpClient;
 
-        public DevicesController(FabricClient fabricClient, CancellationTokenSource cancellationSource)
+        public DevicesController(FabricClient fabricClient, HttpClient httpClient, ServiceCancellation serviceCancellation)
         {
             this.fabricClient = fabricClient;
-            this.cancellationSource = cancellationSource;
+            this.httpClient = httpClient;
+            this.serviceCancellationToken = serviceCancellation.Token;
         }
 
         [HttpGet]
@@ -41,9 +43,7 @@ namespace Iot.Tenant.WebService.Controllers
             // service may be partitioned.
             // this will aggregate the queue lengths from each partition
             ServicePartitionList partitions = await this.fabricClient.QueryManager.GetPartitionListAsync(serviceUri);
-
-            HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
-
+            
             long count = 0;
             foreach (Partition partition in partitions)
             {
@@ -53,7 +53,7 @@ namespace Iot.Tenant.WebService.Controllers
                     .SetServicePathAndQuery($"/api/devices/queue/length")
                     .Build();
 
-                HttpResponseMessage response = await httpClient.GetAsync(getUrl, this.cancellationSource.Token);
+                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.serviceCancellationToken);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -78,9 +78,7 @@ namespace Iot.Tenant.WebService.Controllers
             // service may be partitioned.
             // this will aggregate device IDs from all partitions
             ServicePartitionList partitions = await this.fabricClient.QueryManager.GetPartitionListAsync(serviceUri);
-
-            HttpClient httpClient = new HttpClient(new HttpServiceClientHandler());
-
+            
             List<DeviceViewModel> deviceViewModels = new List<DeviceViewModel>();
             foreach (Partition partition in partitions)
             {
@@ -90,7 +88,7 @@ namespace Iot.Tenant.WebService.Controllers
                     .SetServicePathAndQuery($"/api/devices")
                     .Build();
 
-                HttpResponseMessage response = await httpClient.GetAsync(getUrl, this.cancellationSource.Token);
+                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.serviceCancellationToken);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {

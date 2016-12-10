@@ -3,7 +3,7 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace IoT.Common
+namespace Iot.Common
 {
     using System;
     using System.Fabric;
@@ -17,17 +17,17 @@ namespace IoT.Common
     {
         private readonly string endpointName;
         private readonly ServiceContext serviceContext;
-        private readonly Func<string, IWebHost> build;
+        private readonly Func<string, ServiceCancellation, IWebHost> build;
         private readonly string appPath;
-
+        private CancellationTokenSource serviceCancellation;
         private IWebHost webHost;
 
-        public WebHostCommunicationListener(ServiceContext serviceContext, string endpointName, Func<string, IWebHost> build)
+        public WebHostCommunicationListener(ServiceContext serviceContext, string endpointName, Func<string, ServiceCancellation, IWebHost> build)
             : this(serviceContext, null, endpointName, build)
         {
         }
 
-        public WebHostCommunicationListener(ServiceContext serviceContext, string appPath, string endpointName, Func<string, IWebHost> build)
+        public WebHostCommunicationListener(ServiceContext serviceContext, string appPath, string endpointName, Func<string, ServiceCancellation, IWebHost> build)
         {
             this.serviceContext = serviceContext;
             this.endpointName = endpointName;
@@ -38,17 +38,22 @@ namespace IoT.Common
         void ICommunicationListener.Abort()
         {
             this.webHost?.Dispose();
+            this.serviceCancellation?.Cancel();
+            this.serviceCancellation?.Dispose();
         }
 
         Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
         {
             this.webHost?.Dispose();
-
+            this.serviceCancellation?.Cancel();
+            this.serviceCancellation?.Dispose();
             return Task.FromResult(true);
         }
 
         Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
         {
+            this.serviceCancellation = new CancellationTokenSource();
+
             string ip = this.serviceContext.NodeContext.IPAddressOrFQDN;
             EndpointResourceDescription serviceEndpoint = this.serviceContext.CodePackageActivationContext.GetEndpoint(this.endpointName);
             EndpointProtocol protocol = serviceEndpoint.Protocol;
@@ -70,7 +75,7 @@ namespace IoT.Common
                 listenUrl = $"{serviceEndpoint.Protocol}://{host}:{serviceEndpoint.Port}/{path}";
             }
 
-            this.webHost = this.build(listenUrl);
+            this.webHost = this.build(listenUrl, new ServiceCancellation(this.serviceCancellation.Token));
             this.webHost.Start();
 
             return Task.FromResult(listenUrl.Replace("://+", "://" + ip));

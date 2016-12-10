@@ -15,21 +15,22 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System.Fabric;
+    using Common;
 
     [Route("api/[controller]")]
     public class EventsController : Controller
     {
-        private readonly CancellationTokenSource serviceCancellationSource;
+        private readonly CancellationToken serviceCancellationToken;
 
         private readonly IReliableStateManager stateManager;
 
         private readonly StatefulServiceContext context;
 
-        public EventsController(IReliableStateManager stateManager, StatefulServiceContext context, CancellationTokenSource serviceCancellationSource)
+        public EventsController(IReliableStateManager stateManager, StatefulServiceContext context, ServiceCancellation serviceCancellation)
         {
             this.stateManager = stateManager;
             this.context = context;
-            this.serviceCancellationSource = serviceCancellationSource;
+            this.serviceCancellationToken = serviceCancellation.Token;
         }
 
 
@@ -71,6 +72,8 @@ namespace Iot.Tenant.DataService.Controllers
             // determine the most recent event in the time series
             foreach (DeviceEvent item in events)
             {
+                this.serviceCancellationToken.ThrowIfCancellationRequested();
+
                 if (item.Timestamp > max.Timestamp)
                 {
                     max = item;

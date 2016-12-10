@@ -24,12 +24,12 @@ namespace Iot.Admin.WebService.Controllers
     {
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
-        private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly CancellationToken serviceCancellationToken;
 
-        public IngestionController(FabricClient fabricClient, CancellationTokenSource cancellationTokenSource)
+        public IngestionController(FabricClient fabricClient, ServiceCancellation serviceCancellation)
         {
             this.fabricClient = fabricClient;
-            this.cancellationTokenSource = cancellationTokenSource;
+            this.serviceCancellationToken = serviceCancellation.Token;
         }
 
         [HttpGet]
@@ -69,7 +69,7 @@ namespace Iot.Admin.WebService.Controllers
                 appInstanceParameters);
 
             // Create a named application instance
-            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.cancellationTokenSource.Token);
+            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.serviceCancellationToken);
 
             // Next, create named instances of the services that run in the application.
             ServiceUriBuilder serviceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.IngestionRouterServiceName);
@@ -85,7 +85,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.IngestionRouterServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(service, this.operationTimeout, this.cancellationTokenSource.Token);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(service, this.operationTimeout, this.serviceCancellationToken);
 
             return this.Ok();
         }
@@ -99,7 +99,7 @@ namespace Iot.Admin.WebService.Controllers
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
                     new DeleteApplicationDescription(new Uri($"{Names.IngestionApplicationPrefix}/{name}")),
                     this.operationTimeout,
-                    this.cancellationTokenSource.Token);
+                    this.serviceCancellationToken);
             }
             catch (FabricElementNotFoundException)
             {

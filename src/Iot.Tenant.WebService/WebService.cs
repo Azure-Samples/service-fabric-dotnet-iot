@@ -12,20 +12,18 @@ namespace Iot.Tenant.WebService
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using IoT.Common;
+    using Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using System.Net.Http;
 
     internal sealed class WebService : StatelessService
     {
-        private readonly CancellationTokenSource webApiCancellationSource;
-
         public WebService(StatelessServiceContext context)
             : base(context)
         {
-            this.webApiCancellationSource = new CancellationTokenSource();
         }
 
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
@@ -41,7 +39,7 @@ namespace Iot.Tenant.WebService
                             context,
                             tenantName,
                             "ServiceEndpoint",
-                            uri =>
+                            (uri, serviceCancellation) =>
                             {
                                 ServiceEventSource.Current.Message($"Listening on {uri}");
 
@@ -50,7 +48,8 @@ namespace Iot.Tenant.WebService
                                         services => services
                                             .AddSingleton<StatelessServiceContext>(context)
                                             .AddSingleton<FabricClient>(new FabricClient())
-                                            .AddSingleton<CancellationTokenSource>(this.webApiCancellationSource))
+                                            .AddSingleton<HttpClient>(new HttpClient(new HttpServiceClientHandler()))
+                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
                                     .UseUrls(uri)
@@ -59,12 +58,6 @@ namespace Iot.Tenant.WebService
                     })
             };
         }
-
-        protected override Task RunAsync(CancellationToken cancellationToken)
-        {
-            cancellationToken.Register(() => this.webApiCancellationSource.Cancel());
-
-            return Task.FromResult(true);
-        }
+        
     }
 }

@@ -12,18 +12,19 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Common;
 
     [Route("api/[controller]")]
     public class DevicesController : Controller
     {
-        private readonly CancellationTokenSource serviceCancellationSource;
+        private readonly CancellationToken serviceCancellationToken;
 
         private readonly IReliableStateManager stateManager;
 
-        public DevicesController(IReliableStateManager stateManager, CancellationTokenSource serviceCancellationSource)
+        public DevicesController(IReliableStateManager stateManager, ServiceCancellation serviceCancellation)
         {
             this.stateManager = stateManager;
-            this.serviceCancellationSource = serviceCancellationSource;
+            this.serviceCancellationToken = serviceCancellation.Token;
         }
 
 
@@ -31,6 +32,8 @@ namespace Iot.Tenant.DataService.Controllers
         [Route("")]
         public async Task<IActionResult> GetAsync()
         {
+            CancellationToken token = this.serviceCancellationToken;
+
             IReliableDictionary<string, DeviceEvent> store =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
@@ -40,7 +43,7 @@ namespace Iot.Tenant.DataService.Controllers
                 IAsyncEnumerable<KeyValuePair<string, DeviceEvent>> enumerable = await store.CreateEnumerableAsync(tx);
                 IAsyncEnumerator<KeyValuePair<string, DeviceEvent>> enumerator = enumerable.GetAsyncEnumerator();
 
-                while (await enumerator.MoveNextAsync(this.serviceCancellationSource.Token))
+                while (await enumerator.MoveNextAsync(token))
                 {
                     devices.Add(
                         new
