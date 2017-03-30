@@ -16,21 +16,22 @@ namespace Iot.Tenant.DataService.Controllers
     using Microsoft.ServiceFabric.Data.Collections;
     using System.Fabric;
     using Common;
+    using Microsoft.AspNetCore.Hosting;
 
     [Route("api/[controller]")]
     public class EventsController : Controller
     {
-        private readonly CancellationToken serviceCancellationToken;
+        private readonly IApplicationLifetime appLifetime;
 
         private readonly IReliableStateManager stateManager;
 
         private readonly StatefulServiceContext context;
 
-        public EventsController(IReliableStateManager stateManager, StatefulServiceContext context, ServiceCancellation serviceCancellation)
+        public EventsController(IReliableStateManager stateManager, StatefulServiceContext context, IApplicationLifetime appLifetime)
         {
             this.stateManager = stateManager;
             this.context = context;
-            this.serviceCancellationToken = serviceCancellation.Token;
+            this.appLifetime = appLifetime;
         }
 
 
@@ -72,7 +73,7 @@ namespace Iot.Tenant.DataService.Controllers
             // determine the most recent event in the time series
             foreach (DeviceEvent item in events)
             {
-                this.serviceCancellationToken.ThrowIfCancellationRequested();
+                this.appLifetime.ApplicationStopping.ThrowIfCancellationRequested();
 
                 if (item.Timestamp > max.Timestamp)
                 {

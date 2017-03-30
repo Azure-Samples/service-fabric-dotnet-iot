@@ -17,20 +17,21 @@ namespace Iot.Tenant.WebService.Controllers
     using Iot.Tenant.WebService.ViewModels;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
+    using Microsoft.AspNetCore.Hosting;
 
     [Route("api/[controller]")]
     public class DevicesController : Controller
     {
         private const string TenantDataServiceName = "DataService";
         private readonly FabricClient fabricClient;
-        private readonly CancellationToken serviceCancellationToken;
+        private readonly IApplicationLifetime appLifetime;
         private readonly HttpClient httpClient;
 
-        public DevicesController(FabricClient fabricClient, HttpClient httpClient, ServiceCancellation serviceCancellation)
+        public DevicesController(FabricClient fabricClient, HttpClient httpClient, IApplicationLifetime appLifetime)
         {
             this.fabricClient = fabricClient;
             this.httpClient = httpClient;
-            this.serviceCancellationToken = serviceCancellation.Token;
+            this.appLifetime = appLifetime;
         }
 
         [HttpGet]
@@ -53,7 +54,7 @@ namespace Iot.Tenant.WebService.Controllers
                     .SetServicePathAndQuery($"/api/devices/queue/length")
                     .Build();
 
-                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.serviceCancellationToken);
+                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.appLifetime.ApplicationStopping);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -88,7 +89,7 @@ namespace Iot.Tenant.WebService.Controllers
                     .SetServicePathAndQuery($"/api/devices")
                     .Build();
 
-                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.serviceCancellationToken);
+                HttpResponseMessage response = await this.httpClient.GetAsync(getUrl, this.appLifetime.ApplicationStopping);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {

@@ -19,6 +19,7 @@ namespace Iot.Tenant.DataService
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
     using Common;
+    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 
     internal sealed class DataService : StatefulService
     {
@@ -40,26 +41,25 @@ namespace Iot.Tenant.DataService
             {
                 new ServiceReplicaListener(
                     context =>
-                    {
-                        return new WebHostCommunicationListener(
+                        new KestrelCommunicationListener(
                             context,
-                            "ServiceEndpoint",
-                            (uri, serviceCancellation) =>
+                            (url, listener) =>
                             {
-                                ServiceEventSource.Current.Message($"Listening on {uri}");
+                                ServiceEventSource.Current.Message($"Listening on {url}");
 
-                                return new WebHostBuilder().UseWebListener()
+                                return new WebHostBuilder()
+                                    .UseKestrel()
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<StatefulServiceContext>(this.Context)
-                                            .AddSingleton<IReliableStateManager>(this.StateManager)
-                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
+                                            .AddSingleton<IReliableStateManager>(this.StateManager))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
+                                    .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                                     .UseStartup<Startup>()
-                                    .UseUrls(uri)
+                                    .UseUrls(url)
                                     .Build();
-                            });
-                    })
+                            })
+                    )
             };
         }
 

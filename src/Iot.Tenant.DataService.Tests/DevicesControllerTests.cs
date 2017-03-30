@@ -21,10 +21,11 @@ namespace Iot.Tenant.DataService.Tests
 
     public class DevicesControllerTests
     {
+        
         [Fact]
         public async Task GetAll()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -43,7 +44,7 @@ namespace Iot.Tenant.DataService.Tests
                 }
             }
 
-            DevicesController target = new DevicesController(stateManager, cancelSource);
+            DevicesController target = new DevicesController(stateManager, appLifetime);
             IActionResult result = await target.GetAsync();
 
             Assert.True(result is OkObjectResult);
@@ -59,13 +60,13 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task GetAllEmpty()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
                 await stateManager.GetOrAddAsync<IReliableDictionary<string, DeviceEvent>>(DataService.EventDictionaryName);
 
-            DevicesController target = new DevicesController(stateManager, cancelSource);
+            DevicesController target = new DevicesController(stateManager, appLifetime);
             IActionResult result = await target.GetAsync();
 
             Assert.True(result is OkObjectResult);
@@ -78,7 +79,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task GetQueueLength()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableQueue<DeviceEventSeries> queue =
@@ -89,7 +90,7 @@ namespace Iot.Tenant.DataService.Tests
                 await queue.EnqueueAsync(tx, new DeviceEventSeries("", new DeviceEvent[0]));
             }
 
-            DevicesController target = new DevicesController(stateManager, cancelSource);
+            DevicesController target = new DevicesController(stateManager, appLifetime);
             IActionResult result = await target.GetQueueLengthAsync();
 
             Assert.True(result is OkObjectResult);

@@ -15,6 +15,7 @@ namespace Iot.Admin.WebService
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 
     internal sealed class WebService : StatelessService
     {
@@ -33,22 +34,23 @@ namespace Iot.Admin.WebService
                 new ServiceInstanceListener(
                     context =>
                     {
-                        return new WebHostCommunicationListener(
+                        return new WebListenerCommunicationListener(
                             context,
-                            "iot",
                             "ServiceEndpoint",
-                            (uri, serviceCancellation) =>
+                            (url, listener) =>
                             {
-                                ServiceEventSource.Current.Message($"Admin WebService starting on {uri}");
+                                url += "/iot";
+
+                                ServiceEventSource.Current.Message($"Admin WebService starting on {url}");
 
                                 return new WebHostBuilder().UseWebListener()
                                     .ConfigureServices(
                                         services => services
-                                            .AddSingleton<FabricClient>(this.fabricClient)
-                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
+                                            .AddSingleton<FabricClient>(this.fabricClient))
                                     .UseContentRoot(Directory.GetCurrentDirectory())
+                                    .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseStartup<Startup>()
-                                    .UseUrls(uri)
+                                    .UseUrls(url)
                                     .Build();
                             });
                     })

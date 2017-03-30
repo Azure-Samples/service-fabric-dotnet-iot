@@ -17,6 +17,7 @@
     "Microsoft.Extensions.Logging.Debug": "1.1.1",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.1",
     "Microsoft.ServiceFabric": "5.5.216",
+    "Microsoft.ServiceFabric.AspNetCore.WebListener": "2.5.216",
     "Microsoft.ServiceFabric.Data": "2.5.216",
     "Microsoft.ServiceFabric.Services": "2.5.216",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0",
@@ -55,13 +56,5 @@
 
   "scripts": {
     "prepublish": [ "bower install" ]
-  },
-
-  "configurations": {
-    "LocalServer": {
-      "buildOptions": {
-        "define": [ "LOCALSERVER" ]
-      }
-    }
   }
 }

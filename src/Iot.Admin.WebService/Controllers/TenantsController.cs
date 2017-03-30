@@ -5,29 +5,29 @@
 
 namespace Iot.Admin.WebService.Controllers
 {
+    using Iot.Admin.WebService.Models;
+    using Iot.Admin.WebService.ViewModels;
+    using Iot.Common;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc;
     using System;
     using System.Fabric;
     using System.Fabric.Description;
     using System.Fabric.Query;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Iot.Admin.WebService.Models;
-    using Iot.Admin.WebService.ViewModels;
-    using Iot.Common;
-    using Microsoft.AspNetCore.Mvc;
 
     [Route("api/[Controller]")]
     public class TenantsController : Controller
     {
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
-        private readonly CancellationToken serviceCancellationToken;
+        private readonly IApplicationLifetime appLifetime;
 
-        public TenantsController(FabricClient fabricClient, ServiceCancellation serviceCancellation)
+        public TenantsController(FabricClient fabricClient, IApplicationLifetime appLifetime)
         {
             this.fabricClient = fabricClient;
-            this.serviceCancellationToken = serviceCancellation.Token;
+            this.appLifetime = appLifetime;
         }
 
         [HttpGet]
@@ -58,7 +58,7 @@ namespace Iot.Admin.WebService.Controllers
                 Names.TenantApplicationTypeName,
                 parameters.Version);
 
-            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.serviceCancellationToken);
+            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.appLifetime.ApplicationStopping);
 
             // Now create the data service in the new application instance.
             ServiceUriBuilder dataServiceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.TenantDataServiceName);
@@ -73,7 +73,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.TenantDataServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(dataServiceDescription, this.operationTimeout, this.serviceCancellationToken);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(dataServiceDescription, this.operationTimeout, this.appLifetime.ApplicationStopping);
 
             // And finally, create the web service in the new application instance.
             ServiceUriBuilder webServiceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.TenantWebServiceName);
@@ -86,7 +86,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.TenantWebServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(webServiceDescription, this.operationTimeout, this.serviceCancellationToken);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(webServiceDescription, this.operationTimeout, this.appLifetime.ApplicationStopping);
 
 
             return this.Ok();
@@ -101,7 +101,7 @@ namespace Iot.Admin.WebService.Controllers
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
                     new DeleteApplicationDescription(new Uri($"{Names.TenantApplicationNamePrefix}/{tenantName}")),
                     this.operationTimeout,
-                    this.serviceCancellationToken);
+                    this.appLifetime.ApplicationStopping);
             }
             catch (FabricElementNotFoundException)
             {

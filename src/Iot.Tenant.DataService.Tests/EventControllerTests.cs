@@ -48,12 +48,12 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task MissingPayload()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             string expectedDeviceId = "some-device";
 
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
 
             IActionResult result = await target.Post(expectedDeviceId, null);
 
@@ -63,10 +63,10 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task MissingDeviceId()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
 
             IActionResult result = await target.Post(null, new DeviceEvent[0]);
 
@@ -76,12 +76,12 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task NoEvents()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             string expectedDeviceId = "some-device";
 
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
 
             IActionResult result = await target.Post(expectedDeviceId, new DeviceEvent[0]);
 
@@ -91,7 +91,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task SingleEvent()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -103,7 +103,7 @@ namespace Iot.Tenant.DataService.Tests
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(1, TimeSpan.Zero));
 
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
 
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
@@ -127,7 +127,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task AddMostRecentEvent()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -146,7 +146,7 @@ namespace Iot.Tenant.DataService.Tests
             }
             expectedDeviceList.Insert(4, expectedDeviceEvent);
 
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
 
             IActionResult result = await target.Post(expectedDeviceId, expectedDeviceList);
 
@@ -171,7 +171,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task UpdateMostRecentEvent()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -182,7 +182,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
@@ -217,7 +217,7 @@ namespace Iot.Tenant.DataService.Tests
         [Fact]
         public async Task IgnoreOldEvent()
         {
-            ServiceCancellation cancelSource = new ServiceCancellation(CancellationToken.None);
+            MockApplicationLifetime appLifetime = new MockApplicationLifetime();
             MockReliableStateManager stateManager = new MockReliableStateManager();
 
             IReliableDictionary<string, DeviceEvent> store =
@@ -228,7 +228,7 @@ namespace Iot.Tenant.DataService.Tests
 
             string expectedDeviceId = "some-device";
             DeviceEvent expectedDeviceEvent = new DeviceEvent(new DateTimeOffset(100, TimeSpan.Zero));
-            EventsController target = new EventsController(stateManager, statefulServiceContext, cancelSource);
+            EventsController target = new EventsController(stateManager, statefulServiceContext, appLifetime);
             IActionResult result = await target.Post(expectedDeviceId, new[] {expectedDeviceEvent});
 
             Assert.True(result is OkResult);
@@ -257,6 +257,5 @@ namespace Iot.Tenant.DataService.Tests
                 await tx.CommitAsync();
             }
         }
-        
     }
 }

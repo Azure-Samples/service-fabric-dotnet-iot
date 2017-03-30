@@ -5,31 +5,31 @@
 
 namespace Iot.Admin.WebService.Controllers
 {
+    using Iot.Admin.WebService.Models;
+    using Iot.Admin.WebService.ViewModels;
+    using Iot.Common;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.ServiceBus.Messaging;
     using System;
     using System.Collections.Specialized;
     using System.Fabric;
     using System.Fabric.Description;
     using System.Fabric.Query;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Iot.Admin.WebService.Models;
-    using Iot.Admin.WebService.ViewModels;
-    using Iot.Common;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceBus.Messaging;
 
     [Route("api/[Controller]")]
     public class IngestionController : Controller
     {
         private readonly TimeSpan operationTimeout = TimeSpan.FromSeconds(20);
         private readonly FabricClient fabricClient;
-        private readonly CancellationToken serviceCancellationToken;
+        private readonly IApplicationLifetime appLifetime;
 
-        public IngestionController(FabricClient fabricClient, ServiceCancellation serviceCancellation)
+        public IngestionController(FabricClient fabricClient, IApplicationLifetime appLifetime)
         {
             this.fabricClient = fabricClient;
-            this.serviceCancellationToken = serviceCancellation.Token;
+            this.appLifetime = appLifetime;
         }
 
         [HttpGet]
@@ -69,7 +69,7 @@ namespace Iot.Admin.WebService.Controllers
                 appInstanceParameters);
 
             // Create a named application instance
-            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.serviceCancellationToken);
+            await this.fabricClient.ApplicationManager.CreateApplicationAsync(application, this.operationTimeout, this.appLifetime.ApplicationStopping);
 
             // Next, create named instances of the services that run in the application.
             ServiceUriBuilder serviceNameUriBuilder = new ServiceUriBuilder(application.ApplicationName.ToString(), Names.IngestionRouterServiceName);
@@ -85,7 +85,7 @@ namespace Iot.Admin.WebService.Controllers
                 ServiceTypeName = Names.IngestionRouterServiceTypeName
             };
 
-            await this.fabricClient.ServiceManager.CreateServiceAsync(service, this.operationTimeout, this.serviceCancellationToken);
+            await this.fabricClient.ServiceManager.CreateServiceAsync(service, this.operationTimeout, this.appLifetime.ApplicationStopping);
 
             return this.Ok();
         }
@@ -99,7 +99,7 @@ namespace Iot.Admin.WebService.Controllers
                 await this.fabricClient.ApplicationManager.DeleteApplicationAsync(
                     new DeleteApplicationDescription(new Uri($"{Names.IngestionApplicationPrefix}/{name}")),
                     this.operationTimeout,
-                    this.serviceCancellationToken);
+                    this.appLifetime.ApplicationStopping);
             }
             catch (FabricElementNotFoundException)
             {

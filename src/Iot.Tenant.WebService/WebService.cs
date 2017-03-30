@@ -5,18 +5,17 @@
 
 namespace Iot.Tenant.WebService
 {
+    using Common;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Common;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
     using System.Net.Http;
 
     internal sealed class WebService : StatelessService
@@ -32,32 +31,34 @@ namespace Iot.Tenant.WebService
             {
                 new ServiceInstanceListener(
                     context =>
-                    {
-                        string tenantName = new Uri(context.CodePackageActivationContext.ApplicationName).Segments.Last();
-
-                        return new WebHostCommunicationListener(
+                        new WebListenerCommunicationListener(
                             context,
-                            tenantName,
                             "ServiceEndpoint",
-                            (uri, serviceCancellation) =>
+                            (url, listener) =>
                             {
-                                ServiceEventSource.Current.Message($"Listening on {uri}");
+                                // in this sample, tenant application names always have the form "fabric:/Iot.Tenant/<TenantName>
+                                // This extracts the tenant name from the application name and uses it as the web application path.
+                                string tenantName = new Uri(context.CodePackageActivationContext.ApplicationName).Segments.Last();
+                                url += $"/{tenantName}";
 
-                                return new WebHostBuilder().UseWebListener()
+                                ServiceEventSource.Current.Message($"Listening on {url}");
+
+                                return new WebHostBuilder()
+                                    .UseWebListener()
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<StatelessServiceContext>(context)
                                             .AddSingleton<FabricClient>(new FabricClient())
-                                            .AddSingleton<HttpClient>(new HttpClient(new HttpServiceClientHandler()))
-                                            .AddSingleton<ServiceCancellation>(serviceCancellation))
+                                            .AddSingleton<HttpClient>(new HttpClient(new HttpServiceClientHandler())))
+                                    .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseContentRoot(Directory.GetCurrentDirectory())
                                     .UseStartup<Startup>()
-                                    .UseUrls(uri)
+                                    .UseUrls(url)
                                     .Build();
-                            });
-                    })
+                            })
+                    )
             };
         }
-        
+
     }
 }
