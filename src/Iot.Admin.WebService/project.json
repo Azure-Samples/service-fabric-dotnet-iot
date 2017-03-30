@@ -1,26 +1,27 @@
 {
   "dependencies": {
-    "Microsoft.AspNetCore.Diagnostics": "1.0.0",
-    "Microsoft.AspNetCore.Hosting": "1.0.0",
-    "Microsoft.AspNetCore.Mvc": "1.0.1",
+    "Microsoft.AspNetCore.Diagnostics": "1.1.1",
+    "Microsoft.AspNetCore.Hosting": "1.1.1",
+    "Microsoft.AspNetCore.Mvc": "1.1.2",
     "Microsoft.AspNetCore.Razor.Tools": {
-        "version": "1.0.0-preview2-final",
-        "type": "build"
+      "version": "1.0.0-preview2-final",
+      "type": "build"
     },
-    "Microsoft.AspNetCore.Server.Kestrel": "1.0.1",
-    "Microsoft.AspNetCore.Server.WebListener": "0.1.0",
-    "Microsoft.AspNetCore.StaticFiles": "1.0.0",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0",
-    "Microsoft.Extensions.Logging": "1.0.0",
-    "Microsoft.Extensions.Logging.Console": "1.0.0",
-    "Microsoft.Extensions.Logging.Debug": "1.0.0",
-    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
-    "Microsoft.ServiceFabric": "5.3.301",
-    "Microsoft.ServiceFabric.Data": "2.3.301",
-    "Microsoft.ServiceFabric.Services": "2.3.301",
-    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
-    "WindowsAzure.ServiceBus": "3.4.0"
+    "Microsoft.AspNetCore.Server.Kestrel": "1.1.1",
+    "Microsoft.AspNetCore.Server.WebListener": "1.1.1",
+    "Microsoft.AspNetCore.StaticFiles": "1.1.1",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.1",
+    "Microsoft.Extensions.Configuration.Json": "1.1.1",
+    "Microsoft.Extensions.Logging": "1.1.1",
+    "Microsoft.Extensions.Logging.Console": "1.1.1",
+    "Microsoft.Extensions.Logging.Debug": "1.1.1",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.1",
+    "Microsoft.ServiceFabric": "5.5.216",
+    "Microsoft.ServiceFabric.Data": "2.5.216",
+    "Microsoft.ServiceFabric.Services": "2.5.216",
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0",
+    "Newtonsoft.Json": "10.0.1",
+    "WindowsAzure.ServiceBus": "4.0.0"
   },
   "tools": {
     "Microsoft.AspNetCore.Razor.Tools": "1.0.0-preview2-final"
