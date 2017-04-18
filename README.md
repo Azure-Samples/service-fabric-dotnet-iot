@@ -10,9 +10,13 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
 
 ## Setup
 
- 1. [Set up your Service Fabric development environment](https://azure.microsoft.com/documentation/articles/service-fabric-get-started/).
- 2. [Install the .NET Core tools Preview 2 for Visual Studio 2015](https://www.microsoft.com/net/download/core#/sdk)
+ 1. [Install Visual Studio 2017](https://www.visualstudio.com/). Any version will do. Make sure you have the following workloads installed:
+    - Azure development
+    - .NET Core cross-platform development
+ 2. [Set up your Service Fabric development environment](https://azure.microsoft.com/documentation/articles/service-fabric-get-started/).
  3. [Create an IoT Hub in Azure](https://azure.microsoft.com/documentation/articles/iot-hub-csharp-csharp-getstarted/#create-an-iot-hub) or use an existing IoT Hub in your Azure subscription that is not currently being used in a production application. If you're creating a new IoT Hub to run the sample, you can simply use the **F1 - Free** tier under **pricing and scale tier** in the Azure portal. 
+
+*Looking for the Visual Studio 2015 version? It's in the [vs2015 branch](https://github.com/Azure-Samples/service-fabric-dotnet-iot/tree/vs2015)*
 
 ## Deploy
 
