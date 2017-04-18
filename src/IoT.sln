@@ -14,9 +14,6 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Iot.Admin.WebService", "Iot.Admin.WebService\Iot.Admin.WebService.xproj", "{BE2ED2D0-7235-4AE7-8623-0F3CAF513CEB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Admin Application", "Admin Application", "{7C8BE60B-689C-457F-8260-5583CDF823DE}"
-	ProjectSection(SolutionItems) = preProject
-		Iot.Ingestion.RouterService\RouterService.cs = Iot.Ingestion.RouterService\RouterService.cs
-	EndProjectSection
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Iot.Tenant.Application", "Iot.Tenant.Application\Iot.Tenant.Application.sfproj", "{291371BE-4218-4EEC-996A-CD5B783B6CD0}"
 EndProject
