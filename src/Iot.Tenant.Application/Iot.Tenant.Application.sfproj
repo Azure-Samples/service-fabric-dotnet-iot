@@ -20,11 +20,11 @@
     <None Include="ApplicationPackageRoot\ApplicationManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Iot.Tenant.DataService\Iot.Tenant.DataService.xproj" />
-    <ProjectReference Include="..\Iot.Tenant.WebService\Iot.Tenant.WebService.xproj" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <ProjectReference Include="..\Iot.Tenant.DataService\Iot.Tenant.DataService.csproj" />
+    <ProjectReference Include="..\Iot.Tenant.WebService\Iot.Tenant.WebService.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>

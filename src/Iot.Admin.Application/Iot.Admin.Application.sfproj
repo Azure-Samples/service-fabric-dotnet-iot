@@ -26,7 +26,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Iot.Admin.WebService\Iot.Admin.WebService.xproj" />
+    <ProjectReference Include="..\Iot.Admin.WebService\Iot.Admin.WebService.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>
