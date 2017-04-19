@@ -14,7 +14,7 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
     - Azure development
     - .NET Core cross-platform development
  2. [Set up your Service Fabric development environment](https://azure.microsoft.com/documentation/articles/service-fabric-get-started/).
- 3. [Create an IoT Hub in Azure](https://azure.microsoft.com/documentation/articles/iot-hub-csharp-csharp-getstarted/#create-an-iot-hub) or use an existing IoT Hub in your Azure subscription that is not currently being used in a production application. If you're creating a new IoT Hub to run the sample, you can simply use the **F1 - Free** tier under **pricing and scale tier** in the Azure portal. 
+ 3. [Create an IoT Hub in Azure](https://azure.microsoft.com/documentation/articles/iot-hub-csharp-csharp-getstarted/#create-an-iot-hub) or use an existing IoT Hub in your Azure subscription that is not currently being used in a production application. The sample application will run without IoT Hub, but you won't be able to send devices messages through without it. If you're creating a new IoT Hub to run the sample, you can simply use the **F1 - Free** tier under **pricing and scale tier** in the Azure portal.
 
 *Looking for the Visual Studio 2015 version? It's in the [vs2015 branch](https://github.com/Azure-Samples/service-fabric-dotnet-iot/tree/vs2015)*
 
@@ -24,6 +24,7 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
  2. Open a PowerShell window and CD to `service-fabric-dotnet-iot\build`
  3. Connect to your cluster using `Connect-ServiceFabricCluster`.
  4. Run `.\deploy.ps1`
+    - The deployment command defaults to a local 5-node cluster. If you're running a different configuration, pass in the name of the publish profile you want to use. For example, for a one-node cluster, use `.\deploy.ps1 -PublishProfileName Local.1Node`.
 
 ## View application traces
  1. Open the solution in Visual Studio.
@@ -50,7 +51,8 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
 
 ## Clean up
  1. Open a PowerShell window and CD to `service-fabric-dotnet-iot\build`
- 2. Run `.\obliterate.ps1`
+ 2. To completely remove the sample from a cluster, run `.\obliterate.ps1`
+ 3. To clean all build output, run `.\clean.cmd`.
 
 ## Conceptual overview
 
