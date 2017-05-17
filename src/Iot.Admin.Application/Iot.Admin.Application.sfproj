@@ -22,6 +22,7 @@
     <None Include="ApplicationParameters\Local.5Node.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app.config" />
     <Content Include="ApplicationParameters\Local.1Node.xml" />
     <Content Include="packages.config" />
   </ItemGroup>
