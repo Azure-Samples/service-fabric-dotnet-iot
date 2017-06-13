@@ -81,8 +81,8 @@ namespace Iot.Tenant.DataService
 
                         ServiceEventSource.Current.ServiceMessage(
                             this.Context, 
-                            "Current queue size: {0}",
-                            count);
+                            "Current queue size: {0} in iteration {1}",
+                            count, iteration);
 
                         // if the queue size reaches the batch size, start draining the queue
                         // always drain the queue every nth iteration so that nothing sits in the queue indefinitely
@@ -120,6 +120,10 @@ namespace Iot.Tenant.DataService
                             // skip the delay and move on to the next batch.
                             iteration = 0;
                             continue;
+                        }
+                        else if (count > 0)
+                        {
+                            iteration++;
                         }
                     }
                 }
