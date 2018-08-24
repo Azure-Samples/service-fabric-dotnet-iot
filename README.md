@@ -21,7 +21,7 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
 ## Deploy
 
  1. Make sure you have a local cluster running
- 2. Open a PowerShell window and CD to `service-fabric-dotnet-iot\build`
+ 2. Open a PowerShell window as Administrator and CD to `service-fabric-dotnet-iot\build`
  3. Connect to your cluster using `Connect-ServiceFabricCluster`.
  4. Run `.\deploy.ps1`
     - The deployment command defaults to a local 5-node cluster. If you're running a different configuration, pass in the name of the publish profile you want to use. For example, for a one-node cluster, use `.\deploy.ps1 -PublishProfileName Local.1Node`.
