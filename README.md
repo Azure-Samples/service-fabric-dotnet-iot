@@ -1,7 +1,9 @@
 ---
-services: service-fabric
-platforms: dotnet
-author: vturecek
+languages:
+- csharp
+products:
+- azure
+topic: sample
 ---
 
 # Service Fabric IoT Sample #
