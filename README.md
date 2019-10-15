@@ -7,7 +7,7 @@ page_type: sample
 description: "This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub and Azure Service Fabric."
 ---
 
-# Service Fabric IoT Sample #
+# Service Fabric IoT Sample
 
 This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub for device message ingress and Azure Service Fabric for device message access and processing. 
 
@@ -104,7 +104,7 @@ This sample project **does not** create instances of each application during dep
  - IotIngestionApplicationType
  - IotTenantApplicationType
 
- Note that only the IoTAdminApplicationType has a named instance running. The other two application types are registered, but no named application instances are created by default. The web UI in the admin application is used to dynamicall create named instances of the other two applications.
+Note that only the IoTAdminApplicationType has a named instance running. The other two application types are registered, but no named application instances are created by default. The web UI in the admin application is used to dynamicall create named instances of the other two applications.
  
 
 <!--Image references-->
