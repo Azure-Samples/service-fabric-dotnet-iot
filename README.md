@@ -3,6 +3,7 @@ languages:
 - csharp
 products:
 - azure
+- azure-service-fabric
 page_type: sample
 description: "This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub and Azure Service Fabric."
 ---
