@@ -59,7 +59,7 @@ This sample project demonstrates a multi-tenant IoT solution using Azure IoT Hub
 
 ## Conceptual overview
 
-In this example, the system allows an adminstrator to add any number of "tenants" to the system to consume messages from device field gateways through any number of IoT Hub instances. Tenants can view their devices and device messages through a Web UI. Messages sent from devices are expected to include a tenant name and device ID for the message ingestion application to determine which tenant to send the message to.
+In this example, the system allows an administrator to add any number of "tenants" to the system to consume messages from device field gateways through any number of IoT Hub instances. Tenants can view their devices and device messages through a Web UI. Messages sent from devices are expected to include a tenant name and device ID for the message ingestion application to determine which tenant to send the message to.
 
 ![Conceptual][1]
 
