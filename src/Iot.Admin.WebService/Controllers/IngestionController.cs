@@ -10,7 +10,8 @@ namespace Iot.Admin.WebService.Controllers
     using Iot.Common;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceBus.Messaging;
+    using Azure.Messaging.EventHubs;
+    using Azure.Messaging.EventHubs.Producer;
     using System;
     using System.Collections.Specialized;
     using System.Fabric;
@@ -55,8 +56,8 @@ namespace Iot.Admin.WebService.Controllers
         {
             // Determine the number of IoT Hub partitions.
             // The ingestion service will be created with the same number of partitions.
-            EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString(parameters.IotHubConnectionString, "messages/events");
-            EventHubRuntimeInformation eventHubInfo = await eventHubClient.GetRuntimeInformationAsync();
+            EventHubProducerClient producer = new EventHubProducerClient(parameters.IotHubConnectionString, "eventHubName");
+            EventHubProperties eventHubProperties = await producer.GetEventHubPropertiesAsync();
 
             // Application parameters are passed to the Ingestion application instance.
             NameValueCollection appInstanceParameters = new NameValueCollection();
@@ -80,7 +81,7 @@ namespace Iot.Admin.WebService.Controllers
                 HasPersistedState = true,
                 MinReplicaSetSize = 3,
                 TargetReplicaSetSize = 3,
-                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(eventHubInfo.PartitionCount, 0, eventHubInfo.PartitionCount - 1),
+                PartitionSchemeDescription = new UniformInt64RangePartitionSchemeDescription(eventHubProperties.PartitionIds.Length, 0, eventHubProperties.PartitionIds.Length - 1),
                 ServiceName = serviceNameUriBuilder.Build(),
                 ServiceTypeName = Names.IngestionRouterServiceTypeName
             };

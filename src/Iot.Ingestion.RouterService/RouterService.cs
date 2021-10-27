@@ -8,14 +8,13 @@ namespace Iot.Ingestion.RouterService
     using System;
     using System.Fabric;
     using System.IO;
-    using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
     using Iot.Common;
-    using Microsoft.ServiceBus;
-    using Microsoft.ServiceBus.Messaging;
+    using Azure.Messaging.EventHubs.Consumer;
+    using Azure.Messaging.EventHubs.Producer;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -38,6 +37,7 @@ namespace Iot.Ingestion.RouterService
         /// </summary>
         private const string OffsetDictionaryName = "OffsetDictionary";
         private const string EpochDictionaryName = "EpochDictionary";
+        private const string eventHubName = "eventHubName";
 
         public RouterService(StatefulServiceContext context)
             : base(context)
@@ -76,19 +76,10 @@ namespace Iot.Ingestion.RouterService
             Int64RangePartitionInformation partitionInfo = (Int64RangePartitionInformation)this.Partition.PartitionInfo;
             long servicePartitionKey = partitionInfo.LowKey;
 
-            EventHubReceiver eventHubReceiver = null;
-            MessagingFactory messagingFactory = null;
-
+            EventHubConsumerClient eventHubConsumerClient = null;
             try
             {
-                // Get an EventHubReceiver and the MessagingFactory used to create it.
-                // The EventHubReceiver is used to get events from IoT Hub.
-                // The MessagingFactory is just saved for later so it can be closed before RunAsync exits.
-                Tuple<EventHubReceiver, MessagingFactory> iotHubInfo =
-                    await this.ConnectToIoTHubAsync(iotHubConnectionString, servicePartitionKey, epochDictionary, offsetDictionary);
-
-                eventHubReceiver = iotHubInfo.Item1;
-                messagingFactory = iotHubInfo.Item2;
+                eventHubConsumerClient = await this.ConnectToIoTHubAsync(iotHubConnectionString, servicePartitionKey, epochDictionary, offsetDictionary);
 
                 // HttpClient is designed as a shared object. 
                 // A single instance should be used throughout the lifetime of RunAsync.
@@ -107,15 +98,17 @@ namespace Iot.Ingestion.RouterService
                             // so that this doesn't block RunAsync from exiting when Service Fabric needs it to complete.
                             // ReceiveAsync is a long-poll operation, so the timeout should not be too low,
                             // yet not too high to block RunAsync from exiting within a few seconds.
-                            using (EventData eventData = await eventHubReceiver.ReceiveAsync(TimeSpan.FromSeconds(5)))
+                            using var cancellationSource = new CancellationTokenSource();
+                            cancellationSource.CancelAfter(TimeSpan.FromSeconds(5));
+                            await foreach (PartitionEvent receivedEvent in eventHubConsumerClient.ReadEventsAsync(cancellationSource.Token))
                             {
-                                if (eventData == null)
+                                if (receivedEvent.Data == null)
                                 {
                                     continue;
                                 }
-
-                                string tenantId = (string)eventData.Properties["TenantID"];
-                                string deviceId = (string)eventData.Properties["DeviceID"];
+                                
+                                string tenantId = (string)receivedEvent.Data.Properties["TenantID"];
+                                string deviceId = (string)receivedEvent.Data.Properties["DeviceID"];
 
                                 // This is the named service instance of the tenant data service that the event should be sent to.
                                 // The tenant ID is part of the named service instance name.
@@ -134,7 +127,7 @@ namespace Iot.Ingestion.RouterService
 
                                 // The device stream payload isn't deserialized and buffered in memory here.
                                 // Instead, we just can just hook the incoming stream from Iot Hub right into the HTTP request stream.
-                                using (Stream eventStream = eventData.GetBodyStream())
+                                using (Stream eventStream = receivedEvent.Data.BodyAsStream)
                                 {
                                     using (StreamContent postContent = new StreamContent(eventStream))
                                     {
@@ -178,11 +171,11 @@ namespace Iot.Ingestion.RouterService
                                     ServiceEventSource.Current.ServiceMessage(
                                             this.Context,
                                             "Saving offset {0}",
-                                            eventData.Offset);
+                                            receivedEvent.Data.Offset);
 
                                     using (ITransaction tx = this.StateManager.CreateTransaction())
                                     {
-                                        await offsetDictionary.SetAsync(tx, "offset", eventData.Offset);
+                                        await offsetDictionary.SetAsync(tx, "offset", receivedEvent.Data.Offset.ToString());
                                         await tx.CommitAsync();
                                     }
 
@@ -216,9 +209,9 @@ namespace Iot.Ingestion.RouterService
             }
             finally
             {
-                if (messagingFactory != null)
+                if (eventHubConsumerClient != null)
                 {
-                    await messagingFactory.CloseAsync();
+                    await eventHubConsumerClient.CloseAsync();
                 }
             }
         }
@@ -233,35 +226,21 @@ namespace Iot.Ingestion.RouterService
         /// <param name="epochDictionary"></param>
         /// <param name="offsetDictionary"></param>
         /// <returns></returns>
-        private async Task<Tuple<EventHubReceiver, MessagingFactory>> ConnectToIoTHubAsync(
+        private async Task<EventHubConsumerClient> ConnectToIoTHubAsync(
             string connectionString,
             long servicePartitionKey,
             IReliableDictionary<string, long> epochDictionary,
             IReliableDictionary<string, string> offsetDictionary)
         {
-
-            // EventHubs doesn't support NetMessaging, so ensure the transport type is AMQP.
-            ServiceBusConnectionStringBuilder connectionStringBuilder = new ServiceBusConnectionStringBuilder(connectionString);
-            connectionStringBuilder.TransportType = TransportType.Amqp;
-
-            ServiceEventSource.Current.ServiceMessage(
-                      this.Context,
-                      "RouterService connecting to IoT Hub at {0}",
-                      String.Join(",", connectionStringBuilder.Endpoints.Select(x => x.ToString())));
-
-            // A new MessagingFactory is created here so that each partition of this service will have its own MessagingFactory.
-            // This gives each partition its own dedicated TCP connection to IoT Hub.
-            MessagingFactory messagingFactory = MessagingFactory.CreateFromConnectionString(connectionStringBuilder.ToString());
-            EventHubClient eventHubClient = messagingFactory.CreateEventHubClient("messages/events");
-            EventHubRuntimeInformation eventHubRuntimeInfo = await eventHubClient.GetRuntimeInformationAsync();
-            EventHubReceiver eventHubReceiver;
-
+            var producer = new EventHubProducerClient(connectionString, eventHubName);
+            string consumerGroup = EventHubConsumerClient.DefaultConsumerGroupName;
+            EventHubConsumerClient eventHubConsumerClient;
             // Get an IoT Hub partition ID that corresponds to this partition's low key.
             // This assumes that this service has a partition count 'n' that is equal to the IoT Hub partition count and a partition range of 0..n-1.
             // For example, given an IoT Hub with 32 partitions, this service should be created with:
             // partition count = 32
             // partition range = 0..31
-            string eventHubPartitionId = eventHubRuntimeInfo.PartitionIds[servicePartitionKey];
+            string eventHubPartitionId = producer.GetPartitionIdsAsync().Result[servicePartitionKey];
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
@@ -281,7 +260,7 @@ namespace Iot.Ingestion.RouterService
                         eventHubPartitionId,
                         offsetResult.Value);
 
-                    eventHubReceiver = await eventHubClient.GetDefaultConsumerGroup().CreateReceiverAsync(eventHubPartitionId, offsetResult.Value, newEpoch);
+                    eventHubConsumerClient = new EventHubConsumerClient(consumerGroup, connectionString, eventHubName);
                 }
                 else
                 {
@@ -293,10 +272,7 @@ namespace Iot.Ingestion.RouterService
                         eventHubPartitionId,
                         DateTime.UtcNow);
 
-                    eventHubReceiver =
-                        await
-                            eventHubClient.GetDefaultConsumerGroup()
-                                .CreateReceiverAsync(eventHubPartitionId, DateTime.UtcNow, newEpoch);
+                    eventHubConsumerClient = new EventHubConsumerClient(consumerGroup, connectionString, eventHubName);
                 }
 
                 // epoch is recorded each time the service fails over or restarts.
@@ -304,7 +280,7 @@ namespace Iot.Ingestion.RouterService
                 await tx.CommitAsync();
             }
 
-            return new Tuple<EventHubReceiver, MessagingFactory>(eventHubReceiver, messagingFactory);
+            return eventHubConsumerClient;
         }
     }
 }
