@@ -19,6 +19,7 @@ namespace Iot.Admin.WebService.Controllers
     using System.Fabric.Query;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Text.RegularExpressions;
 
     [Route("api/[Controller]")]
     public class IngestionController : Controller
@@ -56,7 +57,9 @@ namespace Iot.Admin.WebService.Controllers
         {
             // Determine the number of IoT Hub partitions.
             // The ingestion service will be created with the same number of partitions.
-            EventHubProducerClient producer = new EventHubProducerClient(parameters.IotHubConnectionString, "eventHubName");
+            var connectionString = Regex.Split(parameters.IotHubConnectionString, ";EntityPath=", RegexOptions.IgnoreCase)[0];
+            var iotHubName = Regex.Split(parameters.IotHubConnectionString, ";EntityPath=", RegexOptions.IgnoreCase)[1];
+            EventHubProducerClient producer = new EventHubProducerClient(connectionString, iotHubName);
             EventHubProperties eventHubProperties = await producer.GetEventHubPropertiesAsync();
 
             // Application parameters are passed to the Ingestion application instance.
