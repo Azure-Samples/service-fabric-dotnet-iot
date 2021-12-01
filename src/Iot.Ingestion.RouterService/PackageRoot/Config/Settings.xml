@@ -10,4 +10,9 @@
   <Section Name="IoTHubConfigInformation">
     <Parameter Name="ConnectionString" Value="" MustOverride="true" />
   </Section>
+
+  <Section Name="StorageConfigInformation">
+    <Parameter Name="BlobContainerName" Value="" MustOverride="true" />
+    <Parameter Name="StorageConnectionString" Value="" MustOverride="true" />
+  </Section>
 </Settings>
